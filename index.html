@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Real-time Chat</title>
+</head>
+
+<body>
+    <ul id="messages"></ul>
+    <input id="input" autocomplete="off" />
+    <button>Send</button>
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            // const socket = io();
+            // $('form').submit(function () {
+            //     socket.emit('chat message', $('#input').val());
+            //     $('#input').val('');
+            //     return false;
+            // });
+            // socket.on('chat message', function (msg) {
+            //     console.log("Message received ...")
+            //     $('#messages').append($('<li>').text(msg));
+            // });
+
+            console.log("ready")
+
+            const socket = io();
+            // console.log("socket: ", socket);
+
+            socket.on("connection", () => {
+                console.log("connected !!");
+            });
+
+            // send an event to the server
+            socket.emit("message", "Hello " + Math.round(Math.random() * 100));
+
+            // console.log("socket: ", socket);
+
+            socket.on("message", () => {
+                // an event was received from the server
+                console.log("Message received !!!!!!!!!!")
+            });
+
+            // upon disconnection
+            socket.on("disconnect", (reason) => {
+                console.log(`disconnected due to ${reason}`);
+            });
+
+
+            socket
+                .timeout(1000)
+                .emit('request', { foo: 'bar' }, 'baz', (err, response) => {
+                    if (err) {
+                        // the server did not acknowledge the event in the given delay
+                    } else {
+                        console.log(response.status); // 'ok'
+                    }
+                });
+
+        });
+    </script>
+</body>
+
+</html>
