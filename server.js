@@ -47,6 +47,8 @@ app.use(express.json());
 
 app.use(function (req, res, next) {
   console.log('middleware');
+  console.log(req.url);
+  console.log(req.baseUrl);
   req.testing = 'testing';
   return next();
 });
@@ -74,11 +76,13 @@ app.get("/cabinets", (request, response) => {
 //#region Client
 app.get("/GetClients", (request, response) => {
   console.log("/GetClients");
+  // console.log(request.url);
+  // console.log(request.query);
   new sql.Request()
-    .input("CabinetId", sql.UniqueIdentifier, request.body.CabinetId)
+    .input("CabinetId", sql.UniqueIdentifier, request.query.CabinetId)
     .execute('ps_get_clients')
     .then((result) => {
-      response.status(200).send(result.recordsets);
+      response.status(200).send(result.recordset);
     })
     .catch((error) => {
       response.status(400).send(error?.originalError?.info?.message);
