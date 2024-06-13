@@ -10,8 +10,7 @@ const { connect } = require('./db');
 require('./ClientController');
 const app = express();
 
-const PORT = 2000;
-// const port = 3000;
+const PORT = 3000;
 // const server = http.createServer(express);
 // const wss = new WebSocket.Server({ server });
 
