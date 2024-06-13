@@ -9,6 +9,8 @@ const { log } = require('console');
 const { connect } = require('./db');
 require('./ClientController');
 const app = express();
+const cors = require('cors');
+app.use(cors());
 
 const PORT = 3000;
 // const server = http.createServer(express);
@@ -42,6 +44,13 @@ const PORT = 3000;
 
 
 app.use(express.json());
+
+app.use(function (req, res, next) {
+  console.log('middleware');
+  req.testing = 'testing';
+  return next();
+});
+
 app.listen(PORT, (error) => {
   if (!error)
     console.log("Server is Successfully Running, and App is listening on port " + PORT)
