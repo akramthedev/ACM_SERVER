@@ -59,6 +59,9 @@ app.listen(PORT, (error) => {
   else
     console.log("Error occurred, server can't start", error);
 });
+app.get("/", (request, response) => {
+  response.status(200).send("Server works !!!!");
+});
 
 app.get("/cabinets", (request, response) => {
   console.log("/cabinets")
@@ -75,9 +78,7 @@ app.get("/cabinets", (request, response) => {
 
 //#region Client
 app.get("/GetClients", (request, response) => {
-  console.log("/GetClients");
-  // console.log(request.url);
-  // console.log(request.query);
+  // console.log("/GetClients");
   new sql.Request()
     .input("CabinetId", sql.UniqueIdentifier, request.query.CabinetId)
     .execute('ps_get_clients')
@@ -90,12 +91,16 @@ app.get("/GetClients", (request, response) => {
 });
 
 app.post("/CreateClient", (request, response) => {
-  console.log("/CreateClient");
+  // console.log("/CreateClient");
   new sql.Request()
     .input("ClientId", sql.UniqueIdentifier, request.body.ClientId)
     .input("CabinetId", sql.UniqueIdentifier, request.body.CabinetId)
     .input("Nom", sql.NVarChar(255), request.body.Nom)
     .input("Prenom", sql.NVarChar(255), request.body.Prenom)
+    .input("DateNaissance", sql.Date, request.body.DateNaissance)
+    .input("Profession", sql.NVarChar(255), request.body.Profession)
+    .input("DateRetraite", sql.Date, request.body.DateRetraite)
+    .input("NumeroSS", sql.NVarChar(20), request.body.NumeroSS)
     .execute('ps_create_client')
     .then((result) => {
       response.status(200).send(result.rowsAffected[0] > 0);
@@ -106,10 +111,7 @@ app.post("/CreateClient", (request, response) => {
 });
 
 app.delete("/DeleteClient/:ClientId", (request, response) => {
-  console.log("/DeleteClient");
-  // console.log("\n\n request.body: ", request.body)
-  // console.log("\n\n request: ", request)
-  // response.status(200).send(request.params.ClientId)
+  // console.log("/DeleteClient");
   new sql.Request()
     .input("ClientId", sql.UniqueIdentifier, request.params.ClientId)
     .execute('ps_delete_client')
@@ -121,6 +123,22 @@ app.delete("/DeleteClient/:ClientId", (request, response) => {
       response.status(400).send(error?.originalError?.info?.message);
     })
 });
+
+app.post("/UpdateClient", (request, response) => {
+  // console.log("/CreateClient");
+  new sql.Request()
+    .input("ClientId", sql.UniqueIdentifier, request.body.ClientId)
+    .input("Nom", sql.NVarChar(255), request.body.Nom)
+    .input("Prenom", sql.NVarChar(255), request.body.Prenom)
+    .execute('ps_create_client')
+    .then((result) => {
+      response.status(200).send(result.rowsAffected[0] > 0);
+    })
+    .catch((error) => {
+      response.status(400).send(error?.originalError?.info?.message);
+    })
+});
+
 //#endregion Client
 
 
