@@ -41,9 +41,19 @@ create proc ps_create_client
     ,@CabinetId uniqueidentifier
     ,@Nom nvarchar(255)
     ,@Prenom nvarchar(255)
+    ,@DateNaissance Date
+    ,@Profession NVarChar(255)
+    ,@DateRetraite Date
+    ,@NumeroSS NVarChar(20)
+    ,@Adresse NVarChar(255)
+    ,@Email1 NVarChar(100)
+    ,@Email2 NVarChar(100)
+    ,@Telephone1 NVarChar(20)
+    ,@Telephone2 NVarChar(20)
+    ,@HasConjoint Bit
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom)
-    values(@ClientId,@CabinetId,@Nom,@Prenom);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint);
 Go
 create proc ps_delete_client
     @ClientId uniqueidentifier

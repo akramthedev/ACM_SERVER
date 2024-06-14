@@ -101,6 +101,12 @@ app.post("/CreateClient", (request, response) => {
     .input("Profession", sql.NVarChar(255), request.body.Profession)
     .input("DateRetraite", sql.Date, request.body.DateRetraite)
     .input("NumeroSS", sql.NVarChar(20), request.body.NumeroSS)
+    .input("Adresse", sql.NVarChar(255), request.body.Adresse)
+    .input("Email1", sql.NVarChar(100), request.body.Email1)
+    .input("Email2", sql.NVarChar(100), request.body.Email2)
+    .input("Telephone1", sql.NVarChar(20), request.body.Telephone1)
+    .input("Telephone2", sql.NVarChar(20), request.body.Telephone2)
+    .input("HasConjoint", sql.Bit, request.body.HasConjoint)
     .execute('ps_create_client')
     .then((result) => {
       response.status(200).send(result.rowsAffected[0] > 0);
