@@ -104,6 +104,23 @@ app.post("/CreateClient", (request, response) => {
       response.status(400).send(error?.originalError?.info?.message);
     })
 });
+
+app.delete("/DeleteClient/:ClientId", (request, response) => {
+  console.log("/DeleteClient");
+  // console.log("\n\n request.body: ", request.body)
+  // console.log("\n\n request: ", request)
+  // response.status(200).send(request.params.ClientId)
+  new sql.Request()
+    .input("ClientId", sql.UniqueIdentifier, request.params.ClientId)
+    .execute('ps_delete_client')
+    .then((result) => {
+      response.status(200).send(result.rowsAffected[0] > 0);
+    })
+    .catch((error) => {
+      console.log(error)
+      response.status(400).send(error?.originalError?.info?.message);
+    })
+});
 //#endregion Client
 
 
