@@ -120,7 +120,7 @@ app.post("/CreateClient", (request, response) => {
     })
 });
 
-app.post("/UpdateClient", (request, response) => {
+app.put("/UpdateClient", (request, response) => {
   // console.log("/CreateClient");
   new sql.Request()
     .input("ClientId", sql.UniqueIdentifier, request.body.ClientId)
@@ -203,7 +203,7 @@ app.post("/CreateProche", (request, response) => {
     })
 });
 
-app.post("/UpdateProche", (request, response) => {
+app.put("/UpdateProche", (request, response) => {
   // console.log("/CreateProche");
   new sql.Request()
     .input("ProcheId", sql.UniqueIdentifier, request.body.ProcheId)

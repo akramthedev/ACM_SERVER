@@ -57,7 +57,7 @@ AS
     values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint);
 Go
 
-create proc ps_create_client
+create proc ps_update_client
     @ClientId uniqueidentifier
     ,@Nom nvarchar(255)
     ,@Prenom nvarchar(255)
