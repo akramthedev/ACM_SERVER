@@ -7,6 +7,7 @@ const sql = require("mssql");
 // const sql = require("mssql");
 const { log } = require('console');
 const { connect } = require('./db');
+const { GetClients, CreateClient } = require('./repository');
 require('./ClientController');
 const app = express();
 const cors = require('cors');
@@ -46,9 +47,6 @@ const PORT = 3000;
 app.use(express.json());
 
 app.use(function (req, res, next) {
-  // console.log('middleware');
-  // console.log(req.url);
-  // console.log(req.baseUrl);
   req.testing = 'testing';
   return next();
 });
@@ -77,47 +75,16 @@ app.get("/cabinets", (request, response) => {
 });
 
 //#region Client
-app.get("/GetClients", (request, response) => {
-  // console.log("/GetClients");
-  new sql.Request()
-    .input("CabinetId", sql.UniqueIdentifier, request.query.CabinetId)
-    .execute('ps_get_clients')
-    .then((result) => {
-      setTimeout(() => {
-        response.status(200).send(result.recordset);
-      }, 1000);
-    })
-    .catch((error) => {
-      response.status(400).send(error?.originalError?.info?.message);
-    })
+app.get("/GetClients", async (request, response) => {
+  await GetClients(request.query.CabinetId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
 });
 
-app.post("/CreateClient", (request, response) => {
-  // console.log("/CreateClient");
-  new sql.Request()
-    .input("ClientId", sql.UniqueIdentifier, request.body.ClientId)
-    .input("CabinetId", sql.UniqueIdentifier, request.body.CabinetId)
-    .input("Nom", sql.NVarChar(255), request.body.Nom)
-    .input("Prenom", sql.NVarChar(255), request.body.Prenom)
-    .input("DateNaissance", sql.Date, request.body.DateNaissance)
-    .input("Profession", sql.NVarChar(255), request.body.Profession)
-    .input("DateRetraite", sql.Date, request.body.DateRetraite)
-    .input("NumeroSS", sql.NVarChar(20), request.body.NumeroSS)
-    .input("Adresse", sql.NVarChar(255), request.body.Adresse)
-    .input("Email1", sql.NVarChar(100), request.body.Email1)
-    .input("Email2", sql.NVarChar(100), request.body.Email2)
-    .input("Telephone1", sql.NVarChar(20), request.body.Telephone1)
-    .input("Telephone2", sql.NVarChar(20), request.body.Telephone2)
-    .input("HasConjoint", sql.Bit, request.body.HasConjoint)
-    .execute('ps_create_client')
-    .then((result) => {
-      response.status(200).send(result.rowsAffected[0] > 0);
-    })
-    .catch((error) => {
-      console.log(error?.originalError)
-      console.log(error?.originalError?.info)
-      response.status(400).send(error?.originalError?.info?.message);
-    })
+app.post("/CreateClient", async (request, response) => {
+  await CreateClient(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
 });
 
 app.put("/UpdateClient", (request, response) => {
