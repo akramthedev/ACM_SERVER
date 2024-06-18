@@ -86,12 +86,9 @@ app.post("/CreateClient", async (request, response) => {
     .then(async (res) => {
       if (res != null && res == true)
         if (request.body.Proches != null && request.body.Proches.length > 0) {
-          // create proches
           for (let i = 0; i < request.body.Proches.length; i++) {
             await CreateProche(request.body.Proches[i])
-              .then((resProche) => {
-                console.log("resProche: ", resProche)
-              })
+              .then((resProche) => { console.log("resProche: ", resProche); })
               .catch((errorProche) => { console.log("ErrorProche: ", errorProche); })
           }
         }
@@ -113,7 +110,7 @@ app.delete("/DeleteClient/:ClientId", async (request, response) => {
 
 //#region Proche
 app.get("/GetProches", async (request, response) => {
-  await GetClients(request.query.ClientId)
+  await GetProches(request.query.ClientId)
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error))
 });
@@ -128,7 +125,7 @@ app.put("/UpdateProche", async (request, response) => {
     .catch((error) => response.status(400).send(error))
 });
 app.delete("/DeleteProche/:ProcheId", async (request, response) => {
-  await DeleteClient(request.params.ProcheId)
+  await DeleteProche(request.params.ProcheId)
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error))
 });
