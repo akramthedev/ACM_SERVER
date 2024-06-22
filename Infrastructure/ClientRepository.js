@@ -9,6 +9,15 @@ function GetClients(CabinetId) {
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
+function GetClient(ClientId) {
+    return new Promise((resolve, reject) => {
+        new sql.Request()
+            .input("ClientId", sql.UniqueIdentifier, ClientId)
+            .execute('ps_get_client')
+            .then((result) => resolve(result.recordset))
+            .catch((error) => reject(error?.originalError?.info?.message))
+    });
+}
 function CreateClient(data) {
     return new Promise((resolve, reject) => {
         new sql.Request()
@@ -61,4 +70,4 @@ function DeleteClient(ClientId) {
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
-module.exports = { GetClients, CreateClient, UpdateClient, DeleteClient };
+module.exports = { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient };

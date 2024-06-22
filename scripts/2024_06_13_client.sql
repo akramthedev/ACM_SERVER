@@ -36,6 +36,12 @@ AS
     select * from Client
     where CabinetId=@CabinetId
 GO
+create proc ps_get_client
+    @ClientId uniqueidentifier
+AS
+    select top 1 * from Client
+    where ClientId=@ClientId
+GO
 
 create proc ps_create_client
     @ClientId uniqueidentifier

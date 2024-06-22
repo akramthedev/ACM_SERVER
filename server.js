@@ -7,7 +7,7 @@ const sql = require("mssql");
 // const sql = require("mssql");
 const { log } = require('console');
 const { connect } = require('./db');
-const { GetClients, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
+const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
 require('./ClientController');
 const app = express();
@@ -78,7 +78,42 @@ app.get("/cabinets", (request, response) => {
 //#region Client
 app.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
-    .then((res) => response.status(200).send(res))
+    .then((res) => {
+      // res = res.map(async (client) => {
+      //   console.log("client before: ", client)
+      //   await GetProches(client.ClientId)
+      //     .then((resProche) => {
+      //       client.Proches = resProche;
+      //       console.log("proches: ", resProche.length)
+      //       // return client;
+      //     }, (errorProche) => {
+      //       console.log("ErrorProche: ", errorProche)
+      //       // return client;
+      //     });
+      //   console.log("client after: ",client)
+      //   return client;
+      // })
+      response.status(200).send(res);
+    })
+    .catch((error) => response.status(400).send(error))
+});
+app.get("/GetClient", async (request, response) => {
+  await GetClient(request.query.ClientId)
+    .then((res) => {
+      if (res != null && res.length > 0) {
+        let client = res[0];
+        GetProches(client.ClientId)
+          .then((resProche) => {
+            client.Proches = resProche;
+            response.status(200).send(client);
+          }, (errorProche) => {
+            console.log("ErrorProche: ", errorProche)
+            response.status(200).send(client);
+          });
+      }
+      else
+        response.status(200).send(null);
+    })
     .catch((error) => response.status(400).send(error))
 });
 app.post("/CreateClient", async (request, response) => {
