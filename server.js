@@ -121,7 +121,8 @@ app.get("/GetClient", async (request, response) => {
 app.post("/CreateClient", async (request, response) => {
   await CreateClient(request.body)
     .then(async (res) => {
-      if (res != null && res == true)
+      if (res != null && res == true) {
+        // create proches
         if (request.body.Proches != null && request.body.Proches.length > 0) {
           for (let i = 0; i < request.body.Proches.length; i++) {
             await CreateProche(request.body.Proches[i])
@@ -129,6 +130,13 @@ app.post("/CreateClient", async (request, response) => {
               .catch((errorProche) => { console.log("ErrorProche: ", errorProche); })
           }
         }
+        // create conjoint
+        if (request.body.Conjoint != null) {
+          await CreateConjoint(request.body.Conjoint)
+            .then((resConjoint) => { console.log("resConjoint: ", resConjoint); })
+            .catch((errorConjoint) => { console.log("ErrorConjoint: ", errorConjoint); })
+        }
+      }
       response.status(200).send(res);
     })
     .catch((error) => response.status(400).send(error))
