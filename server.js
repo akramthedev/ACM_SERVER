@@ -2,14 +2,34 @@ console.clear();
 
 const express = require('express');
 const sql = require("mssql");
+const log = require('node-file-logger');
 // const http = require('http');
 // const WebSocket = require('ws');
 // const sql = require("mssql");
-const { log } = require('console');
+// const { log } = require('console');
 const { connect } = require('./db');
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
 const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
+
+// setup logger
+let options = {
+  timeZone: 'Africa/Casablanca',
+  folderPath: './logs/',
+  dateBasedFileNaming: true,
+  // Required only if dateBasedFileNaming is set to false
+  fileName: 'All_Logs',
+  // Required only if dateBasedFileNaming is set to true
+  fileNamePrefix: 'Logs_',
+  fileNameSuffix: '',
+  fileNameExtension: '.log',
+  dateFormat: 'YYYY-MM-DD',
+  timeFormat: 'HH:mm:ss.SSS',
+  logLevel: 'debug',
+  onlyFileLogging: true
+};
+log.SetUserOptions(options); // Options are optional
+
 
 require('./ClientController');
 const app = express();
@@ -29,6 +49,8 @@ const PORT = 3000;
   }
 })();
 
+console.log('log to text');
+log.Info('Server.js ready');
 
 // wss.on('connection', function connection(ws) {
 //   console.log("on connection")
