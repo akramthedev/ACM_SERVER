@@ -9,6 +9,8 @@ const { log } = require('console');
 const { connect } = require('./db');
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
+const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
+
 require('./ClientController');
 const app = express();
 const cors = require('cors');
@@ -166,4 +168,25 @@ app.delete("/DeleteProche/:ProcheId", async (request, response) => {
 });
 //#endregion Proche
 
-
+//#region Conjoint
+app.get("/GetConjoint", async (request, response) => {
+  await GetConjoint(request.query.ClientId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.post("/CreateConjoint", async (request, response) => {
+  await CreateConjoint(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.put("/UpdateConjoint", async (request, response) => {
+  await UpdateConjoint(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.delete("/DeleteConjoint/:ConjointId", async (request, response) => {
+  await DeleteConjoint(request.params.ConjointId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+//#endregion Conjoint
