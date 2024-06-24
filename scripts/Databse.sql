@@ -55,8 +55,8 @@ CREATE TABLE Proche (
 );
 
 CREATE TABLE Patrimoine (
-    PatrimoineId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client 
+    PatrimoineId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULL, -- Référence au client 
     TypePatrimoine NVARCHAR(100),
     Designation NVARCHAR(100),
     Valeur FLOAT,
@@ -76,8 +76,8 @@ CREATE TABLE Patrimoine (
 );
 
 CREATE TABLE Passifs (
-    PassifsId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client 
+    PassifsId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULL, -- Référence au client 
     TypePassifs NVARCHAR(100),
     Designation NVARCHAR(100),
     CapitalEmprunte FLOAT,
@@ -105,31 +105,31 @@ CREATE TABLE Passifs (
 );
 
 CREATE TABLE Budget (
-    BudgetId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client
+    BudgetId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULLL, -- Référence au client
     Designation NVARCHAR(100),
     MontantAnnuel FLOAT,
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
 CREATE TABLE Budget (
-    BudgetId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client
+    BudgetId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULLL, -- Référence au client
     Designation NVARCHAR(100),
     MontantAnnuel FLOAT,
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
 CREATE TABLE ParticulariteFiscale (
-    ParticulariteFiscaleId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client
+    ParticulariteFiscaleId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULL, -- Référence au client
     Reponse NVARCHAR(MAX),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
 CREATE TABLE SituationAdministrative (
-    SituationAdministrativeId INT PRIMARY KEY AUTO_INCREMENT,
-    ClientId INT NOT NULL, -- Référence au client
+    SituationAdministrativeId uniqueidentifier PRIMARY KEY ,
+    ClientId uniqueidentifier NOT NULL, -- Référence au client
     CFE BIT,
     Cotisation BIT,
     Reversion BIT,
