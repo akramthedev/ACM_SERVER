@@ -38,7 +38,7 @@ CREATE TABLE Conjoint (
     DonationEpoux NVARCHAR(100),
     ModifRegimeDate NVARCHAR(100),
     QuestComp NVARCHAR(MAX),
-    FOREIGN KEY (ClientId) REFERENCES ClientData(ClientId)
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 CREATE TABLE Proche (
     ProcheId INT PRIMARY KEY AUTO_INCREMENT,
@@ -51,5 +51,101 @@ CREATE TABLE Proche (
     Particularite NVARCHAR(MAX),
     NombreEnfant Int,
     Comment NVARCHAR(MAX),
-    FOREIGN KEY (ClientId) REFERENCES ClientData(ClientId)
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE Patrimoine (
+    PatrimoineId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client 
+    TypePatrimoine NVARCHAR(100),
+    Designation NVARCHAR(100),
+    Valeur FLOAT,
+    Detenteur NVARCHAR(100),
+    ChargesAssocies NVARCHAR(100),
+    Charges NVARCHAR(100),
+    RevenueFiscalite NVARCHAR(100),
+    CapitalEmprunte NVARCHAR(100),
+    Duree NVARCHAR(100),
+    Taux NVARCHAR(100),
+    Deces NVARCHAR(100),
+    Particularite NVARCHAR(100)
+    CommentUsage NVARCHAR(MAX),
+    CommentImmobilier NVARCHAR(MAX),
+    QuestionsComplementaires NVARCHAR(MAX),
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE Passifs (
+    PassifsId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client 
+    TypePassifs NVARCHAR(100),
+    Designation NVARCHAR(100),
+    CapitalEmprunte FLOAT,
+    Valeur FLOAT,
+    Detenteur NVARCHAR(100),
+    Duree NVARCHAR(100),
+    Taux NVARCHAR(100),
+    Deces NVARCHAR(100),
+    Particularite NVARCHAR(100),
+    ValeurRachat FLOAT,
+    DateSouscription DATE,
+    Assure BIT,
+    Beneficiaire NVARCHAR(100),
+    DateOuverture DATE,
+    EpargneAssocie NVARCHAR(100),
+    RevenusDistribue NVARCHAR(100),
+    FiscaliteOuRevenue NVARCHAR(100),
+    TauxRevalorisation NVARCHAR(100),
+    CommentPassifs NVARCHAR(MAX),
+    CommentAssurance NVARCHAR(MAX),
+    CommentEpargne NVARCHAR(MAX),
+    CommentMobiliere NVARCHAR(MAX),
+    CommentDisponibilite NVARCHAR(MAX),
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE Budget (
+    BudgetId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client
+    Designation NVARCHAR(100),
+    MontantAnnuel FLOAT,
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE Budget (
+    BudgetId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client
+    Designation NVARCHAR(100),
+    MontantAnnuel FLOAT,
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE ParticulariteFiscale (
+    ParticulariteFiscaleId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client
+    Reponse NVARCHAR(MAX),
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
+);
+
+CREATE TABLE SituationAdministrative (
+    SituationAdministrativeId INT PRIMARY KEY AUTO_INCREMENT,
+    ClientId INT NOT NULL, -- Référence au client
+    CFE BIT,
+    Cotisation BIT,
+    Reversion BIT,
+    CNSS BIT,
+    CNAREFE BIT,
+    CAPITONE BIT,
+    ASSURANCE_RAPATRIEMENT BIT,
+    MUTUELLE_FRANCAISE BIT,
+    PASSEPORT BIT,
+    CARTE_SEJOUR BIT,
+    PERMIS_CONDUIRE BIT,
+    ASSURANCE_AUTO BIT,
+    ASSURANCE_HABITATION BIT,
+    INSCRIPTION_CONSULAT BIT,
+    UFE BIT,
+    CSG_CRDS BIT,
+
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
