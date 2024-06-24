@@ -3,6 +3,9 @@ console.clear();
 const express = require('express');
 const sql = require("mssql");
 const log = require('node-file-logger');
+const fs = require('fs');
+const fileUpload = require('express-fileupload');
+// const upload = require('./Helper/upload');
 // const http = require('http');
 // const WebSocket = require('ws');
 // const sql = require("mssql");
@@ -11,6 +14,7 @@ const { connect } = require('./db');
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
 const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
+const { GetClientPieces, CreateClientPiece } = require('./Infrastructure/ClientPieceRepository');
 
 // setup logger
 let options = {
@@ -49,8 +53,7 @@ const PORT = 3000;
   }
 })();
 
-console.log('log to text');
-log.Info('Server.js ready');
+log.Info('ACM Server started ...........');
 
 // wss.on('connection', function connection(ws) {
 //   console.log("on connection")
@@ -70,9 +73,10 @@ log.Info('Server.js ready');
 
 
 app.use(express.json());
+app.use(fileUpload());
 
 app.use(function (req, res, next) {
-  req.testing = 'testing';
+  // req.testing = 'testing';
   return next();
 });
 
@@ -220,3 +224,78 @@ app.delete("/DeleteConjoint/:ConjointId", async (request, response) => {
     .catch((error) => response.status(400).send(error))
 });
 //#endregion Conjoint
+
+//#region ClientPiece
+app.get("/GetClientPieces", async (request, response) => {
+  let filename = "./Pieces/0.log";
+  try {
+    let exists = fs.existsSync(filename);
+    console.log("exists: ", exists)
+    if (exists) {
+      fs.unlinkSync(filename)
+      response.status(200).send("done");
+    }
+    else
+      response.status(200).send("file not found");
+  } catch (e) {
+    response.status(200).send("Error delete file");
+  }
+
+
+  // await GetClientPieces(request.query.ClientId)
+  //   .then((res) => {
+  //     response.status(200).send(res);
+  //   })
+  //   .catch((error) => response.status(400).send(error))
+});
+app.post('/CreateClientPiece', async (request, response) => {
+
+  console.log("body: ", request.body)
+  let ClientId = request.body.ClientId;
+  let ClientPieceId = request.body.ClientPieceId;
+  let ClientPiecesDirectory = `./Pieces/${ClientId}`;
+
+  if (!request.files || Object.keys(request.files).length === 0) {
+    return response.status(400).send('No files were uploaded.');
+  }
+
+  let fileToUpload = request.files.file;
+  // let mimetype = fileToUpload.mimetype;
+  let fileExtension = fileToUpload.name.split(".")[fileToUpload.name.split(".").length - 1];
+
+  // create ClientPiecesDirectory if it doesn't exist
+  let exists = fs.existsSync(ClientPiecesDirectory);
+  if (!exists) fs.mkdirSync(ClientPiecesDirectory);
+
+  let uploadPath = `${ClientPiecesDirectory}/${ClientPieceId}.${fileExtension}`;
+
+  // Use the mv() method to place the file somewhere on your server
+  fileToUpload.mv(uploadPath, async function (err) {
+    if (err) return response.status(500).send(err);
+    // create ClientPiece
+    response.status(200).send('File uploaded!');
+    let newClientPiece = {
+      ClientPieceId: request.body.ClientPieceId,
+      ClientId: request.body.ClientId,
+      PieceId: request.body.PieceId,
+      Extension: fileExtension,
+    };
+    await CreateClientPiece(newClientPiece)
+      .then((res) => {
+        response.status(200).send(res);
+      }, (err) => {
+        response.status(500).send(err);
+      })
+  });
+});
+
+// app.post("/CreateClientPiece", async (request, response) => {
+
+//   response.status(200).send("uploaded");
+//   // await CreateClient(request.body)
+//   //   .then(async (res) => {
+//   //     response.status(200).send(res);
+//   //   })
+//   //   .catch((error) => response.status(400).send(error))
+// });
+//#endregion ClientPiece
