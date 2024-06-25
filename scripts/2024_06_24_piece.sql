@@ -47,3 +47,8 @@ AS
     insert into ClientPiece(ClientPieceId,ClientId,PieceId,Extension)
     values(@ClientPieceId,@ClientId,@PieceId,@Extension)
 GO
+
+create proc ps_get_pieces
+AS
+    select * from Piece
+GO

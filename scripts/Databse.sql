@@ -58,17 +58,17 @@ CREATE TABLE Patrimoine (
     PatrimoineId uniqueidentifier PRIMARY KEY,
     ClientId uniqueidentifier NOT NULL, -- Référence au client 
     TypePatrimoine NVARCHAR(100),
-    Designation NVARCHAR(100),
+    Designation NVARCHAR(255),
     Valeur FLOAT,
-    Detenteur NVARCHAR(100),
-    ChargesAssocies NVARCHAR(100),
-    Charges NVARCHAR(100),
-    RevenueFiscalite NVARCHAR(100),
-    CapitalEmprunte NVARCHAR(100),
-    Duree NVARCHAR(100),
-    Taux NVARCHAR(100),
-    Deces NVARCHAR(100),
-    Particularite NVARCHAR(100)
+    Detenteur NVARCHAR(255),
+    ChargesAssocies NVARCHAR(255),
+    Charges NVARCHAR(255),
+    RevenueFiscalite NVARCHAR(255),
+    CapitalEmprunte NVARCHAR(255),
+    Duree NVARCHAR(255),
+    Taux NVARCHAR(255),
+    Deces NVARCHAR(255),
+    Particularite NVARCHAR(255)
     CommentUsage NVARCHAR(MAX),
     CommentImmobilier NVARCHAR(MAX),
     QuestionsComplementaires NVARCHAR(MAX),
@@ -97,10 +97,6 @@ CREATE TABLE Passifs (
     FiscaliteOuRevenue NVARCHAR(100),
     TauxRevalorisation NVARCHAR(100),
     CommentPassifs NVARCHAR(MAX),
-    CommentAssurance NVARCHAR(MAX),
-    CommentEpargne NVARCHAR(MAX),
-    CommentMobiliere NVARCHAR(MAX),
-    CommentDisponibilite NVARCHAR(MAX),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 

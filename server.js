@@ -15,6 +15,7 @@ const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = requ
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
 const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
 const { GetClientPieces, CreateClientPiece } = require('./Infrastructure/ClientPieceRepository');
+const { GetPieces, } = require('./Infrastructure/PieceRepository');
 
 // setup logger
 let options = {
@@ -130,14 +131,20 @@ app.get("/GetClient", async (request, response) => {
     .then((res) => {
       if (res != null && res.length > 0) {
         let client = res[0];
-        GetProches(client.ClientId)
-          .then((resProche) => {
-            client.Proches = resProche;
+
+        const promise1 = GetProches(client.ClientId);
+        const promise2 = GetClientPieces(client.ClientId);
+
+        Promise.all([promise1, promise2])
+          .then((values) => {
+            client.Proches = values[0];
+            client.ClientPieces = values[1];
             response.status(200).send(client);
-          }, (errorProche) => {
-            console.log("ErrorProche: ", errorProche)
+          }, (error) => {
+            console.log("Error promise.All: ", error);
             response.status(200).send(client);
           });
+
       }
       else
         response.status(200).send(null);
@@ -248,16 +255,19 @@ app.get("/GetClientPieces", async (request, response) => {
   //   })
   //   .catch((error) => response.status(400).send(error))
 });
+app.get("/GetPieces", async (request, response) => {
+  await GetPieces()
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
 app.post('/CreateClientPiece', async (request, response) => {
 
-  console.log("body: ", request.body)
   let ClientId = request.body.ClientId;
   let ClientPieceId = request.body.ClientPieceId;
   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
 
-  if (!request.files || Object.keys(request.files).length === 0) {
+  if (!request.files || Object.keys(request.files).length === 0)
     return response.status(400).send('No files were uploaded.');
-  }
 
   let fileToUpload = request.files.file;
   // let mimetype = fileToUpload.mimetype;
@@ -273,7 +283,7 @@ app.post('/CreateClientPiece', async (request, response) => {
   fileToUpload.mv(uploadPath, async function (err) {
     if (err) return response.status(500).send(err);
     // create ClientPiece
-    response.status(200).send('File uploaded!');
+    // response.status(200).send('File uploaded!');
     let newClientPiece = {
       ClientPieceId: request.body.ClientPieceId,
       ClientId: request.body.ClientId,
