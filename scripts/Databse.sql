@@ -70,6 +70,7 @@ CREATE TABLE Patrimoine (
     Deces NVARCHAR(255),
     Particularite NVARCHAR(255)
     CommentUsage NVARCHAR(MAX),
+    CommentRapport NVARCHAR(MAX),
     CommentImmobilier NVARCHAR(MAX),
     QuestionsComplementaires NVARCHAR(MAX),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
