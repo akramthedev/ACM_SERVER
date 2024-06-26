@@ -102,3 +102,11 @@ AS
 GO
 
 
+alter proc ps_delete_client
+    @ClientId uniqueidentifier
+AS
+    delete from Proche where ClientId=@ClientId;
+    delete from Conjoint where ClientId=@ClientId;
+    delete from ClientPiece where ClientId=@ClientId;
+    delete from Client where ClientId=@ClientId;
+GO

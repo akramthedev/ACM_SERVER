@@ -108,13 +108,6 @@ CREATE TABLE Budget (
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
-CREATE TABLE Budget (
-    BudgetId uniqueidentifier PRIMARY KEY,
-    ClientId uniqueidentifier NOT NULLL, -- Référence au client
-    Designation NVARCHAR(100),
-    MontantAnnuel FLOAT,
-    FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
-);
 
 CREATE TABLE ParticulariteFiscale (
     ParticulariteFiscaleId uniqueidentifier PRIMARY KEY,

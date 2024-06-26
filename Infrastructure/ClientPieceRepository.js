@@ -9,6 +9,15 @@ function GetClientPieces(ClientId) {
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
+function GetClientPiece(ClientPieceId) {
+    return new Promise((resolve, reject) => {
+        new sql.Request()
+            .input("ClientPieceId", sql.UniqueIdentifier, ClientPieceId)
+            .execute('ps_get_client_piece')
+            .then((result) => resolve(result.recordset))
+            .catch((error) => reject(error?.originalError?.info?.message))
+    });
+}
 function CreateClientPiece(data) {
     return new Promise((resolve, reject) => {
         new sql.Request()
@@ -21,13 +30,13 @@ function CreateClientPiece(data) {
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
-// function DeleteProche(ProcheId) {
-//     return new Promise((resolve, reject) => {
-//         new sql.Request()
-//             .input("ProcheId", sql.UniqueIdentifier, ProcheId)
-//             .execute('ps_delete_proche')
-//             .then((result) => resolve(result.rowsAffected[0] > 0))
-//             .catch((error) => reject(error?.originalError?.info?.message))
-//     });
-// }
-module.exports = { GetClientPieces, CreateClientPiece };
+function DeleteClientPiece(ClientPieceId) {
+    return new Promise((resolve, reject) => {
+        new sql.Request()
+            .input("ClientPieceId", sql.UniqueIdentifier, ClientPieceId)
+            .execute('ps_delete_client_piece')
+            .then((result) => resolve(result.rowsAffected[0] > 0))
+            .catch((error) => reject(error?.originalError?.info?.message))
+    });
+}
+module.exports = { GetClientPieces, CreateClientPiece, DeleteClientPiece,GetClientPiece };

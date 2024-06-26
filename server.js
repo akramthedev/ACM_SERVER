@@ -9,12 +9,11 @@ const fileUpload = require('express-fileupload');
 // const http = require('http');
 // const WebSocket = require('ws');
 // const sql = require("mssql");
-// const { log } = require('console');
 const { connect } = require('./db');
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require('./Infrastructure/ClientRepository');
 const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infrastructure/ProcheRepository');
 const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
-const { GetClientPieces, CreateClientPiece } = require('./Infrastructure/ClientPieceRepository');
+const { GetClientPieces, CreateClientPiece, DeleteClientPiece, GetClientPiece } = require('./Infrastructure/ClientPieceRepository');
 const { GetPieces, } = require('./Infrastructure/PieceRepository');
 
 // setup logger
@@ -261,8 +260,8 @@ app.get("/GetPieces", async (request, response) => {
     .catch((error) => response.status(400).send(error))
 });
 app.post('/CreateClientPiece', async (request, response) => {
-
   let ClientId = request.body.ClientId;
+  // let PieceId = request.body.PieceId;
   let ClientPieceId = request.body.ClientPieceId;
   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
 
@@ -298,7 +297,26 @@ app.post('/CreateClientPiece', async (request, response) => {
       })
   });
 });
+app.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => {
+  // get ClientPiece
+  await GetClientPiece(request.params.ClientPieceId)
+    .then(async (res) => {
+      if (res != null && res.length == 1) {
+        let clientPiece = res[0];
+        let fileNameToDelete = `./Pieces/${clientPiece.ClientId}/${clientPiece.ClientPieceId}.${clientPiece.Extension}`;
+        if (fs.existsSync(fileNameToDelete)) {
+          fs.rmSync(fileNameToDelete);
 
+          await DeleteClientPiece(request.params.ClientPieceId)
+            .then((res) => response.status(200).send(res))
+            .catch((error) => response.status(400).send(error))
+        }
+        else
+          response.status(200).send("not found");
+      }
+    })
+    .catch((error) => response.status(400).send(error));
+});
 // app.post("/CreateClientPiece", async (request, response) => {
 
 //   response.status(200).send("uploaded");

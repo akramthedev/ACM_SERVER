@@ -35,6 +35,17 @@ BEGIN
     select cp.ClientPieceId,cp.ClientId,cp.PieceId,cp.Extension,p.Libelle,p.Description
     from ClientPiece cp
     left join Piece p on p.PieceId=cp.PieceId
+    where cp.ClientId=@ClientId
+END
+GO
+create proc ps_get_client_piece
+    @ClientPieceId uniqueidentifier
+AS
+BEGIN
+    select cp.ClientPieceId,cp.ClientId,cp.PieceId,cp.Extension,p.Libelle,p.Description
+    from ClientPiece cp
+    left join Piece p on p.PieceId=cp.PieceId
+    where cp.ClientPieceId=@ClientPieceId
 END
 GO
 
@@ -46,6 +57,12 @@ create proc ps_create_client_piece
 AS
     insert into ClientPiece(ClientPieceId,ClientId,PieceId,Extension)
     values(@ClientPieceId,@ClientId,@PieceId,@Extension)
+GO
+
+create proc ps_delete_client_piece
+    @ClientPieceId uniqueidentifier
+AS
+    delete from ClientPiece where ClientPieceId=@ClientPieceId
 GO
 
 create proc ps_get_pieces
