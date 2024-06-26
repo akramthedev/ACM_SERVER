@@ -340,10 +340,9 @@ app.get("/GetPatrimoines", async (request, response) => {
     .catch((error) => response.status(400).send(error))
 });
 app.post("/CreatePatrimoine", async (request, response) => {
-  console.log(request.body)
   await CreatePatrimoine(request.body)
     .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error))
+    .catch((error) => response.status(500).send(error))
 });
 app.put("/UpdatePatrimoine", async (request, response) => {
   await UpdatePatrimoine(request.body)

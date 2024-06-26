@@ -10,11 +10,8 @@ function GetPatrimoines(ClientId) {
     });
 }
 function CreatePatrimoine(data) {
-    console.log("CLG DATA ",data)
     return new Promise((resolve, reject) => {
-        console.log(data.ClientId)
         new sql.Request()
-        console.log(data.TypePatrimoine)
             .input("PatrimoineId", sql.UniqueIdentifier, data.PatrimoineId)
             .input("ClientId", sql.UniqueIdentifier, data.ClientId)
             .input("TypePatrimoine", sql.NVarChar(100), data.TypePatrimoine)
@@ -29,12 +26,11 @@ function CreatePatrimoine(data) {
             .input("Taux", sql.NVarChar(255), data.Taux)
             .input("Deces", sql.NVarChar(255), data.Deces)
             .input("Particularite", sql.NVarChar(255), data.Particularite)
-            .input("Commentaire", sql.NVarChar(MAX), data.Commentaire)
-            .input("QuestionsComplementaires", sql.NVarChar(MAX), data.QuestionsComplementaires)
+            .input("Commentaire", sql.NVarChar(255), data.Commentaire)
+            .input("QuestionsComplementaires", sql.NVarChar(255), data.QuestionsComplementaires)
             .execute('ps_create_patrimoine')
             .then((result) => resolve(result.rowsAffected[0] > 0))
             .catch((error) => reject(error?.originalError?.info?.message))
-            console.log("terminer")
     });
 }
 function UpdatePatrimoine(data) {
@@ -53,8 +49,8 @@ function UpdatePatrimoine(data) {
             .input("Taux", sql.NVarChar(255), data.Taux)
             .input("Deces", sql.NVarChar(255), data.Deces)
             .input("Particularite", sql.NVarChar(255), data.Particularite)
-            .input("Commentaire", sql.NVarChar(MAX), data.Commentaire)
-            .input("QuestionsComplementaires", sql.NVarChar(MAX), data.QuestionsComplementaires)
+            .input("Commentaire", sql.NVarChar(255), data.Commentaire)
+            .input("QuestionsComplementaires", sql.NVarChar(255), data.QuestionsComplementaires)
             .execute('ps_update_patrimoine')
             .then((result) => resolve(result.rowsAffected[0] > 0))
             .catch((error) => reject(error?.originalError?.info?.message))
