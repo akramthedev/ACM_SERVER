@@ -15,6 +15,7 @@ const { GetProches, CreateProche, UpdateProche, DeleteProche } = require('./Infr
 const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('./Infrastructure/ConjointRepository');
 const { GetClientPieces, CreateClientPiece, DeleteClientPiece, GetClientPiece } = require('./Infrastructure/ClientPieceRepository');
 const { GetPieces, } = require('./Infrastructure/PieceRepository');
+const { CreatePatrimoine, UpdatePatrimoine, DeletePatrimoine, GetPatrimoines } = require('./Infrastructure/PatrimoineRepository');
 
 // setup logger
 let options = {
@@ -38,6 +39,7 @@ log.SetUserOptions(options); // Options are optional
 require('./ClientController');
 const app = express();
 const cors = require('cors');
+
 app.use(cors());
 
 const PORT = 3000;
@@ -231,6 +233,8 @@ app.delete("/DeleteConjoint/:ConjointId", async (request, response) => {
 });
 //#endregion Conjoint
 
+
+
 //#region ClientPiece
 app.get("/GetClientPieces", async (request, response) => {
   let filename = "./Pieces/0.log";
@@ -327,3 +331,28 @@ app.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => {
 //   //   .catch((error) => response.status(400).send(error))
 // });
 //#endregion ClientPiece
+
+
+//#region Patrimoine
+app.get("/GetPatrimoines", async (request, response) => {
+  await GetPatrimoines(request.query.ClientId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.post("/CreatePatrimoine", async (request, response) => {
+  console.log(request.body)
+  await CreatePatrimoine(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.put("/UpdatePatrimoine", async (request, response) => {
+  await UpdatePatrimoine(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.delete("/DeletePatrimoine/:PatrimoineId", async (request, response) => {
+  await DeletePatrimoine(request.params.ConjointId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+//#endregion Patrimoine
