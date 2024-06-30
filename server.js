@@ -8,7 +8,9 @@ const fileUpload = require('express-fileupload');
 // const upload = require('./Helper/upload');
 // const http = require('http');
 const { connect } = require('./db');
-
+var passport = require('passport');
+const { jwtStrategy } = require('./Auth/passport');
+// var guard = require('express-jwt-permissions')()
 
 
 // setup logger
@@ -39,9 +41,27 @@ const PORT = 3000;
 (async () => { try { await connect(); } catch (err) { console.error("Error connecting to database:", err); process.exit(1); } })();
 
 
+
+
+
 app.use(express.json());
 app.use(fileUpload());
-
+app.use(passport.initialize());
+passport.use('jwt', jwtStrategy)
+// app.use(session({
+//   secret: 'keyboard cat',
+//   resave: false, // don't save session if unmodified
+//   saveUninitialized: false, // don't create session until something stored
+//   store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' })
+// }));
+// app.use(passport.authenticate('session'));
+// app.use(function (req, res, next) {
+//   var msgs = req.session.messages || [];
+//   res.locals.messages = msgs;
+//   res.locals.hasMessages = !!msgs.length;
+//   req.session.messages = [];
+//   next();
+// });
 
 var AuthController = require('./Controllers/AuthController');
 var ClientController = require('./Controllers/ClientController');
@@ -49,7 +69,7 @@ var ProcheController = require('./Controllers/ProcheController');
 var ConjointController = require('./Controllers/ConjointController');
 var PatrimoineController = require('./Controllers/PatrimoineController');
 var ClientPieceController = require('./Controllers/ClientPieceController');
-app.use('/', AuthController);
+app.use('/', AuthController,);
 app.use('/', ClientController);
 app.use('/', ProcheController);
 app.use('/', ConjointController);
