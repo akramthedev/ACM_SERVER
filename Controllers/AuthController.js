@@ -1,88 +1,89 @@
-//router.js
+//AuthController.js
 var express = require('express');
-const { auth, hasRole } = require('../Auth/auth');
+const { GetUser, GetUserRoles } = require('../Infrastructure/UserRepository');
+const { auth, generateJWTToken } = require('../Auth/auth');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 var router = express.Router();
 
 
-router.get("/admin", auth, (req, res) => {
+router.get("/admin", auth('role1', 'role2'), auth('role3'), (req, res) => {
     let body = req.body
     res.status(200).send("admin");
 })
 
-router.get("/user", auth, (req, res) => {
+router.get("/user", auth('role1'), auth('role2'), (req, res) => {
     let body = req.body
-    // console.log("==> ", req.user);
     res.status(200).send("user");
 })
 
 
-let config = {
-    secretKey: "mukarramjavidsecretKey",
-    tokenType: "access"
-}
-
-router.post("/login", (req, res) => {
-    let { email, password } = req.body
-    console.log("/post.login: ", email, password)
-    let responseObj = {
-        statusCode: 0,
-        errorMsg: "",
-        data: {}
-    }
-
-    if (email != undefined && password != undefined) {
-        let DBUser = [
-            { id: "11", email: "admin", password: "123", role: "admin" },
-            { id: "22", email: "user1", password: "123", role: "user" },
-            { id: "33", email: "user2", password: "123", role: "user" },
-        ];
-        DBUser = DBUser.find(u => u.email === email)
-        if (DBUser != null && email === DBUser.email && password === DBUser.password) {
-            responseObj.statusCode = 200
-            responseObj.errorMsg = ""
-
-            let tokenObj = generateJWTToken(DBUser)
-
-            DBUser.token = tokenObj.JWTToken;
-            DBUser.expirationDate = `${tokenObj.ExpirationDate.toLocaleDateString()} ${tokenObj.ExpirationDate.toLocaleTimeString()}`;
-            DBUser.tokenType = 'Bearer';
-            responseObj.data = DBUser
-
-        } else {
-            responseObj.statusCode = 404
-            responseObj.errorMsg = "email/password do not match!!"
-            console.log("email/password do not match!!");
+router.post("/Login", async (request, response) => {
+    let { Login, Password, StayConnected } = request.body
+    // console.log("/post.login: ", Login, Password, StayConnected);
+    await GetUser(Login)
+        .then((res) => {
+            console.log("getuser: ", res)
+            if (res == null || res.length == 0)
+                response.status(403).send("Login ou mot de passe incorrect");
+            else {
+                let user = res[0];
+                bcrypt.compare(Password, user.PasswordHash, async function (err, result) {
+                    if (!result) response.status(403).send("Login ou mot de passe incorrect !!!");
+                    else
+                        await GetUserRoles(user.UserId)
+                            .then((resRoles) => {
+                                user.Roles = resRoles.map(x => x.Libelle);
+                                user.StayConnected = StayConnected;
+                                let tokenObj = generateJWTToken(user)
+                                // let expirationDate = `${tokenObj.ExpirationDate.toLocaleDateString()} ${tokenObj.ExpirationDate.toLocaleTimeString()}`;
+                                let expirationDate = tokenObj.ExpirationDate.toLocaleString();
+                                user.tokenType = 'Bearer';
+                                let responseObj = {
+                                    UserId: user.UserId,
+                                    Username: user.Username,
+                                    Email: user.Email,
+                                    PhoneNumber: user.PhoneNumber,
+                                    expirationDate: expirationDate,
+                                    token: tokenObj.JWTToken,
+                                };
+                                response.status(200).send(responseObj);
+                            })
+                            .catch((errRoles) => response.status(400).send(errRoles));
+                });
+            }
+        })
+        .catch((error) => response.status(400).send(error))
+    /*
+        if (email != undefined && password != undefined) {
+            let DBUser = [
+                { id: "11", email: "admin", password: "123", roles: ["role1", "role2", "role3"], },
+                { id: "22", email: "user1", password: "123", roles: ["role1", "role2"], },
+                { id: "33", email: "user2", password: "123", roles: ["role2", "role3"], },
+            ];
+            DBUser = DBUser.find(u => u.email === email)
+            if (DBUser != null && email === DBUser.email && password === DBUser.password) {
+                responseObj.statusCode = 200
+                responseObj.errorMsg = ""
+    
+                let tokenObj = generateJWTToken(DBUser)
+    
+                DBUser.token = tokenObj.JWTToken;
+                DBUser.expirationDate = `${tokenObj.ExpirationDate.toLocaleDateString()} ${tokenObj.ExpirationDate.toLocaleTimeString()}`;
+                DBUser.tokenType = 'Bearer';
+                responseObj.data = DBUser
+    
+            } else {
+                responseObj.statusCode = 404
+                responseObj.errorMsg = "email/password do not match!!"
+                console.log("email/password do not match!!");
+            }
         }
-    }
-
-    res.status(responseObj.statusCode).json(responseObj)
+    */
+    // res.status(responseObj.statusCode).send(responseObj.data)
 })
 
-function generateJWTToken(user) {
-    let today = new Date();
-    let expirationDate = new Date(today);
-    expirationDate.setMinutes(today.getMinutes() + 60)
-
-    let payload = {
-        id: user.id,
-        email: user.email,
-        iat: parseInt(today.getTime() / 1000, 10),
-        exp: parseInt(expirationDate.getTime() / 1000, 10),
-        sub: user.email,
-        iss: 'admin@gmail.com',
-        roles: [user.role],
-        permissions: [
-            user.role
-        ]
-    }
-
-
-    let token = jwt.sign(payload, config.secretKey)
-    return { JWTToken: token, ExpirationDate: expirationDate }
-
-}
 
 // router.post('/login', passport.authenticate('local', {
 //     successReturnToOrRedirect: '/',

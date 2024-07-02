@@ -71,7 +71,7 @@ var PatrimoineController = require('./Controllers/PatrimoineController');
 var ClientPieceController = require('./Controllers/ClientPieceController');
 var PassifController=require('./Controllers/PassifController');
 var BudgetController=require('./Controllers/BudgetController')
-app.use('/', AuthController,);
+app.use('/Auth/', AuthController,);
 app.use('/', ClientController);
 app.use('/', ProcheController);
 app.use('/', ConjointController);
