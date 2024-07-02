@@ -16,6 +16,8 @@ const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require(
 const { GetClientPieces, CreateClientPiece, DeleteClientPiece, GetClientPiece } = require('./Infrastructure/ClientPieceRepository');
 const { GetPieces, } = require('./Infrastructure/PieceRepository');
 const { CreatePatrimoine, UpdatePatrimoine, DeletePatrimoine, GetPatrimoines } = require('./Infrastructure/PatrimoineRepository');
+const {GetPassifs,CreatePassif,UpdatePassif,DeletePassif} =require('./Infrastructure/PassifRepository');
+const {GetBudgets,CreateBudget,UpdateBudget,DeleteBudget} =require('./Infrastructure/BudgetRepository');
 
 // setup logger
 let options = {
@@ -350,8 +352,54 @@ app.put("/UpdatePatrimoine", async (request, response) => {
     .catch((error) => response.status(400).send(error))
 });
 app.delete("/DeletePatrimoine/:PatrimoineId", async (request, response) => {
-  await DeletePatrimoine(request.params.ConjointId)
+  await DeletePatrimoine(request.params.PatrimoineId)
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error))
 });
 //#endregion Patrimoine
+
+//#region Passif
+app.get("/GetPassifs", async (request, response) => {
+  await GetPassifs(request.query.ClientId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.post("/CreatePassif", async (request, response) => {
+  await CreatePassif(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(500).send(error))
+});
+app.put("/UpdatePassif", async (request, response) => {
+  await UpdatePassif(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.delete("/DeletePassif/:PassifId", async (request, response) => {
+  await DeletePassif(request.params.PassifId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+//#endregion Passif
+
+//#region Budget
+app.get("/GetBudgets", async (request, response) => {
+  await GetBudgets(request.query.ClientId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.post("/CreateBudget", async (request, response) => {
+  await CreateBudget(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(500).send(error))
+});
+app.put("/UpdateBudget", async (request, response) => {
+  await UpdateBudget(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+app.delete("/DeleteBudget/:BudgetId", async (request, response) => {
+  await DeleteBudget(request.params.PassifId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error))
+});
+//#endregion Budget

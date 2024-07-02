@@ -35,11 +35,29 @@ function CreateClient(data) {
             .input("Telephone1", sql.NVarChar(20), data.Telephone1)
             .input("Telephone2", sql.NVarChar(20), data.Telephone2)
             .input("HasConjoint", sql.Bit, data.HasConjoint)
+            .input("ParticulariteFiscale", sql.NVarChar(255), data.ParticulariteFiscale)
+            .input("CFE", sql.NVarChar(100), data.CFE)
+            .input("Cotisation", sql.NVarChar(100), data.Cotisation)
+            .input("Reversion", sql.NVarChar(100), data.Reversion)
+            .input("CNSS", sql.NVarChar(100), data.CNSS)
+            .input("CNAREFE", sql.NVarChar(100), data.CNAREFE)
+            .input("CAPITONE", sql.NVarChar(100), data.CAPITONE)
+            .input("AssuranceRapatriement", sql.NVarChar(100), data.AssuranceRapatriement)
+            .input("MutuelleFrancaise", sql.NVarChar(100), data.MutuelleFrancaise)
+            .input("PASSEPORT", sql.NVarChar(100), data.PASSEPORT)
+            .input("CarteSejour", sql.NVarChar(100), data.CarteSejour)
+            .input("PermisConduire", sql.NVarChar(100), data.PermisConduire)
+            .input("AssuranceAuto", sql.NVarChar(100), data.AssuranceAuto)
+            .input("AssuranceHabitation", sql.NVarChar(100), data.AssuranceHabitation)
+            .input("InscriptionConsulat", sql.NVarChar(100), data.InscriptionConsulat)
+            .input("CPAN", sql.NVarChar(100), data.CPAN)
+            .input("CSG_CRDS", sql.NVarChar(100), data.CSG_CRDS)
             .execute('ps_create_client')
             .then((result) => resolve(result.rowsAffected[0] > 0))
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
+
 function UpdateClient(data) {
     return new Promise((resolve, reject) => {
         new sql.Request()
@@ -56,11 +74,29 @@ function UpdateClient(data) {
             .input("Telephone1", sql.NVarChar(20), data.Telephone1)
             .input("Telephone2", sql.NVarChar(20), data.Telephone2)
             .input("HasConjoint", sql.Bit, data.HasConjoint)
+            .input("ParticulariteFiscale", sql.NVarChar(255), data.ParticulariteFiscale)
+            .input("CFE", sql.NVarChar(100), data.CFE)
+            .input("Cotisation", sql.NVarChar(100), data.Cotisation)
+            .input("Reversion", sql.NVarChar(100), data.Reversion)
+            .input("CNSS", sql.NVarChar(100), data.CNSS)
+            .input("CNAREFE", sql.NVarChar(100), data.CNAREFE)
+            .input("CAPITONE", sql.NVarChar(100), data.CAPITONE)
+            .input("AssuranceRapatriement", sql.NVarChar(100), data.AssuranceRapatriement)
+            .input("MutuelleFrancaise", sql.NVarChar(100), data.MutuelleFrancaise)
+            .input("PASSEPORT", sql.NVarChar(100), data.PASSEPORT)
+            .input("CarteSejour", sql.NVarChar(100), data.CarteSejour)
+            .input("PermisConduire", sql.NVarChar(100), data.PermisConduire)
+            .input("AssuranceAuto", sql.NVarChar(100), data.AssuranceAuto)
+            .input("AssuranceHabitation", sql.NVarChar(100), data.AssuranceHabitation)
+            .input("InscriptionConsulat", sql.NVarChar(100), data.InscriptionConsulat)
+            .input("CPAN", sql.NVarChar(100), data.CPAN)
+            .input("CSG_CRDS", sql.NVarChar(100), data.CSG_CRDS)
             .execute('ps_update_client')
             .then((result) => resolve(result.rowsAffected[0] > 0))
             .catch((error) => reject(error?.originalError?.info?.message))
     });
 }
+
 function DeleteClient(ClientId) {
     return new Promise((resolve, reject) => {
         new sql.Request()
