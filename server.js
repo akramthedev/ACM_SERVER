@@ -69,7 +69,7 @@ var ProcheController = require('./Controllers/ProcheController');
 var ConjointController = require('./Controllers/ConjointController');
 var PatrimoineController = require('./Controllers/PatrimoineController');
 var ClientPieceController = require('./Controllers/ClientPieceController');
-app.use('/', AuthController,);
+app.use('/Auth/', AuthController,);
 app.use('/', ClientController);
 app.use('/', ProcheController);
 app.use('/', ConjointController);
