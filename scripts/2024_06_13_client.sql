@@ -58,12 +58,29 @@ create proc ps_create_client
     ,@Telephone1 NVarChar(20)
     ,@Telephone2 NVarChar(20)
     ,@HasConjoint Bit
+    ,@ParticulariteFiscale NVarChar(255)
+    ,CFE NVarChar(100)
+    ,Cotisation NVarChar(100)
+    ,Reversion NVarChar(100)
+    ,CNSS NVarChar(100)
+    ,CNAREFE NVarChar(100)
+    ,CAPITONE NVarChar(100)
+    ,AssuranceRapatriement NVarChar(100)
+    ,MutuelleFrancaise NVarChar(100)
+    ,PASSEPORT NVarChar(100)
+    ,CarteSejour NVarChar(100)
+    ,PermisConduire NVarChar(100)
+    ,AssuranceAuto NVarChar(100)
+    ,AssuranceHabitation NVarChar(100)
+    ,InscriptionConsulat NVarChar(100)
+    ,CPAN NVarChar(100)
+    ,CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAN,CSG_CRDS)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAN,@CSG_CRDS);
 Go
 
-create proc ps_update_client
+CREATE PROCEDURE ps_update_client
     @ClientId uniqueidentifier
     ,@Nom nvarchar(255)
     ,@Prenom nvarchar(255)
@@ -77,23 +94,58 @@ create proc ps_update_client
     ,@Telephone1 NVarChar(20)
     ,@Telephone2 NVarChar(20)
     ,@HasConjoint Bit
+    ,@ParticulariteFiscale NVarChar(255)
+    ,@CFE NVarChar(100)
+    ,@Cotisation NVarChar(100)
+    ,@Reversion NVarChar(100)
+    ,@CNSS NVarChar(100)
+    ,@CNAREFE NVarChar(100)
+    ,@CAPITONE NVarChar(100)
+    ,@AssuranceRapatriement NVarChar(100)
+    ,@MutuelleFrancaise NVarChar(100)
+    ,@PASSEPORT NVarChar(100)
+    ,@CarteSejour NVarChar(100)
+    ,@PermisConduire NVarChar(100)
+    ,@AssuranceAuto NVarChar(100)
+    ,@AssuranceHabitation NVarChar(100)
+    ,@InscriptionConsulat NVarChar(100)
+    ,@CPAN NVarChar(100)
+    ,@CSG_CRDS NVarChar(100)
 AS
-    update Client
-    set
-        Nom=@Nom,
-        Prenom=@Prenom,
-        DateNaissance=@DateNaissance,
-        Profession=@Profession,
-        DateRetraite=@DateRetraite,
-        NumeroSS=@NumeroSS,
-        Adresse=@Adresse,
-        Email1=@Email1,
-        Email2=@Email2,
-        Telephone1=@Telephone1,
-        Telephone2=@Telephone2,
-        HasConjoint=@HasConjoint
-    where ClientId=@ClientId
-Go
+    UPDATE Client
+    SET
+        Nom = @Nom,
+        Prenom = @Prenom,
+        DateNaissance = @DateNaissance,
+        Profession = @Profession,
+        DateRetraite = @DateRetraite,
+        NumeroSS = @NumeroSS,
+        Adresse = @Adresse,
+        Email1 = @Email1,
+        Email2 = @Email2,
+        Telephone1 = @Telephone1,
+        Telephone2 = @Telephone2,
+        HasConjoint = @HasConjoint,
+        ParticulariteFiscale = @ParticulariteFiscale,
+        CFE = @CFE,
+        Cotisation = @Cotisation,
+        Reversion = @Reversion,
+        CNSS = @CNSS,
+        CNAREFE = @CNAREFE,
+        CAPITONE = @CAPITONE,
+        AssuranceRapatriement = @AssuranceRapatriement,
+        MutuelleFrancaise = @MutuelleFrancaise,
+        PASSEPORT = @PASSEPORT,
+        CarteSejour = @CarteSejour,
+        PermisConduire = @PermisConduire,
+        AssuranceAuto = @AssuranceAuto,
+        AssuranceHabitation = @AssuranceHabitation,
+        InscriptionConsulat = @InscriptionConsulat,
+        CPAN = @CPAN,
+        CSG_CRDS = @CSG_CRDS
+    WHERE ClientId = @ClientId;
+GO
+
 
 create proc ps_delete_client
     @ClientId uniqueidentifier
