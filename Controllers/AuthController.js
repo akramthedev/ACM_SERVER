@@ -54,41 +54,7 @@ router.post("/Login", async (request, response) => {
                 });
             }
         })
-        .catch((error) => response.status(400).send(error))
-    /*
-        if (email != undefined && password != undefined) {
-            let DBUser = [
-                { id: "11", email: "admin", password: "123", roles: ["role1", "role2", "role3"], },
-                { id: "22", email: "user1", password: "123", roles: ["role1", "role2"], },
-                { id: "33", email: "user2", password: "123", roles: ["role2", "role3"], },
-            ];
-            DBUser = DBUser.find(u => u.email === email)
-            if (DBUser != null && email === DBUser.email && password === DBUser.password) {
-                responseObj.statusCode = 200
-                responseObj.errorMsg = ""
-    
-                let tokenObj = generateJWTToken(DBUser)
-    
-                DBUser.token = tokenObj.JWTToken;
-                DBUser.expirationDate = `${tokenObj.ExpirationDate.toLocaleDateString()} ${tokenObj.ExpirationDate.toLocaleTimeString()}`;
-                DBUser.tokenType = 'Bearer';
-                responseObj.data = DBUser
-    
-            } else {
-                responseObj.statusCode = 404
-                responseObj.errorMsg = "email/password do not match!!"
-                console.log("email/password do not match!!");
-            }
-        }
-    */
-    // res.status(responseObj.statusCode).send(responseObj.data)
+        .catch((error) => response.status(400).send(error));
 })
-
-
-// router.post('/login', passport.authenticate('local', {
-//     successReturnToOrRedirect: '/',
-//     failureRedirect: '/login',
-//     failureMessage: true
-// }));
 
 module.exports = router;
