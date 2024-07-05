@@ -5,7 +5,7 @@ CREATE TABLE Budget (
     Designation NVARCHAR(255),
     MontantMr FLOAT,
     MontantMme FLOAT,
-    CommentBudgets NVARCHAR(MAX),
+    CommentBudgets NVARCHAR(255),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
@@ -23,7 +23,7 @@ create proc ps_create_Budget
     @Designation NVARCHAR(255),
     @MontantMr FLOAT,
     @MontantMme FLOAT,
-    @CommentBudgets NVARCHAR(MAX)
+    @CommentBudgets NVARCHAR(255)
 AS
 BEGIN
     insert into Budget(BudgetsId,ClientId,Designation,MontantMr,MontantMme,CommentBudgets)
@@ -37,7 +37,7 @@ create proc ps_update_Budget
     @Designation NVARCHAR(255),
     @MontantMr FLOAT,
     @MontantMme FLOAT,
-    @CommentBudgets NVARCHAR(MAX)
+    @CommentBudgets NVARCHAR(255)
 AS
 BEGIN
     update Budget

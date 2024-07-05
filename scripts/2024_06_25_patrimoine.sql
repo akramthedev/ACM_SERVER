@@ -2,17 +2,19 @@
 CREATE TABLE Patrimoine (
     PatrimoineId uniqueidentifier primary key,
     ClientId uniqueidentifier NOT NULL, -- Référence au client 
-    TypePatrimoine NVARCHAR(100),
+    TypePatrimoine NVARCHAR(100), -- "Bien d'usage" | "Immobilier de rapport" | "Bien professionnel"
     Designation NVARCHAR(255),
+    Adresse NVARCHAR(255),
     Valeur FLOAT,
     Detenteur NVARCHAR(255),
     ChargesAssocies NVARCHAR(255),
     Charges NVARCHAR(255),
+    DateAchat Date,
     RevenueFiscalite NVARCHAR(255),
-    CapitalEmprunte NVARCHAR(255),
-    Duree NVARCHAR(255),
-    Taux NVARCHAR(255),
-    Deces NVARCHAR(255),
+    CapitalEmprunte FLOAT,
+    Duree FLOAT,
+    Taux FLOAT,
+    AGarantieDeces Bit,
     Particularite NVARCHAR(255),
     Commentaire NVARCHAR(MAX),
     QuestionsComplementaires NVARCHAR(MAX),
@@ -32,22 +34,24 @@ create proc ps_create_patrimoine
     @ClientId uniqueidentifier,
     @TypePatrimoine NVARCHAR(100),
     @Designation NVARCHAR(255),
+    @Adresse NVARCHAR(255),
     @Valeur FLOAT,
     @Detenteur NVARCHAR(255),
     @ChargesAssocies NVARCHAR(255),
     @Charges NVARCHAR(255),
+    @DateAchat Date,
     @RevenueFiscalite NVARCHAR(255),
-    @CapitalEmprunte NVARCHAR(255),
-    @Duree NVARCHAR(255),
-    @Taux NVARCHAR(255),
-    @Deces NVARCHAR(255),
+    @CapitalEmprunte FLOAT,
+    @Duree FLOAT,
+    @Taux FLOAT,
+    @AGarantieDeces BIT,
     @Particularite NVARCHAR(255),
     @Commentaire NVARCHAR(MAX),
     @QuestionsComplementaires NVARCHAR(MAX)
 AS
 BEGIN
-    insert into Patrimoine(PatrimoineId,ClientId,TypePatrimoine,Designation,Valeur,Detenteur,ChargesAssocies,Charges,RevenueFiscalite,CapitalEmprunte,Duree,Taux,Deces,Particularite,Commentaire,QuestionsComplementaires)
-    values(@PatrimoineId,@ClientId,@TypePatrimoine,@Designation,@Valeur,@Detenteur,@ChargesAssocies,@Charges,@RevenueFiscalite,@CapitalEmprunte,@Duree,@Taux,@Deces,@Particularite,@Commentaire,@QuestionsComplementaires)
+    insert into Patrimoine(PatrimoineId,ClientId,TypePatrimoine,Designation,Adresse,Valeur,Detenteur,ChargesAssocies,Charges,DateAchat,RevenueFiscalite,CapitalEmprunte,Duree,Taux,AGarantieDeces,Particularite,Commentaire,QuestionsComplementaires)
+    values(@PatrimoineId,@ClientId,@TypePatrimoine,@Designation,@Adresse,@Valeur,@Detenteur,@ChargesAssocies,@Charges,@DateAchat,@RevenueFiscalite,@CapitalEmprunte,@Duree,@Taux,@AGarantieDeces,@Particularite,@Commentaire,@QuestionsComplementaires)
 END
 GO
 
@@ -55,15 +59,17 @@ create proc ps_update_patrimoine
     @PatrimoineId uniqueidentifier,
     @TypePatrimoine NVARCHAR(100),
     @Designation NVARCHAR(255),
+    @Adresse NVARCHAR(255),
     @Valeur FLOAT,
     @Detenteur NVARCHAR(255),
     @ChargesAssocies NVARCHAR(255),
     @Charges NVARCHAR(255),
+    @DateAchat Date,
     @RevenueFiscalite NVARCHAR(255),
-    @CapitalEmprunte NVARCHAR(255),
-    @Duree NVARCHAR(255),
-    @Taux NVARCHAR(255),
-    @Deces NVARCHAR(255),
+    @CapitalEmprunte FLOAT,
+    @Duree FLOAT,
+    @Taux FLOAT,
+    @AGarantieDeces BIT,
     @Particularite NVARCHAR(255),
     @Commentaire NVARCHAR(MAX),
     @QuestionsComplementaires NVARCHAR(MAX)
@@ -74,15 +80,17 @@ BEGIN
         PatrimoineId=@PatrimoineId,
         TypePatrimoine=@TypePatrimoine,
         Designation=@Designation,
+        Adresse=@Adresse,
         Valeur=@Valeur,
         Detenteur=@Detenteur,
         ChargesAssocies=@ChargesAssocies,
         Charges=@Charges,
+        DateAchat=@DateAchat,
         RevenueFiscalite=@RevenueFiscalite,
         CapitalEmprunte=@CapitalEmprunte,
         Duree=@Duree,
         Taux=@Taux,
-        Deces=@Deces,
+        AGarantieDeces=@AGarantieDeces,
         Particularite=@Particularite,
         Commentaire=@Commentaire,
         QuestionsComplementaires=@QuestionsComplementaires
