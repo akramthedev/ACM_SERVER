@@ -9,6 +9,7 @@ router.get("/GetPatrimoines", async (request, response) => {
         .catch((error) => response.status(400).send(error))
 });
 router.post("/CreatePatrimoine", async (request, response) => {
+    console.log("request: ", request.body)
     await CreatePatrimoine(request.body)
         .then((res) => response.status(200).send(res))
         .catch((error) => response.status(500).send(error))
@@ -19,7 +20,7 @@ router.put("/UpdatePatrimoine", async (request, response) => {
         .catch((error) => response.status(400).send(error))
 });
 router.delete("/DeletePatrimoine/:PatrimoineId", async (request, response) => {
-    await DeletePatrimoine(request.params.ConjointId)
+    await DeletePatrimoine(request.params.PatrimoineId)
         .then((res) => response.status(200).send(res))
         .catch((error) => response.status(400).send(error))
 });

@@ -8,8 +8,8 @@ CREATE TABLE Passif (
     Valeur FLOAT,
     Detenteur NVARCHAR(100),
     DureeMois DECIMAL(5,2),
-    Taux NVARCHAR(100),
-    Deces NVARCHAR(100),
+    Taux FLOAT,
+    Deces BIT,
     Particularite NVARCHAR(100),
     ValeurRachat FLOAT,
     DateSouscription DATE,
@@ -17,10 +17,10 @@ CREATE TABLE Passif (
     Beneficiaire NVARCHAR(100),
     DateOuverture DATE,
     EpargneAssocie NVARCHAR(100),
-    RevenusDistribue NVARCHAR(100),
-    FiscaliteOuRevenue NVARCHAR(100),
-    TauxRevalorisation NVARCHAR(100),
-    CommentPassifs NVARCHAR(MAX),
+    RevenusDistribue FLOAT,
+    FiscaliteOuRevenue FLOAT,
+    TauxRevalorisation FLOAT,
+    CommentPassifs NVARCHAR(255),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
 
@@ -41,8 +41,8 @@ create proc ps_create_Passif
     @Valeur FLOAT,
     @Detenteur NVARCHAR(100),
     @DureeMois DECIMAL(5,2),
-    @Taux NVARCHAR(100),
-    @Deces NVARCHAR(100),
+    @Taux FLOAT,
+    @Deces BIT,
     @Particularite NVARCHAR(100),
     @ValeurRachat FLOAT,
     @DateSouscription DATE,
@@ -50,14 +50,14 @@ create proc ps_create_Passif
     @Beneficiaire NVARCHAR(100),
     @DateOuverture DATE,
     @EpargneAssocie NVARCHAR(100),
-    @RevenusDistribue NVARCHAR(100),
-    @FiscaliteOuRevenue NVARCHAR(100),
-    @TauxRevalorisation NVARCHAR(100),
-    @CommentPassifs NVARCHAR(MAX),
+    @RevenusDistribue FLOAT,
+    @FiscaliteOuRevenue FLOAT,
+    @TauxRevalorisation FLOAT,
+    @CommentPassifs NVARCHAR(255)
 AS
 BEGIN
-    insert into Passif(PassifsId,ClientId,TypePassifs,Designation,Valeur,Detenteur,DureeMois,Taux,Deces,Particularite,ValeurRachat,DateSouscription,Assure,Beneficiaire,DateOuverture,EpargneAssocie,RevenusDistribue,FiscaliteOuRevenue,TauxRevalorisation,CommentPassifs)
-    values(@PassifsId,@ClientId,@TypePassifs,@Designation,@Valeur,@Detenteur,@DureeMois,@Taux,@Deces,@Particularite,@ValeurRachat,@DateSouscription,@Assure,@Beneficiaire,@DateOuverture,@EpargneAssocie,@RevenusDistribue,@FiscaliteOuRevenue,@TauxRevalorisation,@CommentPassifs)
+    insert into Passif(PassifsId,ClientId,TypePassifs,Designation,Valeur,CapitalEmprunte,Detenteur,DureeMois,Taux,Deces,Particularite,ValeurRachat,DateSouscription,Assure,Beneficiaire,DateOuverture,EpargneAssocie,RevenusDistribue,FiscaliteOuRevenue,TauxRevalorisation,CommentPassifs)
+    values(@PassifsId,@ClientId,@TypePassifs,@Designation,@Valeur,@CapitalEmprunte,@Detenteur,@DureeMois,@Taux,@Deces,@Particularite,@ValeurRachat,@DateSouscription,@Assure,@Beneficiaire,@DateOuverture,@EpargneAssocie,@RevenusDistribue,@FiscaliteOuRevenue,@TauxRevalorisation,@CommentPassifs)
 END
 GO
 
@@ -70,8 +70,8 @@ create proc ps_update_Passif
     @Valeur FLOAT,
     @Detenteur NVARCHAR(100),
     @DureeMois DECIMAL(5,2),
-    @Taux NVARCHAR(100),
-    @Deces NVARCHAR(100),
+    @Taux FLOAT,
+    @Deces BIT,
     @Particularite NVARCHAR(100),
     @ValeurRachat FLOAT,
     @DateSouscription DATE,
@@ -79,10 +79,10 @@ create proc ps_update_Passif
     @Beneficiaire NVARCHAR(100),
     @DateOuverture DATE,
     @EpargneAssocie NVARCHAR(100),
-    @RevenusDistribue NVARCHAR(100),
-    @FiscaliteOuRevenue NVARCHAR(100),
-    @TauxRevalorisation NVARCHAR(100),
-    @CommentPassifs NVARCHAR(MAX),
+    @RevenusDistribue FLOAT,
+    @FiscaliteOuRevenue FLOAT,
+    @TauxRevalorisation FLOAT,
+    @CommentPassifs NVARCHAR(255)
 AS
 BEGIN
     update Passif
@@ -92,6 +92,7 @@ BEGIN
         TypePassifs=@TypePassifs,
         Designation=@Designation,
         Valeur=@Valeur,
+        CapitalEmprunte=@CapitalEmprunte,
         Detenteur=@Detenteur,
         DureeMois=@DureeMois,
         Taux=@Taux,
