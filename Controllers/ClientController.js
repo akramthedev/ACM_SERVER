@@ -29,7 +29,6 @@ router.get("/GetClient", async (request, response) => {
             client.Patrimoines = values[2];
             client.Passifs = values[3];
             client.Budgets = values[4];
-            console.log("Client Budget ", client.Budgets);
             response.status(200).send(client);
           },
           (error) => {
