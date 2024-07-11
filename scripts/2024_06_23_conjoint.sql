@@ -11,7 +11,7 @@ CREATE TABLE Conjoint (
     DateMariage DATE,
     Adresse NVARCHAR(255),
     RegimeMatrimonial NVARCHAR(100),
-    DonationEpoux NVARCHAR(100),
+    DonationEpoux BIT,
     ModifRegimeDate NVARCHAR(100),
     QuestComp NVARCHAR(MAX),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
@@ -37,7 +37,7 @@ create proc ps_create_conjoint
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
     @RegimeMatrimonial NVARCHAR(100),
-    @DonationEpoux NVARCHAR(100),
+    @DonationEpoux BIT,
     @ModifRegimeDate NVARCHAR(100),
     @QuestComp NVARCHAR(MAX)
 AS
@@ -58,7 +58,7 @@ create proc ps_update_conjoint
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
     @RegimeMatrimonial NVARCHAR(100),
-    @DonationEpoux NVARCHAR(100),
+    @DonationEpoux BIT,
     @ModifRegimeDate NVARCHAR(100),
     @QuestComp NVARCHAR(MAX)
 AS

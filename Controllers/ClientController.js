@@ -6,6 +6,7 @@ const { GetClientPieces } = require("../Infrastructure/ClientPieceRepository");
 const { GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 const { GetPassifs } = require("../Infrastructure/PassifRepository");
 const { GetBudgets } = require("../Infrastructure/BudgetRepository");
+const { GetConjoint } = require("../Infrastructure/ConjointRepository");
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
@@ -22,13 +23,15 @@ router.get("/GetClient", async (request, response) => {
         const promise3 = GetPatrimoines(client.ClientId);
         const promise4 = GetPassifs(client.ClientId);
         const promise5 = GetBudgets(client.ClientId);
-        Promise.all([promise1, promise2, promise3, promise4, promise5]).then(
+        const promise6 = GetConjoint(client.ClientId);
+        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6]).then(
           (values) => {
             client.Proches = values[0];
             client.ClientPieces = values[1];
             client.Patrimoines = values[2];
             client.Passifs = values[3];
             client.Budgets = values[4];
+            client.Conjoint = values[5];
             response.status(200).send(client);
           },
           (error) => {
@@ -38,6 +41,7 @@ router.get("/GetClient", async (request, response) => {
             client.Patrimoines = null;
             client.Passifs = null;
             client.Budgets = null;
+            client.Conjoint = null;
             response.status(200).send(client);
           }
         );
