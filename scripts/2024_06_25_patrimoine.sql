@@ -10,6 +10,7 @@ CREATE TABLE Patrimoine (
     ChargesAssocies NVARCHAR(255),
     Charges NVARCHAR(255),
     DateAchat Date,
+    DateCreation Date,
     RevenueFiscalite NVARCHAR(255),
     CapitalEmprunte FLOAT,
     Duree FLOAT,
@@ -17,6 +18,8 @@ CREATE TABLE Patrimoine (
     AGarantieDeces Bit,
     Particularite NVARCHAR(255),
     Commentaire NVARCHAR(MAX),
+    Status NVARCHAR(255),
+    Restant FLOAT,
     QuestionsComplementaires NVARCHAR(MAX),
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
@@ -40,6 +43,7 @@ create proc ps_create_patrimoine
     @ChargesAssocies NVARCHAR(255),
     @Charges NVARCHAR(255),
     @DateAchat Date,
+    @DateCreation Date,
     @RevenueFiscalite NVARCHAR(255),
     @CapitalEmprunte FLOAT,
     @Duree FLOAT,
@@ -47,11 +51,13 @@ create proc ps_create_patrimoine
     @AGarantieDeces BIT,
     @Particularite NVARCHAR(255),
     @Commentaire NVARCHAR(MAX),
+    @Status NVARCHAR(255),
+    @Restant FLOAT,
     @QuestionsComplementaires NVARCHAR(MAX)
 AS
 BEGIN
-    insert into Patrimoine(PatrimoineId,ClientId,TypePatrimoine,Designation,Adresse,Valeur,Detenteur,ChargesAssocies,Charges,DateAchat,RevenueFiscalite,CapitalEmprunte,Duree,Taux,AGarantieDeces,Particularite,Commentaire,QuestionsComplementaires)
-    values(@PatrimoineId,@ClientId,@TypePatrimoine,@Designation,@Adresse,@Valeur,@Detenteur,@ChargesAssocies,@Charges,@DateAchat,@RevenueFiscalite,@CapitalEmprunte,@Duree,@Taux,@AGarantieDeces,@Particularite,@Commentaire,@QuestionsComplementaires)
+    insert into Patrimoine(PatrimoineId,ClientId,TypePatrimoine,Designation,Adresse,Valeur,Detenteur,ChargesAssocies,Charges,DateAchat,DateCreation,RevenueFiscalite,CapitalEmprunte,Duree,Taux,AGarantieDeces,Particularite,Commentaire,Status,Restant,QuestionsComplementaires)
+    values(@PatrimoineId,@ClientId,@TypePatrimoine,@Designation,@Adresse,@Valeur,@Detenteur,@ChargesAssocies,@Charges,@DateAchat,@DateCreation,@RevenueFiscalite,@CapitalEmprunte,@Duree,@Taux,@AGarantieDeces,@Particularite,@Commentaire,@Status,@Restant,@QuestionsComplementaires)
 END
 GO
 
@@ -65,6 +71,7 @@ create proc ps_update_patrimoine
     @ChargesAssocies NVARCHAR(255),
     @Charges NVARCHAR(255),
     @DateAchat Date,
+    @DateCreation Date,
     @RevenueFiscalite NVARCHAR(255),
     @CapitalEmprunte FLOAT,
     @Duree FLOAT,
@@ -72,6 +79,8 @@ create proc ps_update_patrimoine
     @AGarantieDeces BIT,
     @Particularite NVARCHAR(255),
     @Commentaire NVARCHAR(MAX),
+    @Status NVARCHAR(255),
+    @Restant FLOAT,
     @QuestionsComplementaires NVARCHAR(MAX)
 AS
 BEGIN
@@ -86,6 +95,7 @@ BEGIN
         ChargesAssocies=@ChargesAssocies,
         Charges=@Charges,
         DateAchat=@DateAchat,
+        DateCreation=@DateCreation,
         RevenueFiscalite=@RevenueFiscalite,
         CapitalEmprunte=@CapitalEmprunte,
         Duree=@Duree,
@@ -93,6 +103,8 @@ BEGIN
         AGarantieDeces=@AGarantieDeces,
         Particularite=@Particularite,
         Commentaire=@Commentaire,
+        Status=@Status,
+        Restant=@Restant,
         QuestionsComplementaires=@QuestionsComplementaires
     where PatrimoineId=@PatrimoineId
 END
