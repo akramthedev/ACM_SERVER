@@ -3,6 +3,9 @@ var router = express.Router();
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require("../Infrastructure/ClientRepository");
 const { GetProches, CreateProche } = require("../Infrastructure/ProcheRepository");
 const { GetClientPieces } = require("../Infrastructure/ClientPieceRepository");
+const { GetClientServices } = require("../Infrastructure/ClientServiceRepository");
+const { GetClientMissions } = require("../Infrastructure/ClientMissionRepository");
+const { GetClientPrestations } = require("../Infrastructure/ClientPrestationRepository");
 const { GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 const { GetPassifs } = require("../Infrastructure/PassifRepository");
 const { GetBudgets } = require("../Infrastructure/BudgetRepository");
@@ -24,7 +27,11 @@ router.get("/GetClient", async (request, response) => {
         const promise4 = GetPassifs(client.ClientId);
         const promise5 = GetBudgets(client.ClientId);
         const promise6 = GetConjoint(client.ClientId);
-        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6]).then(
+        const promise7 = GetClientServices(client.ClientId);
+        const promise8 = GetClientMissions(client.ClientId);
+        const promise9 = GetClientPrestations(client.ClientId);
+
+        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8, promise9]).then(
           (values) => {
             client.Proches = values[0];
             client.ClientPieces = values[1];
@@ -32,6 +39,9 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = values[3];
             client.Budgets = values[4];
             client.Conjoint = values[5];
+            client.Service = values[6];
+            client.Mission = values[7];
+            client.Prestation = values[8];
             response.status(200).send(client);
           },
           (error) => {
@@ -42,6 +52,9 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = null;
             client.Budgets = null;
             client.Conjoint = null;
+            client.Service = null;
+            client.Mission = null;
+            client.Prestation = null;
             response.status(200).send(client);
           }
         );
@@ -73,6 +86,17 @@ router.post("/CreateClient", async (request, response) => {
             })
             .catch((errorConjoint) => {
               console.log("ErrorConjoint: ", errorConjoint);
+            });
+        }
+
+        // create service
+        if (request.body.Service != null) {
+          await CreateService(request.body.Service)
+            .then((resService) => {
+              console.log("resService: ", resService);
+            })
+            .catch((errorService) => {
+              console.log("ErrorService: ", errorService);
             });
         }
       }

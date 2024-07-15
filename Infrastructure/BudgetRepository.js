@@ -2,7 +2,6 @@ const sql = require("mssql");
 
 function GetBudgets(ClientId) {
   return new Promise((resolve, reject) => {
-    console.log("GetBudget ", ClientId);
     new sql.Request()
       .input("ClientId", sql.UniqueIdentifier, ClientId)
       .execute("ps_get_Budgets")
