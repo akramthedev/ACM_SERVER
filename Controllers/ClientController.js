@@ -39,9 +39,9 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = values[3];
             client.Budgets = values[4];
             client.Conjoint = values[5];
-            client.Service = values[6];
-            client.Mission = values[7];
-            client.Prestation = values[8];
+            client.Services = values[6];
+            client.Missions = values[7];
+            client.Prestations = values[8];
             response.status(200).send(client);
           },
           (error) => {
@@ -52,9 +52,9 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = null;
             client.Budgets = null;
             client.Conjoint = null;
-            client.Service = null;
-            client.Mission = null;
-            client.Prestation = null;
+            client.Services = null;
+            client.Missions = null;
+            client.Prestations = null;
             response.status(200).send(client);
           }
         );

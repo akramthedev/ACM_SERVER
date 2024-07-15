@@ -141,9 +141,9 @@ insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values
 insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values('2dae88c3-13ed-4f01-ae30-4cc3939b99b7','66eb9acf-02e0-44e8-bfe3-5686873e8761','Inscription consulaire','Description Mission Inscription consulaire du service Accompagnement',CURRENT_TIMESTAMP)
 
 create proc ps_get_missions
-    @MissionId uniqueidentifier
+    @ServiceId uniqueidentifier
 AS
-    select * from Mission
+    select * from Mission where ServiceId=@ServiceId
 GO
 
 create proc ps_get_client_missions
@@ -198,9 +198,9 @@ insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)
 
 
 create proc ps_get_prestations
-    @PrestationId uniqueidentifier
+    @MissionId uniqueidentifier
 AS
-    select * from Prestation
+    select * from Prestation where MissionId=@MissionId
 GO
 
 create proc ps_get_client_prestations
