@@ -30,44 +30,78 @@ CREATE TABLE Prestation (
     FOREIGN KEY (MissionId) REFERENCES Mission(MissionId)
 
 );
+----------------------------------------------------------------------------17/07/2024-------------------------------------------------------------
+CREATE TABLE TacheDateReference(
+    TacheDateReferenceId uniqueidentifier PRIMARY KEY,
+    Libelle NVARCHAR(255),
+    Description NVARCHAR(255)
+);
+CREATE TABLE TypePersonneANotifier(
+    TypePersonneANotifierId uniqueidentifier PRIMARY KEY,
+    Libelle NVARCHAR(255),
+    Description NVARCHAR(255)
+);
 
-
-CREATE TABLE ClientService (
-    ClientServiceId uniqueidentifier PRIMARY Key,
-    ClientId uniqueidentifier NOT NULL, -- Référence au Client 
-    ServiceId uniqueidentifier NOT NULL, -- Référence au Service 
-    DateAffectation Date,
-    CreatedAt DateTime,
-    UpdatedAt DateTime,
-    FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
-    FOREIGN KEY (ServiceId) REFERENCES Service(ServiceId)
+CREATE TABLE Tache(
+    TacheId uniqueidentifier PRIMARY KEY,
+    PrestationId uniqueidentifier NOT NULL, --Référence au prestation
+    TacheDateReferenceId uniqueidentifier , --Référence au TacheDateReference
+    TypePersonneANotifierId uniqueidentifier , --Référence au TypePersonneANotifier
+    AgentId uniqueidentifier, --Référence au Agent
+    Intitule NVARCHAR(255),
+    Description NVARCHAR(255),
+    Numero_Ordre NVARCHAR(255),
+    Deadline Float,
+    NombreRapelle Float,
+    Priorite NVARCHAR(255),
+    Honoraire Float,
+    FOREIGN KEY (PrestationId) REFERENCES Prestation(PrestationId),
+    FOREIGN KEY (TacheDateReferenceId) REFERENCES TacheDateReference(TacheDateReferenceId),
+    FOREIGN KEY (TypePersonneANotifierId) REFERENCES TypePersonneANotifier(TypePersonneANotifierId),
 
 );
 
-CREATE TABLE ClientMission (
-    ClientMissionId uniqueidentifier PRIMARY Key,
-    ClientId uniqueidentifier NOT NULL, -- Référence au Client 
-    MissionId uniqueidentifier NOT NULL, -- Référence au Mission 
+
+CREATE TABLE ClientMission(
+    ClientMissionId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier NOT NULL, -- Référence au Client
+    MissionId uniqueidentifier NOT NULL, -- Référence au Mission
     DateAffectation Date,
-    CreatedAt DateTime,
-    UpdatedAt DateTime,
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
     FOREIGN KEY (MissionId) REFERENCES Mission(MissionId)
 
 );
 
-CREATE TABLE ClientPrestation (
-    ClientPrestationId uniqueidentifier PRIMARY Key,
-    ClientId uniqueidentifier NOT NULL, -- Référence au Client 
-    PrestationId uniqueidentifier NOT NULL, -- Référence au Prestation 
+CREATE TABLE ClientMissionPrestation(
+    ClientMissionPrestationId uniqueidentifier PRIMARY KEY,
+    ClientMissionId uniqueidentifier NOT NULL, -- Référence au ClientMission
+    PrestationId uniqueidentifier NOT NULL, -- Référence au Prestation
     DateAffectation Date,
-    CreatedAt DateTime,
-    UpdatedAt DateTime,
-    FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
+    FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (PrestationId) REFERENCES Prestation(PrestationId)
-
 );
 
+CREATE TABLE ClientTache(
+    CLientTacheId uniqueidentifier PRIMARY KEY,
+    ClientMissionPrestationId uniqueidentifier NOT NULL, --Référence au ClientMissionPrestation
+    ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
+    TacheId uniqueidentifier NOT NULL, --Référence au Tache
+    DateAffectation Date,
+    Intitule NVARCHAR(255),
+    Numero_Ordre NVARCHAR(255),
+    Commentaire NVARCHAR(255),
+    Deadline Float,
+    DateButoir Date,
+    Date_Execution Date,
+    Status NVARCHAR(255),
+    AgentResposable NVARCHAR(255)
+    FOREIGN KEY (ClientMissionPrestationId) REFERENCES ClientMissionPrestation(ClientMissionPrestationId),
+    FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
+    FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
+);
+
+
+----------------------------------------------------------17/07/2024-------------------------------------------------------------
 
 --region service
 insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values('a04cbdcc-7a95-4548-acbc-7e43b4f7ff9c','0e06e5a4-6246-415d-b119-c47077180755','Immobilier','Description Immobilier',CURRENT_TIMESTAMP)
@@ -75,50 +109,12 @@ insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values
 insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values('57039ef7-1bde-40bf-8477-6e74e37164c7','0e06e5a4-6246-415d-b119-c47077180755','Retraite','Description Retraite',CURRENT_TIMESTAMP)
 insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values('66eb9acf-02e0-44e8-bfe3-5686873e8761','0e06e5a4-6246-415d-b119-c47077180755','Accompagnement','Description Accompagnement',CURRENT_TIMESTAMP)
 
-create proc ps_get_services
-    @ServiceId uniqueidentifier
-AS
-    select * from Service
-    where CabinetId='0e06e5a4-6246-415d-b119-c47077180755'
-GO
 
-create proc ps_get_client_services
-    @ClientId uniqueidentifier
-AS
-BEGIN
-    select cs.ClientServiceId,cs.ClientId,cs.ServiceId,cs.DateAffectation,s.Designation,s.Description
-    from ClientService cs
-    left join Service s on s.ServiceId=cs.ServiceId
-    where cs.ClientId=@ClientId
-END
-GO
 
-create proc ps_get_client_service
-    @ClientServiceId uniqueidentifier
-AS
-BEGIN
-    select cs.ClientServiceId,cs.ClientId,cs.ServiceId,cs.DateAffectation,s.Designation,s.Description
-    from ClientService cs
-    left join Service s on s.ServiceId=cs.ServiceId
-    where cs.ClientServiceId=@ClientServiceId
-END
-GO
 
-create proc ps_create_client_service
-    @ClientServiceId uniqueidentifier,
-    @ClientId uniqueidentifier,
-    @ServiceId uniqueidentifier,
-    @DateAffectation Date
-AS
-    insert into ClientService(ClientServiceId,ClientId,ServiceId,DateAffectation)
-    values(@ClientServiceId,@ClientId,@ServiceId,@DateAffectation)
-GO
 
-create proc ps_delete_client_service
-    @ClientServiceId uniqueidentifier
-AS
-    delete from ClientService where ClientServiceId=@ClientServiceId
-GO
+
+
 -- endregion
 
 --region mission
@@ -140,49 +136,7 @@ insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values
 insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values('6760a1ba-baf0-4ab8-9556-fee94cba7b50','66eb9acf-02e0-44e8-bfe3-5686873e8761','Demande de passport','Description Mission Demande de passport du service Accompagnement',CURRENT_TIMESTAMP)
 insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values('2dae88c3-13ed-4f01-ae30-4cc3939b99b7','66eb9acf-02e0-44e8-bfe3-5686873e8761','Inscription consulaire','Description Mission Inscription consulaire du service Accompagnement',CURRENT_TIMESTAMP)
 
-create proc ps_get_missions
-    @ServiceId uniqueidentifier
-AS
-    select * from Mission where ServiceId=@ServiceId
-GO
 
-create proc ps_get_client_missions
-    @ClientId uniqueidentifier
-AS
-BEGIN
-    select cm.ClientMissionId,cm.ClientId,cm.MissionId,cm.DateAffectation,m.Designation,m.Description
-    from ClientMission cm
-    left join Mission m on m.MissionId=cm.MissionId
-    where cm.ClientId=@ClientId
-END
-GO
-
-create proc ps_get_client_mission
-    @ClientMissionId uniqueidentifier
-AS
-BEGIN
-    select cm.ClientMissionId,cm.ClientId,cm.MissionId,cm.DateAffectation,m.Designation,m.Description
-    from ClientMission cm
-    left join Mission m on m.MissionId=cm.MissionId
-    where cm.ClientMissionId=@ClientMissionId
-END
-GO
-
-create proc ps_create_client_mission
-    @ClientMissionId uniqueidentifier,
-    @ClientId uniqueidentifier,
-    @MissionId uniqueidentifier,
-    @DateAffectation Date
-AS
-    insert into ClientMission(ClientMissionId,ClientId,MissionId,DateAffectation)
-    values(@ClientMissionId,@ClientId,@MissionId,@DateAffectation)
-GO
-
-create proc ps_delete_client_mission
-    @ClientMissionId uniqueidentifier
-AS
-    delete from ClientMission where ClientMissionId=@ClientMissionId
-GO
 -- endregion
 
 
@@ -197,49 +151,7 @@ insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)
 insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)values('18f35c10-f3be-46c1-bb83-f74e2d15a3a3','a83dcad0-3a14-4523-a5c5-30e1baa232d0','Etude fiscale','Description Prestation Etude fiscale de la mission Installation au Maroc',CURRENT_TIMESTAMP)
 
 
-create proc ps_get_prestations
-    @MissionId uniqueidentifier
-AS
-    select * from Prestation where MissionId=@MissionId
-GO
 
-create proc ps_get_client_prestations
-    @ClientId uniqueidentifier
-AS
-BEGIN
-    select cp.ClientPrestationId,cp.ClientId,cp.PrestationId,cp.DateAffectation,p.Designation,p.Description
-    from ClientPrestation cp
-    left join Prestation p on p.PrestationId=cp.PrestationId
-    where cp.ClientId=@ClientId
-END
-GO
-
-create proc ps_get_client_prestation
-    @ClientPrestationId uniqueidentifier
-AS
-BEGIN
-    select cp.ClientPrestationId,cp.ClientId,cp.PrestationId,cp.DateAffectation,p.Designation,p.Description
-    from ClientPrestation cp
-    left join Prestation p on p.PrestationId=cp.PrestationId
-    where cp.ClientPrestationId=@ClientPrestationId
-END
-GO
-
-create proc ps_create_client_prestation
-    @ClientPrestationId uniqueidentifier,
-    @ClientId uniqueidentifier,
-    @PrestationId uniqueidentifier,
-    @DateAffectation Date
-AS
-    insert into ClientPrestation(ClientPrestationId,ClientId,PrestationId,DateAffectation)
-    values(@ClientPrestationId,@ClientId,@PrestationId,@DateAffectation)
-GO
-
-create proc ps_delete_client_prestation
-    @ClientPrestationId uniqueidentifier
-AS
-    delete from ClientPrestation where ClientPrestationId=@ClientPrestationId
-GO
 --endregion
 
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -247,10 +159,3 @@ GO
 
 
 
-
-create proc ps_get_prestations
-    @MissionId uniqueidentifier
-AS
-    select * from Prestation
-    where MissionId=@MissionId
-GO
