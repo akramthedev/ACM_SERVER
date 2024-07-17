@@ -47,6 +47,7 @@ CREATE TABLE Tache(
     PrestationId uniqueidentifier NOT NULL, --Référence au prestation
     TacheDateReferenceId uniqueidentifier , --Référence au TacheDateReference
     TypePersonneANotifierId uniqueidentifier , --Référence au TypePersonneANotifier
+    Depend_de uniqueidentifier --Référence Tache
     AgentId uniqueidentifier, --Référence au Agent
     Intitule NVARCHAR(255),
     Description NVARCHAR(255),
@@ -58,6 +59,8 @@ CREATE TABLE Tache(
     FOREIGN KEY (PrestationId) REFERENCES Prestation(PrestationId),
     FOREIGN KEY (TacheDateReferenceId) REFERENCES TacheDateReference(TacheDateReferenceId),
     FOREIGN KEY (TypePersonneANotifierId) REFERENCES TypePersonneANotifier(TypePersonneANotifierId),
+    FOREIGN KEY (Depend_de) REFERENCES Tache(TacheId)
+
 
 );
 
@@ -156,6 +159,53 @@ insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 
+
+INSERT INTO TacheDateReference VALUES('dbfd7f80-84ee-427c-b562-f0389bedf58e','Date saisie du dossier','Description Date saisie du dossier')
+INSERT INTO TacheDateReference VALUES('5ab42009-d2fc-4820-a994-acd63e35c65d','Date expiration du passeport','Description Date expiration du passeport')
+INSERT INTO TacheDateReference VALUES('4caee22c-01b3-4dbf-869d-325ac584e2d0','Date exécution de la tache ','Description Date exécution de la tache ')
+INSERT INTO TacheDateReference VALUES('af992d8a-b9b3-4d39-b029-b25535757ccf','Date Date entrée du client au Maroc','Description Date entrée du client au Maroc')
+
+INSERT INTO TypePersonneANotifier VALUES('e89b372a-81d3-4a6e-a5ec-73094097b905','User','Description User')
+INSERT INTO TypePersonneANotifier VALUES('0980e872-2118-4aa9-8bb0-97f482170043','Agent','Description Agent')
+INSERT INTO TypePersonneANotifier VALUES('91bb038e-481d-4011-9c28-8197ab27848d','Client','Description Client')
+
+
+
+INSERT INTO Tache(TacheId,PrestationId,TypePersonneANotifierId,Intitule,Description,Numero_Ordre,Deadline,NombreRapelle,Priorite,Honoraire) VALUES('9e9f7999-0415-4c94-b534-a66b41a8ee52','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','0980e872-2118-4aa9-8bb0-97f482170043','Preparer la liste des pieces  du dossier de la carte de sejour','Descritption T1','T1',30,3,'Normale',500)
+INSERT INTO Tache(TacheId,PrestationId,TypePersonneANotifierId,Intitule,Description,Numero_Ordre,NombreRapelle,Priorite,Honoraire) VALUES('61515c1b-72a0-4b52-a070-61f51bcd77d3','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','0980e872-2118-4aa9-8bb0-97f482170043','Remettre la liste des pieces  du dossier carte sejour','Descritption T2','T2',1,'Normale',1000)
+INSERT INTO Tache(TacheId,PrestationId,TypePersonneANotifierId,Intitule,Description,Numero_Ordre,NombreRapelle,Priorite,Honoraire) VALUES('c334aa2f-b5c5-4336-8107-3558b3bbf05b','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','0980e872-2118-4aa9-8bb0-97f482170043','Réceptionner les pieces du dépot de  la carte de sejour','Descritption T3','T3',5,'Normale',500)
+INSERT INTO Tache(TacheId,PrestationId,TypePersonneANotifierId,Intitule,Description,Numero_Ordre,Priorite,Honoraire) VALUES('d0f11a57-b6c7-42e5-bfb6-3480db37c4ce','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','0980e872-2118-4aa9-8bb0-97f482170043','Valider le dossier de la carte de sejour','Descritption T4','T4','Normale',450)
+INSERT INTO Tache(TacheId,PrestationId,TypePersonneANotifierId,TacheDateReferenceId,Intitule,Description,Numero_Ordre,Deadline,Priorite,Honoraire) VALUES('0bb09679-196f-462a-82ed-443e51f6359e','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','91bb038e-481d-4011-9c28-8197ab27848d','af992d8a-b9b3-4d39-b029-b25535757ccf','Déposer le dossier de la carte séjour/prefecture','Descritption T5','T5',90,'Normale',650)
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('0eedb1a5-e8fb-4fe2-acf9-3c908607f7d2','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','Obtenir le Reçu du dépôt de la carte séjour','Descritption T6','T6','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('b87c3e9f-b068-4a20-b7ce-276a112d61c5','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','Récupérer le recepissé avec photo','Descritption T7','T7','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('157ae08e-3b19-4ca1-8017-d76f75e6e59d','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','Obtenir la carte de sejour','Descritption T8','T8','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('5baef1bb-f789-4040-aab0-e2e5977635ab','bf13a09d-4ebd-4250-9909-3fd4db9bd8f4','Scanner et enregistrer  la carte de sejour dans le CRM ','Descritption T9','T9','Normale')
+
+
+
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('23e907c9-ffd6-4ec7-9dc3-2cbd0c64ff53','264cc4ad-adec-4d05-b587-513c06e4334c','Obtenir copie de bail / acte de propriétée','Descritption T11','T11','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('65f310d8-2593-427a-87cf-fd27f55f109c','264cc4ad-adec-4d05-b587-513c06e4334c','Remplir le formulaire de la demande IDF','Descritption T12','T12','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('6e4f1cef-278a-49d0-91ed-fbe119888f6c','264cc4ad-adec-4d05-b587-513c06e4334c','Dépôt de demande IDF','Descritption T13','T13','Normale')
+
+
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('67e78008-7709-4a89-9ad8-9afa5fe05af4','55017a79-a7a2-493b-853b-97c33df4d139','Ouverture du dossier N°7 Santé avec formulaire interne/ couverture','Descritption T20','T20','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('2988b9e3-6a71-4694-bd61-8823cc247781','55017a79-a7a2-493b-853b-97c33df4d139','Préparer les piéces pour la demande du formulaire SE 350-07','Descritption T21','T21','Normale')
+INSERT INTO Tache(TacheId,PrestationId,Intitule,Description,Numero_Ordre,Priorite) VALUES('c19d48f1-b559-4fa2-b83b-e9660d55dd2f','55017a79-a7a2-493b-853b-97c33df4d139','Fixer un rdv avec le client pour déposer la demande du formulaire SE 350-07 à la CNSS','Descritption T22','T22','Normale')
+
+
+
+
+UPDATE Tache SET Depend_de='61515c1b-72a0-4b52-a070-61f51bcd77d3' where TacheId='c334aa2f-b5c5-4336-8107-3558b3bbf05b' --T3
+UPDATE Tache SET Depend_de='c334aa2f-b5c5-4336-8107-3558b3bbf05b' where TacheId='d0f11a57-b6c7-42e5-bfb6-3480db37c4ce' --T4
+UPDATE Tache SET Depend_de='d0f11a57-b6c7-42e5-bfb6-3480db37c4ce' where TacheId='0bb09679-196f-462a-82ed-443e51f6359e' --T5
+UPDATE Tache SET Depend_de='0bb09679-196f-462a-82ed-443e51f6359e' where TacheId='0eedb1a5-e8fb-4fe2-acf9-3c908607f7d2' --T6
+UPDATE Tache SET Depend_de='0eedb1a5-e8fb-4fe2-acf9-3c908607f7d2' where TacheId='b87c3e9f-b068-4a20-b7ce-276a112d61c5' --T7
+UPDATE Tache SET Depend_de='b87c3e9f-b068-4a20-b7ce-276a112d61c5' where TacheId='157ae08e-3b19-4ca1-8017-d76f75e6e59d' --T8
+UPDATE Tache SET Depend_de='157ae08e-3b19-4ca1-8017-d76f75e6e59d' where TacheId='5baef1bb-f789-4040-aab0-e2e5977635ab' --T9
+UPDATE Tache SET Depend_de='23e907c9-ffd6-4ec7-9dc3-2cbd0c64ff53' where TacheId='65f310d8-2593-427a-87cf-fd27f55f109c' --T12
+UPDATE Tache SET Depend_de='65f310d8-2593-427a-87cf-fd27f55f109c' where TacheId='6e4f1cef-278a-49d0-91ed-fbe119888f6c' --T13
+UPDATE Tache SET Depend_de='67e78008-7709-4a89-9ad8-9afa5fe05af4' where TacheId='2988b9e3-6a71-4694-bd61-8823cc247781' --T21
+UPDATE Tache SET Depend_de='2988b9e3-6a71-4694-bd61-8823cc247781' where TacheId='c19d48f1-b559-4fa2-b83b-e9660d55dd2f' --T22
 
 
 
