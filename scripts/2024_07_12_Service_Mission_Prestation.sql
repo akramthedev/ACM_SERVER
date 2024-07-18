@@ -140,6 +140,15 @@ insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values
 insert into Mission(MissionId,ServiceId,Designation,Description,CreatedAt)values('2dae88c3-13ed-4f01-ae30-4cc3939b99b7','66eb9acf-02e0-44e8-bfe3-5686873e8761','Inscription consulaire','Description Mission Inscription consulaire du service Accompagnement',CURRENT_TIMESTAMP)
 
 
+create proc ps_get_missions
+    @ServiceId uniqueidentifier
+AS
+BEGIN
+    select * from mission where ServiceId=@ServiceId 
+END
+GO
+
+
 -- endregion
 
 
@@ -153,7 +162,13 @@ insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)
 insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)values('0267659d-2e08-4c44-bc55-737ecbeebffb','a83dcad0-3a14-4523-a5c5-30e1baa232d0','Changement de permis','Description Prestation Changement de permis de la mission Installation au Maroc',CURRENT_TIMESTAMP)
 insert into Prestation(PrestationId,MissionId,Designation,Description,CreatedAt)values('18f35c10-f3be-46c1-bb83-f74e2d15a3a3','a83dcad0-3a14-4523-a5c5-30e1baa232d0','Etude fiscale','Description Prestation Etude fiscale de la mission Installation au Maroc',CURRENT_TIMESTAMP)
 
-
+create proc ps_get_prestations
+    @MissionId uniqueidentifier
+AS
+BEGIN
+    select * from prestation where MissionId=@MissionId 
+END
+GO
 
 --endregion
 
@@ -209,3 +224,32 @@ UPDATE Tache SET Depend_de='2988b9e3-6a71-4694-bd61-8823cc247781' where TacheId=
 
 
 
+create proc ps_get_taches
+AS
+BEGIN
+    SELECT 
+    t.TacheId,
+    t.PrestationId,
+    p.Designation AS PrestationDesignation,
+    p.MissionId,
+    m.Designation AS MissionDesignation,
+    t.TacheDateReferenceId,
+    t.TypePersonneANotifierId,
+    t.Depend_de,
+    t.AgentId,
+    t.Intitule,
+    t.Description,
+    t.Numero_Ordre,
+    t.Deadline,
+    t.NombreRapelle,
+    t.Priorite,
+    t.Honoraire
+FROM 
+    Tache t
+LEFT JOIN 
+    Prestation p ON t.PrestationId = p.PrestationId
+LEFT JOIN 
+    Mission m ON p.MissionId = m.MissionId;
+ 
+END
+GO

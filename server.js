@@ -75,6 +75,7 @@ var PassifController = require("./Controllers/PassifController");
 var BudgetController = require("./Controllers/BudgetController");
 var MissionController = require("./Controllers/MissionController");
 var PrestationController = require("./Controllers/PrestationController");
+var TacheController = require("./Controllers/TacheController");
 app.use("/Auth/", AuthController);
 app.use("/", ClientController);
 app.use("/", ProcheController);
@@ -85,6 +86,7 @@ app.use("/", PassifController);
 app.use("/", BudgetController);
 app.use("/", MissionController);
 app.use("/", PrestationController);
+app.use("/", TacheController);
 
 app.use(function (req, res, next) {
   // req.testing = 'testing';
