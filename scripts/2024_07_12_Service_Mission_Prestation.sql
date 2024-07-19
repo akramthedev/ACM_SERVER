@@ -114,7 +114,13 @@ insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values
 
 
 
-
+create proc ps_get_services
+    @CabinetId uniqueidentifier
+AS
+BEGIN
+    select * from service where CabinetId=@CabinetId 
+END
+GO
 
 
 
