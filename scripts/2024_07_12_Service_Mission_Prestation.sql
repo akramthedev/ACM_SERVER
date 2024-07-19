@@ -148,7 +148,43 @@ BEGIN
 END
 GO
 
+-- create proc ps_get_client_missions
+--     @ClientId uniqueidentifier
+-- AS
+-- BEGIN
+--     select cm.ClientMissionId,cm.ClientId,cm.MissionId,cm.DateAffectation,m.Designation,m.Description
+--     from ClientMission cm
+--     left join Mission m on m.MissionId=cm.MissionId
+--     where cm.ClientId=@ClientId
+-- END
+-- GO
 
+-- create proc ps_get_client_mission
+--     @ClientMissionId uniqueidentifier
+-- AS
+-- BEGIN
+--     select cm.ClientMissionId,cm.ClientId,cm.MissionId,cm.DateAffectation,m.Designation,m.Description
+--     from ClientMission cm
+--     left join Mission m on m.MissionId=cm.MissionId
+--     where cm.ClientMissionId=@ClientMissionId
+-- END
+-- GO
+
+-- create proc ps_create_client_mission
+--     @ClientMissionId uniqueidentifier,
+--     @ClientId uniqueidentifier,
+--     @MissionId uniqueidentifier,
+--     @DateAffectation Date
+-- AS
+--     insert into ClientMission(ClientMissionId,ClientId,MissionId,DateAffectation)
+--     values(@ClientMissionId,@ClientId,@MissionId,@DateAffectation)
+-- GO
+
+-- create proc ps_delete_client_mission
+--     @ClientMissionId uniqueidentifier
+-- AS
+--     delete from ClientMission where ClientMissionId=@ClientMissionId
+-- GO
 -- endregion
 
 
@@ -170,6 +206,43 @@ BEGIN
 END
 GO
 
+-- create proc ps_get_client_prestations
+--     @ClientId uniqueidentifier
+-- AS
+-- BEGIN
+--     select cp.ClientPrestationId,cp.ClientId,cp.PrestationId,cp.DateAffectation,p.Designation,p.Description
+--     from ClientPrestation cp
+--     left join Prestation p on p.PrestationId=cp.PrestationId
+--     where cp.ClientId=@ClientId
+-- END
+-- GO
+
+-- create proc ps_get_client_prestation
+--     @ClientPrestationId uniqueidentifier
+-- AS
+-- BEGIN
+--     select cp.ClientPrestationId,cp.ClientId,cp.PrestationId,cp.DateAffectation,p.Designation,p.Description
+--     from ClientPrestation cp
+--     left join Prestation p on p.PrestationId=cp.PrestationId
+--     where cp.ClientPrestationId=@ClientPrestationId
+-- END
+-- GO
+
+-- create proc ps_create_client_prestation
+--     @ClientPrestationId uniqueidentifier,
+--     @ClientId uniqueidentifier,
+--     @PrestationId uniqueidentifier,
+--     @DateAffectation Date
+-- AS
+--     insert into ClientPrestation(ClientPrestationId,ClientId,PrestationId,DateAffectation)
+--     values(@ClientPrestationId,@ClientId,@PrestationId,@DateAffectation)
+-- GO
+
+-- create proc ps_delete_client_prestation
+--     @ClientPrestationId uniqueidentifier
+-- AS
+--     delete from ClientPrestation where ClientPrestationId=@ClientPrestationId
+-- GO
 --endregion
 
 ----------------------------------------------------------------------------------------------------------------------------------------
