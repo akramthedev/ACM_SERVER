@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require("../Infrastructure/ClientRepository");
 const { GetProches, CreateProche } = require("../Infrastructure/ProcheRepository");
+const { CreateConjoint } = require("../Infrastructure/ConjointRepository");
 const { GetClientPieces } = require("../Infrastructure/ClientPieceRepository");
 const { GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 const { GetPassifs } = require("../Infrastructure/PassifRepository");
@@ -79,14 +80,17 @@ router.post("/CreateClient", async (request, response) => {
           }
         }
         // create conjoint
-        if (request.body.Conjoint != null) {
-          await CreateConjoint(request.body.Conjoint)
-            .then((resConjoint) => {
-              console.log("resConjoint: ", resConjoint);
-            })
-            .catch((errorConjoint) => {
-              console.log("ErrorConjoint: ", errorConjoint);
-            });
+        if (request.body.Conjoint != null && request.body.Conjoint.length > 0) {
+          for (let i = 0; i < request.body.Conjoint.length; i++) {
+            console.log("request.body.Conjoint : ", request.body.Conjoint);
+            await CreateConjoint(request.body.Conjoint)
+              .then((resConjoint) => {
+                console.log("resConjoint: ", resConjoint);
+              })
+              .catch((errorConjoint) => {
+                console.log("ErrorConjoint: ", errorConjoint);
+              });
+          }
         }
 
         // create service

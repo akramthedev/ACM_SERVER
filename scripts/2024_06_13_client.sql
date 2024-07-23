@@ -160,6 +160,7 @@ AS
     delete from Proche where ClientId=@ClientId;
     delete from Conjoint where ClientId=@ClientId;
     delete from ClientPiece where ClientId=@ClientId;
+    delete ct from ClientTache ct JOIN ClientMissionPrestation cmp ON ct.ClientMissionId=cmp.ClientMissionId JOIN ClientMission cm ON ct.ClientMissionId=cm.ClientMissionId WHERE cm.ClientId=@ClientId
     delete cmp from ClientMissionPrestation cmp JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId WHERE cm.ClientId=@ClientId
     delete from ClientMission where ClientId=@ClientId;
     delete from Client where ClientId=@ClientId;
