@@ -153,6 +153,18 @@ CREATE TABLE ClientTache(
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
 );
 
+create proc ps_get_client_taches
+    @ClientId uniqueidentifier
+AS
+BEGIN
+    select ct.ClientTacheId,ct.ClientMissionPrestationId,ct.ClientMissionId,ct.TacheId,cm.ClientMissionId,cm.ClientId,t.TacheId,t.Intitule 
+    from ClientTache ct
+    left join ClientMissionPrestation cmp on ct.ClientMissionPrestationId=cmp.ClientMissionPrestationId
+    left join ClientMission cm on ct.ClientMissionId=cm.MissionId
+    left join tache t on ct.TacheId=t.TacheId
+    where cm.ClientId=@ClientId
+END
+GO
 
 ----------------------------------------------------------17/07/2024-------------------------------------------------------------
 

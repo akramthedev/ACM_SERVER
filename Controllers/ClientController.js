@@ -9,6 +9,7 @@ const { GetBudgets } = require("../Infrastructure/BudgetRepository");
 const { GetConjoint } = require("../Infrastructure/ConjointRepository");
 const { CreateClientMission, GetClientMissions } = require("../Infrastructure/ClientMissionRepository");
 const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
+const { GetClientTaches } = require("../Infrastructure/ClientTacheRepository");
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
@@ -28,8 +29,9 @@ router.get("/GetClient", async (request, response) => {
         const promise6 = GetConjoint(client.ClientId);
         const promise7 = GetClientMissions(client.ClientId);
         const promise8 = GetClientMissionPrestations(client.ClientId);
+        const promise9 = GetClientTaches(client.ClientId);
 
-        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8]).then(
+        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8, promise9]).then(
           (values) => {
             client.Proches = values[0];
             client.ClientPieces = values[1];
@@ -39,6 +41,7 @@ router.get("/GetClient", async (request, response) => {
             client.Conjoint = values[5];
             client.ClientMissions = values[6];
             client.ClientMissionPrestations = values[7];
+            client.ClientTaches = values[8];
             response.status(200).send(client);
           },
           (error) => {
@@ -51,6 +54,7 @@ router.get("/GetClient", async (request, response) => {
             client.Conjoint = null;
             client.ClientMissions = null;
             client.ClientMissionPrestations = null;
+            client.ClientTaches = null;
             response.status(200).send(client);
           }
         );
