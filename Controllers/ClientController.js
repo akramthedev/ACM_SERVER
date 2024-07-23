@@ -83,7 +83,7 @@ router.post("/CreateClient", async (request, response) => {
         if (request.body.Conjoint != null && request.body.Conjoint.length > 0) {
           for (let i = 0; i < request.body.Conjoint.length; i++) {
             console.log("request.body.Conjoint : ", request.body.Conjoint);
-            await CreateConjoint(request.body.Conjoint)
+            await CreateConjoint(request.body.Conjoint[i])
               .then((resConjoint) => {
                 console.log("resConjoint: ", resConjoint);
               })
