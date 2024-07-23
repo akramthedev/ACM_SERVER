@@ -7,6 +7,8 @@ const { GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 const { GetPassifs } = require("../Infrastructure/PassifRepository");
 const { GetBudgets } = require("../Infrastructure/BudgetRepository");
 const { GetConjoint } = require("../Infrastructure/ConjointRepository");
+const { CreateClientMission, GetClientMissions } = require("../Infrastructure/ClientMissionRepository");
+const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
@@ -24,8 +26,10 @@ router.get("/GetClient", async (request, response) => {
         const promise4 = GetPassifs(client.ClientId);
         const promise5 = GetBudgets(client.ClientId);
         const promise6 = GetConjoint(client.ClientId);
+        const promise7 = GetClientMissions(client.ClientId);
+        const promise8 = GetClientMissionPrestations(client.ClientId);
 
-        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6]).then(
+        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8]).then(
           (values) => {
             client.Proches = values[0];
             client.ClientPieces = values[1];
@@ -33,6 +37,8 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = values[3];
             client.Budgets = values[4];
             client.Conjoint = values[5];
+            client.ClientMissions = values[6];
+            client.ClientMissionPrestations = values[7];
             response.status(200).send(client);
           },
           (error) => {
@@ -43,6 +49,8 @@ router.get("/GetClient", async (request, response) => {
             client.Passifs = null;
             client.Budgets = null;
             client.Conjoint = null;
+            client.ClientMissions = null;
+            client.ClientMissionPrestations = null;
             response.status(200).send(client);
           }
         );
@@ -87,7 +95,33 @@ router.post("/CreateClient", async (request, response) => {
               console.log("ErrorService: ", errorService);
             });
         }
+
+        // create ClientMission
+        if (request.body.ClientMission != null && request.body.ClientMission.length > 0) {
+          for (let i = 0; i < request.body.ClientMission.length; i++) {
+            await CreateClientMission(request.body.ClientMission[i])
+              .then((resClientMission) => {
+                console.log("resClientMission: ", resClientMission);
+              })
+              .catch((errorClientMission) => {
+                console.log("ErrorClientMission: ", errorClientMission);
+              });
+          }
+        }
+        // create ClientMissionPrestation
+        if (request.body.ClientMissionPrestation != null && request.body.ClientMissionPrestation.length > 0) {
+          for (let i = 0; i < request.body.ClientMissionPrestation.length; i++) {
+            await CreateClientMissionPrestation(request.body.ClientMissionPrestation[i])
+              .then((resClientMissionPrestation) => {
+                console.log("resClientMissionPrestation: ", resClientMissionPrestation);
+              })
+              .catch((errorClientMissionPrestation) => {
+                console.log("ErrorClientMissionPrestation: ", errorClientMissionPrestation);
+              });
+          }
+        }
       }
+
       response.status(200).send(res);
     })
     .catch((error) => response.status(400).send(error));

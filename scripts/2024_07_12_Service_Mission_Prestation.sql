@@ -69,11 +69,37 @@ CREATE TABLE ClientMission(
     ClientMissionId uniqueidentifier PRIMARY KEY,
     ClientId uniqueidentifier NOT NULL, -- Référence au Client
     MissionId uniqueidentifier NOT NULL, -- Référence au Mission
-    DateAffectation Date,
+    DateAffectation DateTime,
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
     FOREIGN KEY (MissionId) REFERENCES Mission(MissionId)
 
 );
+
+create proc ps_get_client_missions
+    @ClientId uniqueidentifier
+AS
+BEGIN
+    select cm.ClientMissionId,cm.ClientId,cm.MissionId,cm.DateAffectation,m.Designation,m.Description
+    from ClientMission cm
+    left join Mission m on m.MissionId=cm.MissionId
+    where cm.ClientId=@ClientId
+END
+GO
+
+create proc ps_create_client_mission
+    @ClientMissionId uniqueidentifier,
+    @ClientId uniqueidentifier,
+    @MissionId uniqueidentifier
+AS
+    insert into ClientMission(ClientMissionId,ClientId,MissionId,DateAffectation)
+    values(@ClientMissionId,@ClientId,@MissionId,CURRENT_TIMESTAMP)
+GO
+
+create proc ps_delete_client_mission
+    @ClientMissionId uniqueidentifier
+AS
+    delete from ClientMission where ClientMissionId=@ClientMissionId
+GO
 
 CREATE TABLE ClientMissionPrestation(
     ClientMissionPrestationId uniqueidentifier PRIMARY KEY,
@@ -83,6 +109,30 @@ CREATE TABLE ClientMissionPrestation(
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (PrestationId) REFERENCES Prestation(PrestationId)
 );
+
+create proc ps_get_client_mission_prestations
+    @ClientId uniqueidentifier
+AS
+BEGIN
+    select cmp.ClientMissionPrestationId,cmp.ClientMissionId,cmp.PrestationId,cmp.DateAffectation,cm.ClientMissionId,cm.ClientId,m.MissionId,m.Designation AS Mission,p.PrestationId,p.Designation AS Prestation
+    from ClientMissionPrestation cmp
+    left join ClientMission cm on cm.ClientMissionId=cmp.ClientMissionId
+    left join Mission m on cm.MissionId=m.MissionId
+    left join Prestation p on p.PrestationId=cmp.PrestationId
+    where cm.ClientId=@ClientId
+END
+GO
+
+create proc ps_create_client_mission_prestation
+    @ClientMissionPrestationId uniqueidentifier,
+    @ClientMissionId uniqueidentifier,
+    @PrestationId uniqueidentifier
+AS
+    insert into ClientMissionPrestation(ClientMissionPrestationId,ClientMissionId,PrestationId,DateAffectation)
+    values(@ClientMissionPrestationId,@ClientMissionId,@PrestationId,CURRENT_TIMESTAMP)
+GO
+
+
 
 CREATE TABLE ClientTache(
     CLientTacheId uniqueidentifier PRIMARY KEY,
