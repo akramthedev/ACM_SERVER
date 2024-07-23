@@ -166,6 +166,16 @@ BEGIN
 END
 GO
 
+
+create proc ps_create_client_tache
+    @ClientTacheId uniqueidentifier,
+    @ClientMissionPrestationId uniqueidentifier,
+    @ClientMissionId uniqueidentifier,
+    @TacheId uniqueidentifier
+AS
+    insert into ClientTache(ClientTacheId,ClientMissionPrestationId,ClientMissionId,TacheId)
+    values(@ClientTacheId,@ClientMissionPrestationId,@ClientMissionId,@TacheId)
+GO
 ----------------------------------------------------------17/07/2024-------------------------------------------------------------
 
 --region service

@@ -9,7 +9,7 @@ const { GetBudgets } = require("../Infrastructure/BudgetRepository");
 const { GetConjoint } = require("../Infrastructure/ConjointRepository");
 const { CreateClientMission, GetClientMissions } = require("../Infrastructure/ClientMissionRepository");
 const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
-const { GetClientTaches } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache } = require("../Infrastructure/ClientTacheRepository");
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
@@ -121,6 +121,18 @@ router.post("/CreateClient", async (request, response) => {
               })
               .catch((errorClientMissionPrestation) => {
                 console.log("ErrorClientMissionPrestation: ", errorClientMissionPrestation);
+              });
+          }
+        }
+        // create ClientTache
+        if (request.body.ClientTache != null && request.body.ClientTache.length > 0) {
+          for (let i = 0; i < request.body.ClientTache.length; i++) {
+            await CreateClientTache(request.body.ClientTache[i])
+              .then((resClientTache) => {
+                console.log("resClientTache: ", resClientTache);
+              })
+              .catch((errorClientTache) => {
+                console.log("errorClientTache: ", errorClientTache);
               });
           }
         }

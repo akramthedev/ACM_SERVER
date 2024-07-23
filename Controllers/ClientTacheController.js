@@ -9,6 +9,11 @@ router.get("/GetClientTaches", async (request, response) => {
     .catch((error) => response.status(400).send(error));
 });
 
+router.post("/CreateClientTache", async (request, response) => {
+  await CreateClientTache(request.body)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error));
+});
 //#endregion CLientTache
 
 module.exports = router;
