@@ -153,18 +153,47 @@ CREATE TABLE ClientTache(
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
 );
 
-create proc ps_get_client_taches
+CREATE PROCEDURE ps_get_client_taches
     @ClientId uniqueidentifier
 AS
 BEGIN
-    select ct.ClientTacheId,ct.ClientMissionPrestationId,ct.ClientMissionId,ct.TacheId,cm.ClientMissionId,cm.ClientId,t.TacheId,t.Intitule 
-    from ClientTache ct
-    left join ClientMissionPrestation cmp on ct.ClientMissionPrestationId=cmp.ClientMissionPrestationId
-    left join ClientMission cm on ct.ClientMissionId=cm.MissionId
-    left join tache t on ct.TacheId=t.TacheId
-    where cm.ClientId=@ClientId
+    SELECT 
+        ct.ClientTacheId,
+        ct.ClientMissionPrestationId,
+        ct.ClientMissionId,
+        ct.TacheId,
+        cm.ClientMissionId,
+        cm.ClientId,
+        t.TacheId,
+        t.Intitule,
+        cmp.PrestationId,
+        p.Designation AS PrestationDesignation,
+        p.Description AS PrestationDescription,
+        t.Intitule AS TacheIntitule,
+        t.Description AS TacheDescription,
+        ct.Intitule AS ClientTacheIntitule,
+        ct.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ct.AgentResposable
+    FROM 
+        ClientTache ct
+    LEFT JOIN 
+        ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+    LEFT JOIN 
+        ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN 
+        Tache t ON ct.TacheId = t.TacheId
+    LEFT JOIN 
+        Prestation p ON t.PrestationId = p.PrestationId
+    WHERE 
+        cm.ClientId = @ClientId
 END
 GO
+
 
 
 create proc ps_create_client_tache

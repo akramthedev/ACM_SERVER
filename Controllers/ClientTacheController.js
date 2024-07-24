@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache } = require("../Infrastructure/ClientTacheRepository");
 
 //#region ClientTache
 router.get("/GetClientTaches", async (request, response) => {
