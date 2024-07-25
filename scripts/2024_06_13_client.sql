@@ -73,11 +73,11 @@ create proc ps_create_client
     ,AssuranceAuto NVarChar(100)
     ,AssuranceHabitation NVarChar(100)
     ,InscriptionConsulat NVarChar(100)
-    ,CPAN NVarChar(100)
+    ,CPAM NVarChar(100)
     ,CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAN,CSG_CRDS)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAN,@CSG_CRDS);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
 
 CREATE PROCEDURE ps_update_client
@@ -109,7 +109,7 @@ CREATE PROCEDURE ps_update_client
     ,@AssuranceAuto NVarChar(100)
     ,@AssuranceHabitation NVarChar(100)
     ,@InscriptionConsulat NVarChar(100)
-    ,@CPAN NVarChar(100)
+    ,@CPAM NVarChar(100)
     ,@CSG_CRDS NVarChar(100)
 AS
     UPDATE Client
@@ -141,7 +141,7 @@ AS
         AssuranceAuto = @AssuranceAuto,
         AssuranceHabitation = @AssuranceHabitation,
         InscriptionConsulat = @InscriptionConsulat,
-        CPAN = @CPAN,
+        CPAM = @CPAM,
         CSG_CRDS = @CSG_CRDS
     WHERE ClientId = @ClientId;
 GO
@@ -160,6 +160,7 @@ AS
     delete from Proche where ClientId=@ClientId;
     delete from Conjoint where ClientId=@ClientId;
     delete from ClientPiece where ClientId=@ClientId;
+    delete ct from ClientTache ct JOIN ClientMissionPrestation cmp ON ct.ClientMissionId=cmp.ClientMissionId JOIN ClientMission cm ON ct.ClientMissionId=cm.ClientMissionId WHERE cm.ClientId=@ClientId
     delete cmp from ClientMissionPrestation cmp JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId WHERE cm.ClientId=@ClientId
     delete from ClientMission where ClientId=@ClientId;
     delete from Client where ClientId=@ClientId;
