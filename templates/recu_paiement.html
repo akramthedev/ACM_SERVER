@@ -11871,12 +11871,10 @@
               <tr>
                 <th class="paddth">Niveau:</th>
                 <td class="paddtd">{{ Niveau }}</td>
-
               </tr>
               <tr>
                 <th class="paddth">Année:</th>
                 <td class="paddtd">{{ Annee }}</td>
-
               </tr>
             </tbody>
           </table>
@@ -11944,8 +11942,8 @@
               <tr>
                 <th class="paddth">Montant :</th>
                 <td class="paddtd">15 000,00 MAD</td>
-
               </tr>
+
             </tbody>
           </table>
 
@@ -11965,6 +11963,14 @@
     <div style="background-color: brown ;padding: 10px; text-align: center;" class="col-3">
       signature
     </div>
+  </div>
+
+  <div class="row">
+    <ul class="people_list">
+      {{#each data}}
+      <li>nom: {{this.nom}}, prenom: {{ this.prenom }}</li>
+      {{/each}}
+    </ul>
   </div>
 
 </body>

@@ -158,7 +158,14 @@ app.get("/print", async (request, response) => {
   const recuPaiementData = {
     NumeroRecu: "123456", Matricule: "1234564789", Nom: "EtdNom", Prenom: "EtdPrenom",
     Filiere: "Ingénierie Financière, Contrôle et Audit", Niveau: "4ème année", Annee: "2023-2024",
+    data: [
+      { nom: "aa", prenom: "aaa" },
+      { nom: "bb", prenom: "bbb" },
+      { nom: "cc", prenom: "ccc" },
+    ]
   };
+  // https://handlebarsjs.com/examples/builtin-helper-each-block.html
+  // https://handlebarsjs.com/guide/builtin-helpers.html#unless
   const recuPaiementOptions = { path: recuPaiementFileName, format: 'A4', printBackground: true, landscape: false, }
   await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions)
     .then((responseGen) => {
