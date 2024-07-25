@@ -10,10 +10,10 @@ const fileUpload = require("express-fileupload");
 const { connect } = require("./db");
 var passport = require("passport");
 const { jwtStrategy } = require("./Auth/passport");
-const puppeteer = require('puppeteer')
-const hb = require('handlebars')
-const utils = require('util')
-const path = require('path')
+const puppeteer = require("puppeteer");
+const hb = require("handlebars");
+const utils = require("util");
+const path = require("path");
 
 // var guard = require('express-jwt-permissions')()
 
@@ -101,7 +101,9 @@ app.use("/", ClientMissionController);
 app.use("/", ClientMissionPrestationController);
 app.use("/", ClientTacheController);
 
-app.use(function (req, res, next) {/*req.testing = 'testing';*/return next(); });
+app.use(function (req, res, next) {
+  /*req.testing = 'testing';*/ return next();
+});
 
 app.listen(PORT, (error) => {
   if (!error) console.log("Server is Successfully Running, and App is listening on port " + PORT);
@@ -112,75 +114,114 @@ app.get("/", (request, response) => {
 });
 
 //#region GeneratePDF
-const readFile = utils.promisify(fs.readFile)
+const readFile = utils.promisify(fs.readFile);
 async function getTemplateHtml(template) {
   try {
     const invoicePath = path.resolve(template);
-    return await readFile(invoicePath, 'utf8');
+    return await readFile(invoicePath, "utf8");
   } catch (err) {
     return Promise.reject("Could not load html template");
   }
 }
+// async function generatePdf(template, data, options) {
+//   console.log("genPdf: template: ", template);
+//   getTemplateHtml(template)
+//     .then(async (res) => {
+//       // Now we have the html code of our template in res object
+//       // you can check by logging it on console
+//       // console.log(res)
+//       // console.log("Compiing the template with handlebars")
+//       const template = hb.compile(res, { strict: true });
+//       // we have compile our code with handlebars
+//       const htmlTemplate = template(data);
+//       // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
+//       const browser = await puppeteer.launch();
+//       const page = await browser.newPage();
+//       // We set the page content as the generated html by handlebars
+//       // console.log("htmlTemplate: ", htmlTemplate);
+//       await page.setContent(htmlTemplate);
+//       // console.log("setContent");
+//       // We use pdf function to generate the pdf in the same folder as this file.
+//       // console.log("options ", options);
+//       await page.pdf(options);
+//       // console.log(".pdf");
+//       await browser.close();
+//       // console.log("PDF Generated !! file: " + options.path)
+//       return Promise.resolve(true);
+//     })
+//     .catch((err) => {
+//       console.error("\n --------------------- \n\n error generatePdf");
+//       console.error(err);
+//     });
+// }
 async function generatePdf(template, data, options) {
   console.log("genPdf: template: ", template);
-  getTemplateHtml(template)
-    .then(async (res) => {
-      // Now we have the html code of our template in res object
-      // you can check by logging it on console
-      // console.log(res)
-      // console.log("Compiing the template with handlebars")
-      const template = hb.compile(res, { strict: true });
-      // we have compile our code with handlebars
-      const htmlTemplate = template(data);
-      // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage()
-      // We set the page content as the generated html by handlebars
-      // console.log("htmlTemplate: ", htmlTemplate);
-      await page.setContent(htmlTemplate)
-      // console.log("setContent");
-      // We use pdf function to generate the pdf in the same folder as this file.
-      // console.log("options ", options);
-      await page.pdf(options);
-      // console.log(".pdf");
-      await browser.close();
-      // console.log("PDF Generated !! file: " + options.path)
-      return new Promise.resolve(true)
-    })
-    .catch((err) => {
-      console.error("\n --------------------- \n\n error generatePdf");
-      console.error(err);
-    });
+  try {
+    const res = await getTemplateHtml(template);
+    const templateCompiled = hb.compile(res, { strict: true });
+    const htmlTemplate = templateCompiled(data);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(htmlTemplate);
+    await page.pdf(options);
+    await browser.close();
+    console.log("PDF Generated !! file: " + options.path);
+    return options.path;
+  } catch (err) {
+    console.error("\n --------------------- \n\n error generatePdf");
+    console.error(err);
+    throw err;
+  }
 }
 app.get("/print", async (request, response) => {
-  const recuPaiementTemplate = "./templates/recu_paiement.html";
-  const recuPaiementFileName = `./pdfs/recu_paiement_${new Date().getTime()}.pdf`;
+  const recuPaiementTemplate = "./templates/Lettre_Mission.html";
+  const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
   const recuPaiementData = {
-    NumeroRecu: "123456", Matricule: "1234564789", Nom: "EtdNom", Prenom: "EtdPrenom",
-    Filiere: "Ingénierie Financière, Contrôle et Audit", Niveau: "4ème année", Annee: "2023-2024",
+    NumeroRecu: "123456",
+    Matricule: "1234564789",
+    Nom: "EtdNom",
+    Prenom: "EtdPrenom",
+    Filiere: "Ingénierie Financière, Contrôle et Audit",
+    Niveau: "4ème année",
+    Annee: "2023-2024",
     data: [
       { nom: "aa", prenom: "aaa" },
       { nom: "bb", prenom: "bbb" },
       { nom: "cc", prenom: "ccc" },
-    ]
+    ],
   };
   // https://handlebarsjs.com/examples/builtin-helper-each-block.html
   // https://handlebarsjs.com/guide/builtin-helpers.html#unless
-  const recuPaiementOptions = { path: recuPaiementFileName, format: 'A4', printBackground: true, landscape: false, }
-  await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions)
-    .then((responseGen) => {
-      console.log("Generated: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-      setTimeout(() => {
-        var data = fs.readFileSync(recuPaiementFileName);
-        response.contentType("application/pdf");
-        response.send(data);
-      }, 2000);
+  // const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
+  // await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions)
+  //   .then((responseGen) => {
+  //     console.log("Generated: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  //     setTimeout(() => {
+  //       var data = fs.readFileSync(recuPaiementFileName);
+  //       response.contentType("application/pdf");
+  //       response.send(data);
+  //     }, 15000);
+  //   })
+  //   .catch((errorGen) => {
+  //     console.log("errorGen: ", errorGen);
+  //     response.send(errorGen);
+  //   });
+  const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
 
-    })
-    .catch((errorGen) => {
-      console.log("errorGen: ", errorGen)
-      response.send(errorGen);
-    })
+  // Ensure the pdfs directory exists
+  if (!fs.existsSync("./pdfs")) {
+    fs.mkdirSync("./pdfs");
+  }
+
+  try {
+    const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
+    const data = fs.readFileSync(generatedPdfPath);
+    response.contentType("application/pdf");
+    response.send(data);
+  } catch (errorGen) {
+    console.log("errorGen: ", errorGen);
+    response.status(500).send(errorGen);
+  }
 });
 
 //#endregion GeneratePDF
