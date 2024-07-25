@@ -134,7 +134,7 @@ CREATE TABLE SituationAdministrative (
     AssuranceAuto BIT,
     AssuranceHabitation BIT,
     InscriptionConsulat BIT,
-    CPAN BIT,
+    CPAM BIT,
     CSG_CRDS BIT,
 
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)

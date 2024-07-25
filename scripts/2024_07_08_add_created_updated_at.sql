@@ -30,11 +30,11 @@ ALTER PROCEDURE ps_create_client
     ,@AssuranceAuto NVarChar(100)
     ,@AssuranceHabitation NVarChar(100)
     ,@InscriptionConsulat NVarChar(100)
-    ,@CPAN NVarChar(100)
+    ,@CPAM NVarChar(100)
     ,@CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAN,CSG_CRDS,CreatedAt)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAN,@CSG_CRDS,CURRENT_TIMESTAMP);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS,CreatedAt)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS,CURRENT_TIMESTAMP);
 Go
 
 
@@ -68,7 +68,7 @@ ALTER PROCEDURE ps_update_client
     ,@AssuranceAuto NVarChar(100)
     ,@AssuranceHabitation NVarChar(100)
     ,@InscriptionConsulat NVarChar(100)
-    ,@CPAN NVarChar(100)
+    ,@CPAM NVarChar(100)
     ,@CSG_CRDS NVarChar(100)
 AS
     UPDATE Client
@@ -100,7 +100,7 @@ AS
         AssuranceAuto = @AssuranceAuto,
         AssuranceHabitation = @AssuranceHabitation,
         InscriptionConsulat = @InscriptionConsulat,
-        CPAN = @CPAN,
+        CPAM = @CPAM,
         CSG_CRDS = @CSG_CRDS,
         UpdatedAt = CURRENT_TIMESTAMP
     WHERE ClientId = @ClientId;
