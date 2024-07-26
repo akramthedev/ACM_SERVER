@@ -55,20 +55,6 @@ app.use(express.json());
 app.use(fileUpload());
 app.use(passport.initialize());
 passport.use("jwt", jwtStrategy);
-// app.use(session({
-//   secret: 'keyboard cat',
-//   resave: false, // don't save session if unmodified
-//   saveUninitialized: false, // don't create session until something stored
-//   store: new SQLiteStore({ db: 'sessions.db', dir: './var/db' })
-// }));
-// app.use(passport.authenticate('session'));
-// app.use(function (req, res, next) {
-//   var msgs = req.session.messages || [];
-//   res.locals.messages = msgs;
-//   res.locals.hasMessages = !!msgs.length;
-//   req.session.messages = [];
-//   next();
-// });
 
 var AuthController = require("./Controllers/AuthController");
 var ClientController = require("./Controllers/ClientController");
@@ -123,37 +109,6 @@ async function getTemplateHtml(template) {
     return Promise.reject("Could not load html template");
   }
 }
-// async function generatePdf(template, data, options) {
-//   console.log("genPdf: template: ", template);
-//   getTemplateHtml(template)
-//     .then(async (res) => {
-//       // Now we have the html code of our template in res object
-//       // you can check by logging it on console
-//       // console.log(res)
-//       // console.log("Compiing the template with handlebars")
-//       const template = hb.compile(res, { strict: true });
-//       // we have compile our code with handlebars
-//       const htmlTemplate = template(data);
-//       // We can use this to add dyamic data to our handlebas template at run time from database or API as per need. you can read the official doc to learn more https://handlebarsjs.com/
-//       const browser = await puppeteer.launch();
-//       const page = await browser.newPage();
-//       // We set the page content as the generated html by handlebars
-//       // console.log("htmlTemplate: ", htmlTemplate);
-//       await page.setContent(htmlTemplate);
-//       // console.log("setContent");
-//       // We use pdf function to generate the pdf in the same folder as this file.
-//       // console.log("options ", options);
-//       await page.pdf(options);
-//       // console.log(".pdf");
-//       await browser.close();
-//       // console.log("PDF Generated !! file: " + options.path)
-//       return Promise.resolve(true);
-//     })
-//     .catch((err) => {
-//       console.error("\n --------------------- \n\n error generatePdf");
-//       console.error(err);
-//     });
-// }
 async function generatePdf(template, data, options) {
   console.log("genPdf: template: ", template);
   try {
@@ -192,20 +147,6 @@ app.get("/print", async (request, response) => {
   };
   // https://handlebarsjs.com/examples/builtin-helper-each-block.html
   // https://handlebarsjs.com/guide/builtin-helpers.html#unless
-  // const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
-  // await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions)
-  //   .then((responseGen) => {
-  //     console.log("Generated: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  //     setTimeout(() => {
-  //       var data = fs.readFileSync(recuPaiementFileName);
-  //       response.contentType("application/pdf");
-  //       response.send(data);
-  //     }, 15000);
-  //   })
-  //   .catch((errorGen) => {
-  //     console.log("errorGen: ", errorGen);
-  //     response.send(errorGen);
-  //   });
   const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
 
   // Ensure the pdfs directory exists

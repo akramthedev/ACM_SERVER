@@ -10,6 +10,16 @@ function GetClientMissions(ClientId) {
   });
 }
 
+function GetLettreMissions(ClientMissionId) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientMissionId", sql.UniqueIdentifier, ClientMissionId)
+      .execute("ps_get_client_lettre_mission")
+      .then((result) => resolve(result.recordset))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
+
 function CreateClientMission(data) {
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -31,4 +41,4 @@ function DeleteClientMission(ClientMissionId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
-module.exports = { GetClientMissions, CreateClientMission, DeleteClientMission };
+module.exports = { GetClientMissions, CreateClientMission, DeleteClientMission, GetLettreMissions };

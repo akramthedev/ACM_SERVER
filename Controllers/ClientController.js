@@ -1,3 +1,8 @@
+const puppeteer = require("puppeteer");
+const hb = require("handlebars");
+const utils = require("util");
+const path = require("path");
+const fs = require("fs");
 var express = require("express");
 var router = express.Router();
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require("../Infrastructure/ClientRepository");
@@ -8,7 +13,7 @@ const { GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 const { GetPassifs } = require("../Infrastructure/PassifRepository");
 const { GetBudgets } = require("../Infrastructure/BudgetRepository");
 const { GetConjoint } = require("../Infrastructure/ConjointRepository");
-const { CreateClientMission, GetClientMissions } = require("../Infrastructure/ClientMissionRepository");
+const { CreateClientMission, GetClientMissions, GetLettreMissions } = require("../Infrastructure/ClientMissionRepository");
 const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
 const { GetClientTaches, CreateClientTache } = require("../Infrastructure/ClientTacheRepository");
 //#region Client
@@ -156,6 +161,113 @@ router.delete("/DeleteClient/:ClientId", async (request, response) => {
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
+
+const readFile = utils.promisify(fs.readFile);
+// async function getTemplateHtml(template) {
+//   try {
+//     const invoicePath = path.resolve(template);
+//     return await readFile(invoicePath, "utf8");
+//   } catch (err) {
+//     return Promise.reject("Could not load html template");
+//   }
+// }
+async function getTemplateHtml(template) {
+  try {
+    const invoicePath = path.resolve(template);
+    let html = await fs.promises.readFile(invoicePath, "utf8");
+
+    // Intégrer les images en base64
+    const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
+    html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
+
+    return html;
+  } catch (err) {
+    return Promise.reject("Could not load html template");
+  }
+}
+async function generatePdf(template, data, options) {
+  console.log("genPdf: template: ", template);
+  try {
+    const res = await getTemplateHtml(template);
+    const templateCompiled = hb.compile(res, { strict: true });
+    const htmlTemplate = templateCompiled(data);
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(htmlTemplate);
+    await page.pdf(options);
+    await browser.close();
+    console.log("PDF Generated !! file: " + options.path);
+    return options.path;
+  } catch (err) {
+    console.error("\n --------------------- \n\n error generatePdf");
+    console.error(err);
+    throw err;
+  }
+}
+function getImageBase64(imagePath) {
+  const image = fs.readFileSync(imagePath);
+  return `data:image/png;base64,${image.toString("base64")}`;
+}
+router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
+  const clientMissionId = req.params.ClientMissionId;
+  console.log(req.params);
+  try {
+    // Récupérer les informations du client par son ID
+    const clientMissionData = await GetLettreMissions(clientMissionId);
+
+    if (!clientMissionData || clientMissionData.length === 0) {
+      return res.status(404).send("Client mission not found");
+    }
+    const currentDate = new Date();
+    const formattedDate = [String(currentDate.getDate()).padStart(2, "0"), String(currentDate.getMonth() + 1).padStart(2, "0"), currentDate.getFullYear()].join("/");
+    console.log("currentFormated date : ", formattedDate);
+    const clientMission = clientMissionData[0];
+    const clientId = clientMission.ClientId;
+
+    // Complétez les données du client avec les informations associées
+    const promises = [GetClient(clientId), GetProches(clientId), GetClientPieces(clientId), GetPatrimoines(clientId), GetPassifs(clientId), GetBudgets(clientId), GetConjoint(clientId), GetClientMissions(clientId), GetClientMissionPrestations(clientId), GetClientTaches(clientId)];
+
+    const [clientt, proches, clientPieces, patrimoines, passifs, budgets, conjoint, clientMissions, clientMissionPrestations, clientTaches] = await Promise.all(promises);
+
+    const client = {
+      CurrentDate: formattedDate,
+      Client: clientt,
+      Proches: proches,
+      ClientPieces: clientPieces,
+      Patrimoines: patrimoines,
+      Passifs: passifs,
+      Budgets: budgets,
+      Conjoint: conjoint,
+      ClientMissions: clientMissions,
+      ClientMissionPrestations: clientMissionPrestations,
+      ClientTaches: clientTaches,
+      ClientMissionId: clientMissionId,
+    };
+
+    // Définissez le modèle HTML pour le PDF
+    const template = "./templates/Lettre_Mission_Maroc.html";
+    const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
+
+    // Options pour la génération du PDF
+    const pdfOptions = { path: fileName, format: "A4", printBackground: true };
+
+    // Générez le PDF avec les données du client
+    const generatedPdfPath = await generatePdf(template, client, pdfOptions);
+    if (!fs.existsSync("./pdfs")) {
+      fs.mkdirSync("./pdfs");
+    }
+    //console.log("clientMissionData : ", clientMissionData);
+    console.log("client : ", client);
+    // Lisez le fichier PDF généré et envoyez-le en réponse
+    const data = fs.readFileSync(generatedPdfPath);
+    res.contentType("application/pdf");
+    res.send(data);
+  } catch (error) {
+    console.error("Error generating PDF: ", error);
+    res.status(500).send(error);
+  }
+});
+
 //#endregion Client
 
 module.exports = router;

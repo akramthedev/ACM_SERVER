@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Client Information</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        margin: 20px;
+      }
+      .header {
+        text-align: center;
+      }
+      .content {
+        margin-top: 20px;
+      }
+      .content h2 {
+        color: #333;
+      }
+      .content p {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Client Details</h1>
+      </div>
+
+      <div class="section">
+        <h2>Client Information</h2>
+        <p><strong>Name:</strong> {{Client.[0].Nom}} {{Client.[0].Prenom}}</p>
+        <p><strong>Date of Birth:</strong> {{Client.[0].DateNaissance}}</p>
+        <p><strong>Profession:</strong> {{Client.[0].Profession}}</p>
+        <p><strong>Address:</strong> {{Client.[0].Adresse}}</p>
+        <p><strong>Email:</strong> {{Client.[0].Email1}}</p>
+        <p><strong>Phone:</strong> {{Client.[0].Telephone1}}</p>
+      </div>
+
+      <div class="section">
+        <h2>Mission Details</h2>
+        {{#each ClientMissions}}
+        <p><strong>Mission:</strong> {{Designation}}</p>
+        <p><strong>Description:</strong> {{Description}}</p>
+        {{/each}}
+      </div>
+
+      <div class="section">
+        <h2>Prestation Details</h2>
+        {{#each ClientMissionPrestations}}
+        <p><strong>Prestation:</strong> {{Prestation}}</p>
+        {{/each}}
+      </div>
+
+      <div class="section">
+        <h2>Task Details</h2>
+        {{#each ClientTaches}}
+        <p><strong>Task:</strong> {{TacheIntitule}} - {{TacheDescription}} - {{PrestationDesignation}}</p>
+        {{/each}}
+      </div>
+    </div>
+  </body>
+</html>
