@@ -101,6 +101,10 @@ app.get("/", (request, response) => {
 
 //#region GeneratePDF
 const readFile = utils.promisify(fs.readFile);
+// Register a custom helper to check equality
+hb.registerHelper("eq", function (a, b) {
+  return a === b;
+});
 async function getTemplateHtml(template) {
   try {
     const invoicePath = path.resolve(template);

@@ -320,25 +320,210 @@
     <br />
 
     <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline"><strong>Liste des courriers que vous souhaitez que nous fassions pour vous&nbsp;:</strong></p>
-    <div>
-      <!-- Afficher chaque Prestation avec ses Taches -->
-      {{#each ClientMissionPrestations}}
-      <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
-        <strong>
-          <u><span style="font-size: 19px; color: #2f5496">{{Prestation}}&nbsp;:</span></u>
-        </strong>
-      </p>
-      <br />
-      <ul style="font-size: 16px; font-family: 'Times New Roman', serif">
-        <!-- Afficher chaque Tache de la Prestation -->
-        {{#each ../ClientTaches}} {{#if (eq ClientMissionPrestationId ../ClientMissionPrestationId)}}
-        <li>{{TacheIntitule}}</li>
-        {{/if}} {{/each}}
-      </ul>
-      {{/each}}
-    </div>
+    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
+      <strong
+        ><u><span style="font-size: 19px; color: #2f5496">Vos caisses de retraite&nbsp;:</span></u></strong
+      >
+    </p>
     <br />
-
+    <table style="border: none; width: 459pt; border-collapse: collapse">
+      <tbody>
+        <tr>
+          <td style="width: 33.75pt; border: 1pt solid black; background: rgb(68, 114, 196); padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">CARSAT/ CNAV</p>
+          </td>
+          <td style="width: 37.35pt; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">AGIRC/ARRCO</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">MSA&nbsp; &nbsp;</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">LA CIPAV</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">CNRACL</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Retraite de l'Etat / DRFIP (retraité)</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">PRO BTP</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">IRCANTEC</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Retraite des Mines&nbsp; &nbsp; &nbsp;</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Retraite des Anciens Combattants</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">CARMF</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">CARCDSF</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 196.55pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Autre&nbsp; &nbsp;CPR SNCF</p>
+          </td>
+          <td style="width: 37.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top"></td>
+          <td style="width: 191.35pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 11.35pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Autre&nbsp; &nbsp;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
+      <strong
+        ><u><span style="font-size: 19px; color: #2f5496">Votre couverture santé&nbsp;:</span></u></strong
+      >
+    </p>
+    <br />
+    <table style="border: none; width: 459pt; border-collapse: collapse">
+      <tbody>
+        <tr>
+          <td style="width: 35.2pt; border: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Demande de devis auprès de la CFE&nbsp;</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Adhésion à la CNSS</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Demande de Formulaire SE-350 07</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Transfert de votre dossier à la CPAM Seine et Marne</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; height: 2.9pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 2.9pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Adhésion au CNAREFE</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Résiliation ou mise à jour de la Mutuelle française&nbsp;</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Souscription assurance rapatriement</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
+      <strong
+        ><u><span style="font-size: 19px; color: #2f5496">Auprès du Consulat&nbsp;:</span></u></strong
+      >
+    </p>
+    <br />
+    <table style="border: none; width: 459pt; border-collapse: collapse">
+      <tbody>
+        <tr>
+          <td style="width: 35.2pt; border: 1pt solid black; padding: 0cm 5.4pt; height: 13.8pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; height: 13.8pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline"><span style="color: black">Inscription au Registre des Français de l'Etranger&nbsp;</span></p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 35.2pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; height: 13.8pt; vertical-align: top"></td>
+          <td style="width: 423.8pt; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; height: 13.8pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline"><span style="color: black">Création d'un compte en ligne sur Service public.fr</span></p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
+      <strong
+        ><u><span style="font-size: 19px; color: #2f5496">Auprès des imp&ocirc;ts&nbsp;:</span></u></strong
+      >
+    </p>
+    <br />
+    <table style="border: none; width: 459pt; border-collapse: collapse">
+      <tbody>
+        <tr>
+          <td style="width: 33.75pt; border: 1pt solid black; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: 1pt solid black; border-right: 1pt solid black; border-bottom: 1pt solid black; border-image: initial; border-left: none; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Création de votre identifiant fiscal au Maroc</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Ouverture de votre compte SIMPL</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Faire votre première déclaration au Maroc (N+1 non inclus dans le forfait)</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Informer les imp&ocirc;ts France de votre nouvelle adresse*</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; background: rgb(68, 114, 196); padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Mise à jour sur votre espace personnel Impot.gouv.fr</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="width: 33.75pt; border-right: 1pt solid black; border-bottom: 1pt solid black; border-left: 1pt solid black; border-image: initial; border-top: none; padding: 0cm 5.4pt; vertical-align: top"></td>
+          <td style="width: 15cm; border-top: none; border-left: none; border-bottom: 1pt solid black; border-right: 1pt solid black; padding: 0cm 5.4pt; vertical-align: top">
+            <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">Déclaration d'impôt France N+1 (non inclus dans le forfait)</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
     <p class="big" style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; margin-left: -7.1pt; vertical-align: baseline">
       <span style="font-size: 19px">*</span><strong><span style="font-size: 12px">*Si vous percevez des revenus fonciers en France durant votre séjour à l'étranger</span></strong
       ><span style="font-size: 12px">&nbsp;: la date limite de dépôt est celle fixée pour les non-résidents. La déclaration doit être envoyée au service des particuliers des non–résidents (SIPNR)</span>
