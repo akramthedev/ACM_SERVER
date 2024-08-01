@@ -71,6 +71,7 @@ var TacheController = require("./Controllers/TacheController");
 var ClientMissionController = require("./Controllers/ClientMissionController");
 var ClientMissionPrestationController = require("./Controllers/ClientMissionPrestationController");
 var ClientTacheController = require("./Controllers/ClientTacheController");
+var MissionPieceController = require("./Controllers/MissionPieceController");
 app.use("/Auth/", AuthController);
 app.use("/", ClientController);
 app.use("/", ProcheController);
@@ -86,6 +87,7 @@ app.use("/", TacheController);
 app.use("/", ClientMissionController);
 app.use("/", ClientMissionPrestationController);
 app.use("/", ClientTacheController);
+app.use("/", MissionPieceController);
 
 app.use(function (req, res, next) {
   /*req.testing = 'testing';*/ return next();
