@@ -231,81 +231,48 @@
     </p>
     <br />
     <p class="big" style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-align: justify">Afin de répondre au mieux à votre demande, merci de bien vouloir regrouper les éléments suivants et les retourner soit par mail contact.acm.maroc@gmail.com soit au cabinet. L’analyse de votre situation et sa pertinence ne sont possibles qu’avec un dossier complet et dépendent des informations que vous nous transmettrez</p>
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">1. <u>Identité :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
+    <div>
+      <!-- Afficher chaque catégorie avec ses pièces -->
 
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm; background: white"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px; color: black; background: white">&nbsp;</span><span style="font-size: 12px; color: black">&nbsp;1) Copie recto-verso de la CNI et du passeport en cours de validité de Mme et M.</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm; background: white"><span style="font-size: 15px; color: black">□</span><span style="font-size: 12px; color: black"> &nbsp;2) Copie de votre carte de résident de Mme et M. (le cas échéant)</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm; background: white"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px; color: black"> &nbsp;3) Copie intégrale du livret de famille</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;4) Contrat de mariage (le cas échéant)</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;5) Si divorcé, jugement de divorce</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif"><span style="font-size: 15px">LE CAS ÉCHÉANT :</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt"><span style="font-size: 15px">□</span><span style="font-size: 12px">&nbsp; &nbsp;6) Carte consulaire</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt"><span style="font-size: 15px">□</span><span style="font-size: 12px">&nbsp; &nbsp;7) Carte UFE</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px">&nbsp; &nbsp;8) Carte Mutuelle (recto + verso)</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt; background: white"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px; color: black; background: white">&nbsp;</span><span style="font-size: 12px; color: black">&nbsp;9) Permis de conduire</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt; background: white"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px; color: black">&nbsp;10) Carte Sécurité Sociale (recto + verso) + RIB Français</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 70.9pt; background: white"><span style="font-size: 15px; color: black; background: white">□</span><span style="font-size: 12px; color: black">&nbsp;11) Photos d’identité (1) pour l’inscription consulaire + justificatif de domicile</span></p>
+      <!-- Catégorie Identité -->
+      <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif; vertical-align: baseline">
+        <strong>
+          <u><span style="font-size: 19px; color: #2f5496">Identité :</span></u>
+        </strong>
+      </p>
+      <br />
+      <ul style="font-size: 16px; font-family: 'Times New Roman', serif">
+        {{#each ClientPieces}} {{#if (eq Libelle "Carte Sécurité Sociale")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{#if (eq Libelle "Livret de famille")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{#if (eq Libelle "Jugement de divorce")}} {{#if (eq ../Client.[0].SituationFamiliale "Divorcé")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{/if}} {{#if (eq Libelle "Photo d'identité")}}
+        <li>{{Libelle}} pour l’inscription consulaire + justificatif de domicile</li>
+        {{/if}} {{#if (eq Libelle "Permis de conduire")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{#if (eq Libelle "CNI")}} {{#if (eq ../Client.[0].SituationFamiliale "Marié")}}
+        <li>Copie recto-verso de la CNI en cours de validité de Mme et M</li>
+        {{else}}
+        <li>Copie recto-verso de la CNI en cours de validité</li>
+        {{/if}} {{/if}} {{#if (eq Libelle "Passeport")}} {{#if (eq ../Client.[0].SituationFamiliale "Marié")}}
+        <li>Copie recto-verso du Passeport en cours de validité de Mme et M</li>
+        {{else}}
+        <li>Copie recto-verso du Passeport en cours de validité</li>
+        {{/if}} {{/if}} {{#if (eq Libelle "Contrat de mariage")}} {{#if (eq ../Client.[0].SituationFamiliale "Marié")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{/if}} {{#if (eq Libelle "Carte Mutuelle")}}
+        <li>{{Libelle}} (recto + verso)</li>
+        {{/if}} {{#if (eq Libelle "Carte UFE")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{#if (eq Libelle "Carte consultaire")}}
+        <li>{{Libelle}}</li>
+        {{/if}} {{/each}}
+      </ul>
 
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">2. <u>Vous êtes retraité(e) :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;1) identifiants et mot de passe Impot.gouv afin d’avoir un accès France Connect</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;2) Dernier bulletin de pension retraite</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;3) Dernier avis d’imposition complet français et marocain (le cas échéant)</span></p>
-
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">3. <u>Vous avez d’autres revenus : en France :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Revenu locatif : déclaration 2 044</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Location meublée : déclaration fiscale BIC 2 031 / 2 033/ 2042C</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Revenus de capitaux mobiliers : relevé de situation de placements</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Assurance propriétaire non occupant (PNO)</span></p>
-
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">4. <u>Votre situation bancaire :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Epargne bancaire : dernier relevé de situation</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Placement financier : dernier relevé annuel de situation, (assurance vie, contrat de capitalisation...) (Date d’ouverture, bénéficiaires)</span></p>
-
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">5. <u>Vous êtes locataire au Maroc :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Copie du bail</span></p>
-
-    <p style="margin: 0cm; font-size: 16px; font-family: 'Times New Roman', serif">
-      <strong
-        ><em
-          ><span style="font-size: 15px">6. <u>Vous êtes propriétaire :&nbsp;</u></span></em
-        ></strong
-      >
-    </p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Dernière taxe foncière du ou des bien(s) en France et/ou au Maroc</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Valeur du ou des biens en France et au Maroc</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Attestation assurance logement</span></p>
-    <p style="margin: 0cm; font-size: 12px; font-family: 'Times New Roman', serif; text-indent: 1cm"><span style="font-size: 15px">□</span><span style="font-size: 12px"> &nbsp;Titre foncier ou acte d’achat</span></p>
-
+      <!-- Répétez la structure pour d'autres catégories si nécessaire -->
+    </div>
     <br />
     <br />
     <br />

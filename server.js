@@ -107,6 +107,12 @@ const readFile = utils.promisify(fs.readFile);
 hb.registerHelper("eq", function (a, b) {
   return a === b;
 });
+hb.registerHelper("and", function (a, b, options) {
+  return a && b ? options.fn(this) : options.inverse(this);
+});
+hb.registerHelper("or", function () {
+  return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+});
 async function getTemplateHtml(template) {
   try {
     const invoicePath = path.resolve(template);

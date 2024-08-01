@@ -58,6 +58,7 @@ create proc ps_create_client
     ,@Telephone1 NVarChar(20)
     ,@Telephone2 NVarChar(20)
     ,@HasConjoint Bit
+    ,@SituationFamiliale NVarChar(255)
     ,@ParticulariteFiscale NVarChar(255)
     ,CFE NVarChar(100)
     ,Cotisation NVarChar(100)
@@ -76,8 +77,8 @@ create proc ps_create_client
     ,CPAM NVarChar(100)
     ,CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
 
 CREATE PROCEDURE ps_update_client
@@ -94,6 +95,7 @@ CREATE PROCEDURE ps_update_client
     ,@Telephone1 NVarChar(20)
     ,@Telephone2 NVarChar(20)
     ,@HasConjoint Bit
+    ,@SituationFamiliale NVarChar(255)
     ,@ParticulariteFiscale NVarChar(255)
     ,@CFE NVarChar(100)
     ,@Cotisation NVarChar(100)
@@ -126,6 +128,7 @@ AS
         Telephone1 = @Telephone1,
         Telephone2 = @Telephone2,
         HasConjoint = @HasConjoint,
+        SituationFamiliale = @SituationFamiliale,
         ParticulariteFiscale = @ParticulariteFiscale,
         CFE = @CFE,
         Cotisation = @Cotisation,

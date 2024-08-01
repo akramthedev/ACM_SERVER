@@ -243,7 +243,7 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
       ClientTaches: clientTaches,
       ClientMissionId: clientMissionId,
     };
-
+    const ClientSituationFamiliale = client.Client[0].SituationFamiliale;
     // Définissez le modèle HTML pour le PDF
     const template = "./templates/Lettre_Mission_Maroc.html";
     const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
@@ -258,6 +258,7 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     }
     //console.log("clientMissionData : ", clientMissionData);
     console.log("client : ", client);
+
     // Lisez le fichier PDF généré et envoyez-le en réponse
     const data = fs.readFileSync(generatedPdfPath);
     res.contentType("application/pdf");
