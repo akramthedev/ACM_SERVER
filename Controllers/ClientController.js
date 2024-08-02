@@ -191,7 +191,10 @@ async function generatePdf(template, data, options) {
     const res = await getTemplateHtml(template);
     const templateCompiled = hb.compile(res, { strict: true });
     const htmlTemplate = templateCompiled(data);
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     await page.setContent(htmlTemplate);
     await page.pdf(options);
