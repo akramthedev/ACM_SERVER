@@ -125,13 +125,21 @@ async function generatePdf(template, data, options) {
   console.log("genPdf: template: ", template);
   try {
     const res = await getTemplateHtml(template);
+    console.log("Good: getTemplateHtml ")
     const templateCompiled = hb.compile(res, { strict: true });
+    console.log("Good: compile ")
     const htmlTemplate = templateCompiled(data);
-    const browser = await puppeteer.launch();
+    console.log("Good: templateCompiled ")
+    const browser = await puppeteer.launch.launch();
+    console.log("Good: getTemplateHtml ")
     const page = await browser.newPage();
+    console.log("Good: browser.newPage ")
     await page.setContent(htmlTemplate);
+    console.log("Good: page.setContent ")
     await page.pdf(options);
+    console.log("Good: page.pdf ")
     await browser.close();
+    console.log("Good: browser.close ")
     console.log("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {
