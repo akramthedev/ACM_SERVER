@@ -141,7 +141,9 @@ async function generatePdf(template, data, options) {
   }
 }
 app.get("/print", async (request, response) => {
-  const recuPaiementTemplate = "./templates/Lettre_Mission.html";
+  // const recuPaiementTemplate = "./templates/Lettre_Mission.html";
+  const recuPaiementTemplate = "./templates/testt.html";
+  
   const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
   const recuPaiementData = {
     NumeroRecu: "123456",
