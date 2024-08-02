@@ -193,7 +193,6 @@ async function generatePdf(template, data, options) {
     const htmlTemplate = templateCompiled(data);
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/google-chrome-stable",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
