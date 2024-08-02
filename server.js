@@ -130,7 +130,7 @@ async function generatePdf(template, data, options) {
     console.log("Good: compile ")
     const htmlTemplate = templateCompiled(data);
     console.log("Good: templateCompiled ")
-    const browser = await puppeteer.launch.launch();
+    const browser = await puppeteer.launch();
     console.log("Good: getTemplateHtml ")
     const page = await browser.newPage();
     console.log("Good: browser.newPage ")
