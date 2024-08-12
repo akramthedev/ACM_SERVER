@@ -134,14 +134,14 @@ router.post("/CreateClient", async (request, response) => {
           }
         }
         // create ClientTache
-        if (request.body.ClientTache != null && request.body.ClientTache.length > 0) {
-          for (let i = 0; i < request.body.ClientTache.length; i++) {
-            await CreateClientTache(request.body.ClientTache[i])
-              .then((resClientTache) => {
-                console.log("resClientTache: ", resClientTache);
+        if (request.body.ClientTaches != null && request.body.ClientTaches.length > 0) {
+          for (let i = 0; i < request.body.ClientTaches.length; i++) {
+            await CreateClientTache(request.body.ClientTaches[i])
+              .then((resClientTaches) => {
+                console.log("resClientTaches: ", resClientTaches);
               })
-              .catch((errorClientTache) => {
-                console.log("errorClientTache: ", errorClientTache);
+              .catch((errorClientTaches) => {
+                console.log("errorClientTaches: ", errorClientTaches);
               });
           }
         }
