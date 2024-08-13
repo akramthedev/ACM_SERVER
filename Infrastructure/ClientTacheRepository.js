@@ -22,6 +22,20 @@ function CreateClientTache(data) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+function CreateClientTacheCustom(data) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
+      .input("Intitule", sql.NVarChar(255), data.Intitule)
+      .input("Numero_Ordre", sql.NVarChar(255), data.Numero_Ordre)
+      .input("Commentaire", sql.NVarChar(255), data.Commentaire)
+      .input("Status", sql.NVarChar(255), data.Status)
+      .execute("ps_create_client_tache_custom")
+      .then((result) => resolve(result.rowsAffected[0] > 0))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 function UpdateClientTache(data) {
   console.log("UpdateClientTache :", data);
   return new Promise((resolve, reject) => {
@@ -44,4 +58,4 @@ function UpdateClientTache(data) {
   });
 }
 
-module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache };
+module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom };

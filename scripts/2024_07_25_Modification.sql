@@ -84,6 +84,16 @@ SELECT
 END
 GO
 
+create proc ps_create_client_tache_custom
+    @ClientTacheId UNIQUEIDENTIFIER,
+    @Intitule NVARCHAR(255),
+    @Numero_Ordre NVARCHAR(255),
+    @Commentaire NVARCHAR(255),
+    @Status NVARCHAR(255)
+AS
+    insert into ClientTache(ClientTacheId,Intitule,Numero_Ordre,Commentaire,Status)
+    values(@ClientTacheId,@Intitule,@Numero_Ordre,@Commentaire,@Status)
+GO
 
 ALTER PROCEDURE ps_create_client_tache
     @ClientTacheId UNIQUEIDENTIFIER,
