@@ -187,6 +187,7 @@ async function getTemplateHtml(template) {
 }
 async function generatePdf(template, data, options) {
   console.log("genPdf: template: ", template);
+  console.log("dtata : ", data);
   try {
     const res = await getTemplateHtml(template);
     const templateCompiled = hb.compile(res, { strict: true });
