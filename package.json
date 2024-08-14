@@ -2,7 +2,7 @@
   "name": "acm",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -22,6 +22,7 @@
     "mssql": "^10.0.2",
     "multer": "^1.4.5-lts.1",
     "node-file-logger": "^0.9.5",
+    "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
