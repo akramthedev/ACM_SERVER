@@ -19,6 +19,14 @@ function GetClientTachesSimple(ClientId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+function GetAllClientTaches() {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .execute("ps_get_all_client_taches")
+      .then((result) => resolve(result.recordset))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 
 function CreateClientTache(data) {
   return new Promise((resolve, reject) => {
@@ -68,4 +76,4 @@ function UpdateClientTache(data) {
   });
 }
 
-module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple };
+module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches };
