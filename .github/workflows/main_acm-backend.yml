@@ -23,5 +23,6 @@ jobs:
 
       - name: npm install, build, and test
         run: |
-          npm install
-          node server.js
+          npm install --force
+          npm run start
+          

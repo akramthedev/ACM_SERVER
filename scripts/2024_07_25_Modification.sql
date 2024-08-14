@@ -108,11 +108,13 @@ BEGIN
         DECLARE @Intitule NVARCHAR(255);
         DECLARE @Numero_Ordre NVARCHAR(255);
         DECLARE @Commentaire NVARCHAR(255);
+        DECLARE @AgentResposable UNIQUEIDENTIFIER;
 
         SELECT 
             @Intitule = t.Intitule,
             @Numero_Ordre = t.Numero_Ordre,
-            @Commentaire = p.Designation
+            @Commentaire = p.Designation,
+            @AgentResposable = t.AgentId
         FROM 
             Tache t
         LEFT JOIN 
@@ -129,7 +131,8 @@ BEGIN
             Intitule, 
             Numero_Ordre, 
             Commentaire,
-            Status)
+            Status,
+            AgentResposable)
         VALUES(
             @ClientTacheId, 
             @ClientMissionPrestationId, 
@@ -138,7 +141,8 @@ BEGIN
             @Intitule, 
             @Numero_Ordre, 
             @Commentaire,
-            'En attente');
+            'En attente',
+            @AgentResposable);
 
         COMMIT TRANSACTION;
     END TRY
@@ -216,4 +220,159 @@ BEGIN
     WHERE 
         cm.ClientId = @ClientId;
 END;
+GO
+
+ALTER TABLE Prestation
+ADD Numero_Ordre NVARCHAR(255)
+
+ALTER PROCEDURE ps_get_client_taches_simple
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT 
+        ct.ClientTacheId,
+        ct.ClientMissionPrestationId,
+        ct.ClientMissionId,
+        ct.TacheId,
+        ct.Intitule,
+        ct.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ct.AgentResposable
+    FROM 
+        ClientTache ct
+    LEFT JOIN 
+        ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
+    WHERE 
+        cm.ClientId = @ClientId
+    ORDER BY 
+        CAST(SUBSTRING(ct.Numero_Ordre, 2, LEN(ct.Numero_Ordre) - 1) AS INT);
+END;
+GO
+
+CREATE TABLE Agent (
+    AgentId uniqueidentifier PRIMARY KEY, 
+    CabinetId uniqueidentifier NOT NULL, -- Référence au cabinet 
+    Nom NVARCHAR(255),
+    Email NVARCHAR(255),
+    Telephone NVARCHAR(255),
+    CreatedAt DateTime,
+    UpdatedAt DateTime,
+    FOREIGN KEY (CabinetId) REFERENCES Cabinet(CabinetId)
+
+);
+
+ ALTER TABLE Tache
+ADD FOREIGN KEY (AgentId) REFERENCES Agent(AgentId);
+
+ALTER TABLE ClientTache
+ALTER COLUMN AgentResposable uniqueidentifier;
+
+ ALTER TABLE ClientTache
+ADD FOREIGN KEY (AgentResposable) REFERENCES Agent(AgentId);
+
+
+ALTER TABLE ClientTache
+ADD AgentAnotifierId uniqueidentifier;
+
+
+UPDATE Tache
+SET AgentId = '3d9d1ac0-ac20-469e-be24-97cb3c8c5187' //Redouane
+
+
+CREATE PROCEDURE ps_get_all_client_taches
+AS
+BEGIN
+    SELECT 
+        ct.ClientTacheId,
+        cmp.ClientMissionPrestationId,
+        cm.ClientMissionId,
+        cm.ClientId,
+        m.Designation AS MissionDesignation,  -- Include MissionDesignation
+        t.TacheId,
+        t.Intitule AS TacheIntitule,
+        p.PrestationId,
+        p.Designation AS PrestationDesignation,
+        p.Description AS PrestationDescription,
+        t.Description AS TacheDescription,
+        ct.Intitule AS ClientTacheIntitule,
+        t.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ct.AgentResposable
+    FROM 
+        ClientTache ct
+    LEFT JOIN 
+        ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+    LEFT JOIN 
+        ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN 
+        Mission m ON cm.MissionId = m.MissionId   -- Join with Mission to get MissionDesignation
+    LEFT JOIN 
+        Tache t ON ct.TacheId = t.TacheId
+    LEFT JOIN 
+        Prestation p ON t.PrestationId = p.PrestationId
+END
+GO
+
+ALTER PROCEDURE ps_get_all_client_taches
+AS
+BEGIN
+    SELECT 
+        ct.ClientTacheId,
+        cmp.ClientMissionPrestationId,
+        cm.ClientMissionId,
+        cm.ClientId,
+        cl.Nom AS ClientNom,          -- Client information
+        cl.Prenom AS ClientPrenom,
+        cl.DateNaissance AS ClientDateNaissance,
+        cl.Photo AS ClientPhoto,
+        cl.Profession AS ClientProfession,
+        cl.DateRetraite AS ClientDateRetraite,
+        cl.NumeroSS AS ClientNumeroSS,
+        cl.Adresse AS ClientAdresse,
+        cl.Email1 AS ClientEmail1,
+        cl.Email2 AS ClientEmail2,
+        cl.Telephone1 AS ClientTelephone1,
+        cl.Telephone2 AS ClientTelephone2,
+        cl.HasConjoint AS ClientHasConjoint,
+        cl.SituationFamiliale AS ClientSituationFamiliale,
+        m.Designation AS MissionDesignation,  -- Mission designation
+        t.TacheId,
+        t.Intitule AS TacheIntitule,
+        p.PrestationId,
+        p.Designation AS PrestationDesignation,
+        p.Description AS PrestationDescription,
+        t.Description AS TacheDescription,
+        ct.Intitule AS ClientTacheIntitule,
+        t.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ag.Nom AS AgentNom               -- Agent information
+    FROM 
+        ClientTache ct
+    LEFT JOIN 
+        ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+    LEFT JOIN 
+        ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN 
+        Mission m ON cm.MissionId = m.MissionId
+    LEFT JOIN 
+        Tache t ON ct.TacheId = t.TacheId
+    LEFT JOIN 
+        Prestation p ON t.PrestationId = p.PrestationId
+    LEFT JOIN 
+        Client cl ON cm.ClientId = cl.ClientId   -- Join with Client to get client details
+    LEFT JOIN 
+        Agent ag ON t.AgentId = ag.AgentId       -- Join with Agent to get agent details
+END
 GO

@@ -313,6 +313,14 @@ BEGIN
 END
 GO
 
+ALTER proc ps_get_prestations
+    @MissionId uniqueidentifier
+AS
+BEGIN
+    select * from prestation where MissionId=@MissionId ORDER BY Numero_Ordre
+END
+GO
+
 -- create proc ps_get_client_prestations
 --     @ClientId uniqueidentifier
 -- AS
@@ -430,6 +438,38 @@ LEFT JOIN
     Prestation p ON t.PrestationId = p.PrestationId
 LEFT JOIN 
     Mission m ON p.MissionId = m.MissionId;
+ 
+END
+GO
+
+ALTER proc ps_get_taches
+AS
+BEGIN
+    SELECT 
+    t.TacheId,
+    t.PrestationId,
+    p.Designation AS PrestationDesignation,
+    p.MissionId,
+    m.Designation AS MissionDesignation,
+    t.TacheDateReferenceId,
+    t.TypePersonneANotifierId,
+    t.Depend_de,
+    t.AgentId,
+    t.Intitule,
+    t.Description,
+    t.Numero_Ordre,
+    t.Deadline,
+    t.NombreRapelle,
+    t.Priorite,
+    t.Honoraire
+FROM 
+    Tache t
+LEFT JOIN 
+    Prestation p ON t.PrestationId = p.PrestationId
+LEFT JOIN 
+    Mission m ON p.MissionId = m.MissionId
+ORDER BY 
+        CAST(SUBSTRING(t.Numero_Ordre, 2, LEN(t.Numero_Ordre) - 1) AS INT);
  
 END
 GO
