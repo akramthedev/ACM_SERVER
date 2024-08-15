@@ -108,9 +108,9 @@ app.get("/test", (request, response) => {
 app.get("/email", (request, response) => {
   let mailOptions = {
     from: "acm@netwaciila.ma",
-    to: "boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma
-    subject: "Test Email from Node.js",
-    html: "<b>Hello from Node.js html!</b>",
+    to: "cecile@acm-maroc.com", //amine.laghlabi@e-polytechnique.ma
+    subject: "Email Tache Terminé",
+    html: "<b>Tache du client terminé",
   };
   console.log("sending email ......");
   mailer.sendMail(mailOptions, function (error, info) {
