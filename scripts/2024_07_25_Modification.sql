@@ -376,3 +376,109 @@ BEGIN
         Agent ag ON t.AgentId = ag.AgentId       -- Join with Agent to get agent details
 END
 GO
+
+ALTER PROCEDURE ps_get_client_taches_simple --add Prestation designation
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT 
+        ct.ClientTacheId,
+        ct.ClientMissionPrestationId,
+        ct.ClientMissionId,
+        ct.TacheId,
+        ct.Intitule,
+        ct.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ct.AgentResposable,
+        p.Designation AS PrestationDesignation  -- Include PrestationDesignation
+    FROM 
+        ClientTache ct
+    LEFT JOIN 
+        ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN
+        ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+    LEFT JOIN
+        Prestation p ON cmp.PrestationId = p.PrestationId  -- Join Prestation table
+    WHERE 
+        cm.ClientId = @ClientId
+    ORDER BY 
+        CAST(SUBSTRING(ct.Numero_Ordre, 2, LEN(ct.Numero_Ordre) - 1) AS INT);
+END;
+GO
+
+ALTER PROCEDURE ps_create_client_tache
+    @ClientTacheId UNIQUEIDENTIFIER,
+    @ClientMissionPrestationId UNIQUEIDENTIFIER,
+    @ClientMissionId UNIQUEIDENTIFIER,
+    @TacheId UNIQUEIDENTIFIER
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Récupération de l'intitulé et du numéro d'ordre de la tâche, et de la désignation de la prestation
+        DECLARE @Intitule NVARCHAR(255);
+        DECLARE @Numero_Ordre NVARCHAR(255);
+        DECLARE @AgentResposable UNIQUEIDENTIFIER;
+
+        SELECT 
+            @Intitule = t.Intitule,
+            @Numero_Ordre = t.Numero_Ordre,
+            @AgentResposable = t.AgentId
+        FROM 
+            Tache t
+        LEFT JOIN 
+            Prestation p ON t.PrestationId = p.PrestationId
+        WHERE 
+            t.TacheId = @TacheId;
+
+        -- Insertion dans la table ClientTache avec les valeurs récupérées et le statut "En cours"
+        INSERT INTO ClientTache(
+            ClientTacheId, 
+            ClientMissionPrestationId, 
+            ClientMissionId, 
+            TacheId, 
+            Intitule, 
+            Numero_Ordre,
+            Status,
+            AgentResposable)
+        VALUES(
+            @ClientTacheId, 
+            @ClientMissionPrestationId, 
+            @ClientMissionId, 
+            @TacheId, 
+            @Intitule, 
+            @Numero_Ordre,
+            'En attente',
+            @AgentResposable);
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE ps_delete_ClientTache
+    @ClientTacheId UNIQUEIDENTIFIER
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Suppression de la tâche de la table ClientTache
+        DELETE FROM ClientTache
+        WHERE ClientTacheId = @ClientTacheId;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
