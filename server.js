@@ -14,6 +14,7 @@ const puppeteer = require("puppeteer");
 const hb = require("handlebars");
 const utils = require("util");
 const path = require("path");
+var mailer = require("./Helper/mailer");
 
 // var guard = require('express-jwt-permissions')()
 
@@ -40,7 +41,7 @@ log.Info("ACM Server started ...........");
 const app = express();
 const cors = require("cors");
 app.use(cors());
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
   try {
@@ -100,6 +101,29 @@ app.listen(PORT, (error) => {
 app.get("/", (request, response) => {
   response.status(200).send("Server works !!!!");
 });
+app.get("/test", (request, response) => {
+  response.status(200).send("test works !!!!!!!!!!!!!!!!");
+});
+
+app.get("/email", (request, response) => {
+  let mailOptions = {
+    from: 'acm@netwaciila.ma',
+    to: 'amine.laghlabi@e-polytechnique.ma',
+    subject: 'Test Email from Node.js',
+    html: '<b>Hello from Node.js html!</b>'
+  };
+  console.log("sending email ......")
+  mailer.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+      response.status(200).send("error email");
+    } else {
+      console.log('Email sent: ' + info.response);
+      response.status(200).send("email sent !!!!!");
+    }
+  });
+});
+
 
 //#region GeneratePDF
 const readFile = utils.promisify(fs.readFile);
@@ -151,7 +175,7 @@ async function generatePdf(template, data, options) {
 app.get("/print", async (request, response) => {
   // const recuPaiementTemplate = "./templates/Lettre_Mission.html";
   const recuPaiementTemplate = "./templates/testt.html";
-  
+
   const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
   const recuPaiementData = {
     NumeroRecu: "123456",
