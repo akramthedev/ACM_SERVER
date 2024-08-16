@@ -108,7 +108,7 @@ app.get("/test", (request, response) => {
 app.get("/email", (request, response) => {
   let mailOptions = {
     from: "acm@netwaciila.ma",
-    to: "cecile@acm-maroc.com", //amine.laghlabi@e-polytechnique.ma
+    to: "boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
     subject: "Email Tache Terminé",
     html: "<b>Tache du client terminé",
   };
