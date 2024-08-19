@@ -107,23 +107,22 @@ app.get("/test", (request, response) => {
 
 app.get("/email", (request, response) => {
   let mailOptions = {
-    from: 'acm@netwaciila.ma',
-    to: 'amine.laghlabi@e-polytechnique.ma',
-    subject: 'Test Email from Node.js',
-    html: '<b>Hello from Node.js html!</b>'
+    from: "acm@netwaciila.ma",
+    to: "boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
+    subject: "Email Tache Terminé",
+    html: "<b>Tache du client terminé",
   };
-  console.log("sending email ......")
+  console.log("sending email ......");
   mailer.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
       response.status(200).send("error email");
     } else {
-      console.log('Email sent: ' + info.response);
+      console.log("Email sent: " + info.response);
       response.status(200).send("email sent !!!!!");
     }
   });
 });
-
 
 //#region GeneratePDF
 const readFile = utils.promisify(fs.readFile);
@@ -149,9 +148,9 @@ async function generatePdf(template, data, options) {
   console.log("genPdf: template: ", template);
   try {
     const res = await getTemplateHtml(template);
-    console.log("Good: getTemplateHtml ")
+    console.log("Good: getTemplateHtml ");
     const templateCompiled = hb.compile(res, { strict: true });
-    console.log("Good: compile ")
+    console.log("Good: compile ");
     const htmlTemplate = templateCompiled(data);
     console.log("Good: templateCompiled ")
     const browser = await puppeteer.launch({
@@ -160,13 +159,13 @@ async function generatePdf(template, data, options) {
   });
     console.log("Good: getTemplateHtml ")
     const page = await browser.newPage();
-    console.log("Good: browser.newPage ")
+    console.log("Good: browser.newPage ");
     await page.setContent(htmlTemplate);
-    console.log("Good: page.setContent ")
+    console.log("Good: page.setContent ");
     await page.pdf(options);
-    console.log("Good: page.pdf ")
+    console.log("Good: page.pdf ");
     await browser.close();
-    console.log("Good: browser.close ")
+    console.log("Good: browser.close ");
     console.log("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {

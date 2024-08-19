@@ -75,5 +75,14 @@ function UpdateClientTache(data) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+function DeleteClientTache(ClientTacheId) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId)
+      .execute("ps_delete_ClientTache")
+      .then((result) => resolve(result.rowsAffected[0] > 0))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 
-module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches };
+module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache };
