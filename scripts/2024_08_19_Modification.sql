@@ -112,3 +112,18 @@ AS
         UpdatedAt = CURRENT_TIMESTAMP
     WHERE ClientId = @ClientId;
 GO
+
+alter proc ps_delete_client
+    @ClientId uniqueidentifier
+AS
+    delete from Proche where ClientId=@ClientId;
+    delete from Conjoint where ClientId=@ClientId;
+    delete from ClientPiece where ClientId=@ClientId;
+    delete from Patrimoine where ClientId=@ClientId;
+    delete from Passif where ClientId=@ClientId;
+    delete from Budget where ClientId=@ClientId;
+    delete ct from ClientTache ct JOIN ClientMissionPrestation cmp ON ct.ClientMissionId=cmp.ClientMissionId JOIN ClientMission cm ON ct.ClientMissionId=cm.ClientMissionId WHERE cm.ClientId=@ClientId
+    delete cmp from ClientMissionPrestation cmp JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId WHERE cm.ClientId=@ClientId
+    delete from ClientMission where ClientId=@ClientId;
+    delete from Client where ClientId=@ClientId;
+GO
