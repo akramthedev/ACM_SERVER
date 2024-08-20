@@ -124,6 +124,31 @@ app.get("/email", (request, response) => {
   });
 });
 
+app.get("/email2", (request, response) => {
+  const to = request.query.to;
+  const subject = request.query.subject;
+  const html = request.query.html;
+  if (!to || !subject || !html) {
+    return response.status(400).send("Missing required parameters: to, subject, or html");
+  }
+  let mailOptions = {
+    from: "acm@netwaciila.ma",
+    to: to, //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
+    subject: subject,
+    html: html,
+  };
+  console.log("sending email to : ", to);
+  mailer.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+      response.status(200).send("error email");
+    } else {
+      console.log("Email sent: " + info.response);
+      response.status(200).send("email sent !!!!!");
+    }
+  });
+});
+
 //#region GeneratePDF
 const readFile = utils.promisify(fs.readFile);
 // Register a custom helper to check equality

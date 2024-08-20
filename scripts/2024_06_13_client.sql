@@ -51,6 +51,7 @@ create proc ps_create_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateResidence Date
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
     ,@Email1 NVarChar(100)
@@ -77,8 +78,8 @@ create proc ps_create_client
     ,CPAM NVarChar(100)
     ,CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateResidence,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateResidence,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
 
 CREATE PROCEDURE ps_update_client
@@ -88,6 +89,7 @@ CREATE PROCEDURE ps_update_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateResidence Date
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
     ,@Email1 NVarChar(100)
@@ -121,6 +123,7 @@ AS
         DateNaissance = @DateNaissance,
         Profession = @Profession,
         DateRetraite = @DateRetraite,
+        DateResidence = @DateResidence,
         NumeroSS = @NumeroSS,
         Adresse = @Adresse,
         Email1 = @Email1,
