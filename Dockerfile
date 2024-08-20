@@ -4,6 +4,7 @@ COPY package.json /
 RUN npm install
 COPY . /
 CMD ["node","server.js"]
+expose 3000
 
 # for Chrome
 
@@ -17,6 +18,3 @@ RUN apt-get install -y google-chrome-stable
 RUN apt-get install -yqq unzip
 RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
-
-
-
