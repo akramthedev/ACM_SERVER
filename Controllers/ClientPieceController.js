@@ -1,5 +1,6 @@
 var express = require("express");
 const fs = require("fs");
+const path = require("path");
 const fileUpload = require("express-fileupload");
 var router = express.Router();
 const { CreateClientPiece, DeleteClientPiece, GetClientPiece } = require("../Infrastructure/ClientPieceRepository");
@@ -64,28 +65,108 @@ router.post("/CreateClientPiece", async (request, response) => {
   });
 });
 
+// router.post("/UploadProfileImage", async (request, response) => {
+//   let ClientId = request.body.ClientId;
+//   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
+
+//   if (!request.files || Object.keys(request.files).length === 0) return response.status(400).send("No files were uploaded.");
+
+//   let fileToUpload = request.files.file;
+//   let fileExtension = fileToUpload.name.split(".")[fileToUpload.name.split(".").length - 1];
+
+//   // create ClientPiecesDirectory if it doesn't exist
+//   let exists = fs.existsSync(ClientPiecesDirectory);
+//   if (!exists) fs.mkdirSync(ClientPiecesDirectory);
+
+//   let uploadPath = `${ClientPiecesDirectory}/profile.${fileExtension}`;
+
+//   // Use the mv() method to place the file somewhere on your server
+//   fileToUpload.mv(uploadPath, async function (err) {
+//     if (err) return response.status(500).send(err);
+
+//     // Return success with the image URL
+//     response.status(200).send({ imageUrl: `/Pieces/${ClientId}/profile.${fileExtension}` });
+//   });
+// });
+
+// Route pour uploader une image de profil
 router.post("/UploadProfileImage", async (request, response) => {
   let ClientId = request.body.ClientId;
   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
 
-  if (!request.files || Object.keys(request.files).length === 0) return response.status(400).send("No files were uploaded.");
+  if (!request.files || Object.keys(request.files).length === 0) {
+    return response.status(400).send("No files were uploaded.");
+  }
 
   let fileToUpload = request.files.file;
   let fileExtension = fileToUpload.name.split(".")[fileToUpload.name.split(".").length - 1];
 
-  // create ClientPiecesDirectory if it doesn't exist
+  // Créer le répertoire pour les pièces du client s'il n'existe pas
   let exists = fs.existsSync(ClientPiecesDirectory);
   if (!exists) fs.mkdirSync(ClientPiecesDirectory);
 
+  // Supprimer l'ancienne image de profil si elle existe (peut être .jpg, .png, etc.)
+  const oldFiles = fs.readdirSync(ClientPiecesDirectory).filter((file) => {
+    return file.startsWith("profile.") && file !== `profile.${fileExtension}`;
+  });
+
+  oldFiles.forEach((file) => {
+    const filePath = path.join(ClientPiecesDirectory, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); // Supprime l'ancienne image
+    }
+  });
+
   let uploadPath = `${ClientPiecesDirectory}/profile.${fileExtension}`;
 
-  // Use the mv() method to place the file somewhere on your server
+  // Utiliser la méthode mv() pour placer le fichier sur le serveur
   fileToUpload.mv(uploadPath, async function (err) {
     if (err) return response.status(500).send(err);
 
-    // Return success with the image URL
+    // Retourner l'URL de la nouvelle image
     response.status(200).send({ imageUrl: `/Pieces/${ClientId}/profile.${fileExtension}` });
   });
+});
+
+// router.delete("/deleteProfileImage/:ClientId", (req, res) => {
+//   const clientId = req.params.ClientId;
+//   const imageDirectory = `./Pieces/${clientId}`;
+//   const extensions = ["jpg", "jpeg", "png"];
+
+//   // Vérification et suppression des fichiers de profil avec les différentes extensions
+//   let imageDeleted = false;
+//   extensions.forEach((ext) => {
+//     const filePath = `${imageDirectory}/profile.${ext}`;
+//     if (fs.existsSync(filePath)) {
+//       fs.unlinkSync(filePath);
+//       imageDeleted = true;
+//       console.log(`Deleted image: ${filePath}`);
+//     }
+//   });
+
+//   if (imageDeleted) {
+//     res.status(200).send("Image de profil supprimée avec succès.");
+//   } else {
+//     res.status(404).send("Aucune image de profil n'a été trouvée.");
+//   }
+// });
+router.delete("/deleteProfileImage/:ClientId/profile.:ext", (req, res) => {
+  const clientId = req.params.ClientId;
+  const extension = req.params.ext;
+  const filePath = `./Pieces/${clientId}/profile.${extension}`;
+
+  if (fs.existsSync(filePath)) {
+    try {
+      fs.unlinkSync(filePath);
+      console.log(`Deleted image: ${filePath}`);
+      res.status(200).send("Image de profil supprimée avec succès.");
+    } catch (error) {
+      console.error(`Error deleting image: ${error}`);
+      res.status(500).send("Erreur lors de la suppression de l'image.");
+    }
+  } else {
+    res.status(404).send("Aucune image de profil n'a été trouvée.");
+  }
 });
 
 router.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => {
