@@ -1,7 +1,7 @@
 // auth.js
 const passport = require("passport");
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 let jwtConfig = {
     secretKey: "acm-secret-jwt-key",

@@ -178,6 +178,7 @@ async function getTemplateHtml(template) {
 
     // Intégrer les images en base64
     const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
+    console.log("__dirname: ", __dirname)
     html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
 
     return html;

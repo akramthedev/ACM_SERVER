@@ -1,4 +1,4 @@
-console.clear();
+// console.clear();
 
 const express = require("express");
 const sql = require("mssql");
@@ -99,30 +99,67 @@ app.listen(PORT, (error) => {
   else console.log("Error occurred, server can't start", error);
 });
 app.get("/", (request, response) => {
-  response.status(200).send("Server works !!!!");
+  response.status(200).send("Server works 22/08/2024 13:26");
 });
 app.get("/test", (request, response) => {
-  response.status(200).send("test works !!!!!!!!!!!!!!!!");
+  log.Info("test route works ...........");
+  console.log("test route")
+  response.status(200).send("test works 22/08/2024 13:26 !!!!!!!!!!!!!!!!");
 });
 
 app.get("/email", (request, response) => {
   let mailOptions = {
     from: "acm@netwaciila.ma",
-    to: "boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
-    subject: "Email Tache Terminé",
-    html: "<b>Tache du client terminé",
+    to: "amine.laghlabi@e-polytechnique.ma",//"boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
+    subject: "TestEmail",
+    html: "<b>TestEmail</b>",
   };
   console.log("sending email ......");
+  log.Info("sending email")
   mailer.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
+      log.Error("send email Failed")
       response.status(200).send("error email");
     } else {
       console.log("Email sent: " + info.response);
+      log.Info("mail sent :D")
       response.status(200).send("email sent !!!!!");
     }
   });
 });
+
+app.get("/email2", (request, response) => {
+  sendEmail("amine.laghlabi@e-polytechnique.ma", "TestEmail2", "<b>TestEmail</b>")
+    .then((res) => {
+      response.status(200).send("email sent !!!!!");
+    }, (error) => {
+      console.log("Error send email: ");
+      console.log(error);
+      response.status(200).send("error email");
+    })
+});
+function sendEmail(to, subject, htmlBody) {
+  let mailOptions = {
+    from: "acm@netwaciila.ma",
+    to: to,
+    subject: subject,
+    html: htmlBody,
+  };
+  return new Promise((resolve, reject) => {
+    mailer.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        reject(error)
+        // response.status(200).send("error email");
+      } else {
+        resolve(true)
+        // console.log("Email sent: " + info.response);
+        // response.status(200).send("email sent !!!!!");
+      }
+    });
+  })
+}
 
 //#region GeneratePDF
 const readFile = utils.promisify(fs.readFile);
@@ -136,57 +173,72 @@ hb.registerHelper("and", function (a, b, options) {
 hb.registerHelper("or", function () {
   return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
 });
+// async function getTemplateHtml(template) {
+//   try {
+//     const templatePath = path.resolve(template);
+//     console.log("templatePath: ", templatePath)
+//     return await readFile(templatePath, "utf8");
+//   } catch (err) {
+//     return Promise.reject("Could not load html template");
+//   }
+// }
 async function getTemplateHtml(template) {
   try {
+    console.log("template: ", template)
     const invoicePath = path.resolve(template);
-    return await readFile(invoicePath, "utf8");
+    let html = await fs.promises.readFile(invoicePath, "utf8");
+
+    // Intégrer les images en base64
+    const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
+    html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
+
+    return html;
   } catch (err) {
     return Promise.reject("Could not load html template");
   }
 }
 async function generatePdf(template, data, options) {
-  console.log("genPdf: template: ", template);
+  log.Info("genPdf: template: ", template);
   try {
     const res = await getTemplateHtml(template);
-    console.log("Good: getTemplateHtml ");
+    log.Info("Good: getTemplateHtml ");
     const templateCompiled = hb.compile(res, { strict: true });
-    console.log("Good: compile ");
+    log.Info("Good: compile ");
     const htmlTemplate = templateCompiled(data);
-    console.log("Good: templateCompiled ")
+    log.Info("Good: templateCompiled ")
     const browser = await puppeteer.launch({
       headless: true, // or false if you want a visible browser
       args: ['--no-sandbox']
-  });
-    console.log("Good: getTemplateHtml ")
+    });
+    log.Info("Good: getTemplateHtml ")
     const page = await browser.newPage();
-    console.log("Good: browser.newPage ");
+    log.Info("Good: browser.newPage ");
     await page.setContent(htmlTemplate);
-    console.log("Good: page.setContent ");
+    log.Info("Good: page.setContent ");
     await page.pdf(options);
-    console.log("Good: page.pdf ");
+    log.Info("Good: page.pdf ");
     await browser.close();
-    console.log("Good: browser.close ");
-    console.log("PDF Generated !! file: " + options.path);
+    log.Info("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {
-    console.error("\n --------------------- \n\n error generatePdf");
-    console.error(err);
+    log.Error("\n --------------------- \n\n error generatePdf");
+    log.Error(err);
     throw err;
   }
 }
 app.get("/print", async (request, response) => {
   // const recuPaiementTemplate = "./templates/Lettre_Mission.html";
   const recuPaiementTemplate = "./templates/testt.html";
-
   const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
   const recuPaiementData = {
     NumeroRecu: "123456",
     Matricule: "1234564789",
     Nom: "EtdNom",
-    Prenom: "EtdPrenom",
+    Prenom: "EtdPrenom " + (new Date()).toISOString(),
     Filiere: "Ingénierie Financière, Contrôle et Audit",
     Niveau: "4ème année",
     Annee: "2023-2024",
+    img: path.resolve("LOGO-BG.png"),
     data: [
       { nom: "aa", prenom: "aaa" },
       { nom: "bb", prenom: "bbb" },
@@ -198,13 +250,14 @@ app.get("/print", async (request, response) => {
   const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
 
   // Ensure the pdfs directory exists
-  if (!fs.existsSync("./pdfs")) {
-    fs.mkdirSync("./pdfs");
-  }
+  if (!fs.existsSync("./pdfs")) { fs.mkdirSync("./pdfs"); }
 
   try {
     const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
     const data = fs.readFileSync(generatedPdfPath);
+    log.Info("generatedPdfPath: ", generatedPdfPath)
+    log.Info("readFileSync")
+    log.Info(data)
     response.contentType("application/pdf");
     response.send(data);
   } catch (errorGen) {

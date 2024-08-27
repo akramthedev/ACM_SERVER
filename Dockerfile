@@ -1,3 +1,19 @@
+# FROM node:18.0.0-alpine 
+# WORKDIR /usr/src/app
+# COPY package.json ./
+# RUN npm install
+# COPY . .
+# expose 3000
+# CMD ["node","server.js"]
+
+# FROM node
+# WORKDIR /home/node/app
+# COPY package.json ./
+# # RUN npm install
+# COPY . ./
+# CMD ["node","server.js"]
+# expose 3000
+
 FROM node
 WORKDIR /
 COPY package.json /
@@ -7,6 +23,7 @@ CMD ["node","server.js"]
 expose 3000
 
 # for Chrome
+run npx puppeteer browsers install chrome
 
 # install google chrome
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -

@@ -3,7 +3,7 @@ var express = require('express');
 const { GetUser, GetUserRoles } = require('../Infrastructure/UserRepository');
 const { auth, generateJWTToken } = require('../Auth/auth');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 var router = express.Router();
 
