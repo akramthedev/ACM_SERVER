@@ -1,34 +1,47 @@
-# version: '2'
-# services:
-#   web:
-#     build: .
-#     command: npm run dev
-#     volumes:
-#       - .:/usr/app/
-#       - /usr/app/node_modules
-#     ports:
-#       - "3000:3000"    
-    
-
-version: '3.7'
-
 services:
   acm-backend:
     image: aminepolytech/acm-backend:latest
+    restart: unless-stopped
+    # depends_on: 
+      # - keycloak_acm
     volumes:
       - C:/DockerVolumes/acm/logs:/logs
       - C:/DockerVolumes/acm/pdfs:/pdfs
       - C:/DockerVolumes/acm/Pieces:/Pieces
+      # - C:/DockerVolumes/acm/templates:/templates
+      # - ${WEBAPP_STORAGE_HOME}/acm/logs:/logs
+      # - ${WEBAPP_STORAGE_HOME}/acm/pdfs:/pdfs
+      # - ${WEBAPP_STORAGE_HOME}/acm/Pieces:/Pieces
     ports:
       - "3000:3000"
 
+#   keycloak_acm:
+#     # image: quay.io/keycloak/keycloak:22.0.4
+#     image: quay.io/keycloak/keycloak:latest
+#     container_name: keycloak_acm
+#     command: start-dev --transaction-xa-enabled=false
+#     ports:
+#       - 9081:8080
+#       - 9443:8443
+#     restart: unless-stopped
+#     environment:
+#       KEYCLOAK_ADMIN: admin
+#       KEYCLOAK_ADMIN_PASSWORD: NetW@ciil@2021
+      
+#       KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/keycloak.crt
+#       KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/keycloak.pem
 
-# version: 4
-# services:
-#   acm-backend:
-#     image: aminepolytech/acm-backend:latest
+#       # KC_HOSTNAME: https://localhost:9081/
+#       # KC_HOSTNAME: https://upulse-keycloak-2.azurewebsites.net/
+#       # KC_HOSTNAME_STRICT: false
+#       # KC_PROXY: edge
+#       LOG_LEVEL: INFO
 #     volumes:
-#       - ${WEBAPP_STORAGE_HOME}/data/logs:/logs
-#       - ${WEBAPP_STORAGE_HOME}/data/pdfs:/pdfs
-#       - ${WEBAPP_STORAGE_HOME}/data/Pieces:/Pieces
-#     restart: always
+#       - 'C:/DockerVolumes/acm/certs/keycloak.crt:/opt/keycloak/conf/keycloak.crt'
+#       - 'C:/DockerVolumes/acm/certs/keycloak.pem:/opt/keycloak/conf/keycloak.pem'
+#       - 'C:/DockerVolumes/acm/h2_data/:/opt/keycloak/data/'
+#       # - '${WEBAPP_STORAGE_HOME}/certs/keycloak.crt:/opt/keycloak/conf/keycloak.crt'
+#       # - '${WEBAPP_STORAGE_HOME}/certs/keycloak.pem:/opt/keycloak/conf/keycloak.pem'
+#       # - '${WEBAPP_STORAGE_HOME}/h2_data/:/opt/keycloak/data/'
+# volumes:
+#   acm:

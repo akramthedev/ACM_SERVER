@@ -187,8 +187,8 @@ async function getTemplateHtml(template) {
   }
 }
 async function generatePdf(template, data, options) {
-  console.log("genPdf: template: ", template);
-  console.log("dtata : ", data);
+  // console.log("genPdf: template: ", template);
+  // console.log("dtata : ", data);
   try {
     const res = await getTemplateHtml(template);
     const templateCompiled = hb.compile(res, { strict: true });
@@ -201,7 +201,7 @@ async function generatePdf(template, data, options) {
     await page.setContent(htmlTemplate);
     await page.pdf(options);
     await browser.close();
-    console.log("PDF Generated !! file: " + options.path);
+    // console.log("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {
     console.error("\n --------------------- \n\n error generatePdf");
@@ -272,14 +272,14 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
 
     // Générez le PDF avec les données du client
     const generatedPdfPath = await generatePdf(template, client, pdfOptions);
-    if (!fs.existsSync("./pdfs")) {
-      fs.mkdirSync("./pdfs");
-    }
+    if (!fs.existsSync("./pdfs")) { fs.mkdirSync("./pdfs"); }
     //console.log("clientMissionData : ", clientMissionData);
-    console.log("client : ", client);
+    // console.log("client : ", client);
 
     // Lisez le fichier PDF généré et envoyez-le en réponse
     const data = fs.readFileSync(generatedPdfPath);
+    // delete file
+    setTimeout(() => { fs.rmSync(generatedPdfPath); }, 1000);
     res.contentType("application/pdf");
     res.send(data);
   } catch (error) {

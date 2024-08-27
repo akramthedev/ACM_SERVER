@@ -19,6 +19,7 @@ WORKDIR /
 COPY package.json /
 RUN npm install
 COPY . /
+# COPY Pieces/ ./Pieces/
 CMD ["node","server.js"]
 expose 3000
 

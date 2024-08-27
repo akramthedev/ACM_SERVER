@@ -1,4 +1,4 @@
-// console.clear();
+console.clear();
 
 const express = require("express");
 const sql = require("mssql");
@@ -15,7 +15,7 @@ const hb = require("handlebars");
 const utils = require("util");
 const path = require("path");
 var mailer = require("./Helper/mailer");
-
+// var crypto = require('crypto');
 // var guard = require('express-jwt-permissions')()
 
 // setup logger
@@ -184,16 +184,21 @@ hb.registerHelper("or", function () {
 //     return Promise.reject("Could not load html template");
 //   }
 // }
+function getImageBase64(imagePath) {
+  const image = fs.readFileSync(imagePath);
+  return `data:image/png;base64,${image.toString("base64")}`;
+}
 async function getTemplateHtml(template) {
   try {
-    console.log("template: ", template)
-    const invoicePath = path.resolve(template);
-    let html = await fs.promises.readFile(invoicePath, "utf8");
-
-    // Intégrer les images en base64
-    const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
-    html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
-
+    const templatePath = path.resolve(template);
+    let html = await fs.promises.readFile(templatePath, "utf8");
+    try {
+      // Intégrer les images en base64
+      const logoBase64 = getImageBase64(path.resolve("./LOGO-BGG.png"));
+      html = html.replace(`<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
+    } catch (ex) {
+      return Promise.reject("Could not load photo");
+    }
     return html;
   } catch (err) {
     return Promise.reject("Could not load html template");
@@ -203,24 +208,24 @@ async function generatePdf(template, data, options) {
   log.Info("genPdf: template: ", template);
   try {
     const res = await getTemplateHtml(template);
-    log.Info("Good: getTemplateHtml ");
+    // log.Info("Good: getTemplateHtml ");
     const templateCompiled = hb.compile(res, { strict: true });
-    log.Info("Good: compile ");
+    // log.Info("Good: compile ");
     const htmlTemplate = templateCompiled(data);
-    log.Info("Good: templateCompiled ")
+    // log.Info("Good: templateCompiled ")
     const browser = await puppeteer.launch({
       headless: true, // or false if you want a visible browser
       args: ['--no-sandbox']
     });
-    log.Info("Good: getTemplateHtml ")
+    // log.Info("Good: getTemplateHtml ")
     const page = await browser.newPage();
-    log.Info("Good: browser.newPage ");
+    // log.Info("Good: browser.newPage ");
     await page.setContent(htmlTemplate);
-    log.Info("Good: page.setContent ");
+    // log.Info("Good: page.setContent ");
     await page.pdf(options);
-    log.Info("Good: page.pdf ");
+    // log.Info("Good: page.pdf ");
     await browser.close();
-    log.Info("PDF Generated !! file: " + options.path);
+    // log.Info("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {
     log.Error("\n --------------------- \n\n error generatePdf");
@@ -229,9 +234,10 @@ async function generatePdf(template, data, options) {
   }
 }
 app.get("/print", async (request, response) => {
-  // const recuPaiementTemplate = "./templates/Lettre_Mission.html";
   const recuPaiementTemplate = "./templates/testt.html";
+  // const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
   const recuPaiementFileName = `./pdfs/Lettre_Mission_${new Date().getTime()}.pdf`;
+
   const recuPaiementData = {
     NumeroRecu: "123456",
     Matricule: "1234564789",
@@ -240,7 +246,7 @@ app.get("/print", async (request, response) => {
     Filiere: "Ingénierie Financière, Contrôle et Audit",
     Niveau: "4ème année",
     Annee: "2023-2024",
-    img: path.resolve("LOGO-BG.png"),
+    // img: path.resolve("LOGO-BG.png"),
     data: [
       { nom: "aa", prenom: "aaa" },
       { nom: "bb", prenom: "bbb" },
@@ -257,9 +263,7 @@ app.get("/print", async (request, response) => {
   try {
     const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
     const data = fs.readFileSync(generatedPdfPath);
-    log.Info("generatedPdfPath: ", generatedPdfPath)
-    log.Info("readFileSync")
-    log.Info(data)
+    setTimeout(() => { fs.rmSync(generatedPdfPath); }, 1000);
     response.contentType("application/pdf");
     response.send(data);
   } catch (errorGen) {
