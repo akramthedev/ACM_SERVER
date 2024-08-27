@@ -226,6 +226,7 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     const currentDate = new Date();
     const formattedDate = [String(currentDate.getDate()).padStart(2, "0"), String(currentDate.getMonth() + 1).padStart(2, "0"), currentDate.getFullYear()].join("/");
     console.log("currentFormated date : ", formattedDate);
+
     const clientMission = clientMissionData[0];
     const clientId = clientMission.ClientId;
 
@@ -233,7 +234,18 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     const promises = [GetClient(clientId), GetProches(clientId), GetClientPieces(clientId), GetPatrimoines(clientId), GetPassifs(clientId), GetBudgets(clientId), GetConjoint(clientId), GetClientMissions(clientId), GetClientMissionPrestations(clientId), GetClientTaches(clientId)];
 
     const [clientt, proches, clientPieces, patrimoines, passifs, budgets, conjoint, clientMissions, clientMissionPrestations, clientTaches] = await Promise.all(promises);
+    function formatDateFromString(dateString) {
+      const date = new Date(dateString);
 
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Les mois commencent à 0
+      const year = date.getFullYear();
+
+      return `${day}/${month}/${year}`;
+    }
+    const DateResidence = clientt[0].DateResidence;
+    const formattedResidenceDate = formatDateFromString(DateResidence);
+    console.log("DateResidence : ", formatDateFromString);
     const client = {
       CurrentDate: formattedDate,
       Client: clientt,
@@ -247,8 +259,10 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
       ClientMissionPrestations: clientMissionPrestations,
       ClientTaches: clientTaches,
       ClientMissionId: clientMissionId,
+      DateResidence: formattedResidenceDate,
     };
     const ClientSituationFamiliale = client.Client[0].SituationFamiliale;
+
     // Définissez le modèle HTML pour le PDF
     const template = "./templates/Lettre_Mission_Maroc.html";
     const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;

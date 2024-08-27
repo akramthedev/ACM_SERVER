@@ -41,6 +41,8 @@ log.Info("ACM Server started ...........");
 const app = express();
 const cors = require("cors");
 app.use(cors());
+app.use("/Pieces", express.static("Pieces"));
+
 const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
