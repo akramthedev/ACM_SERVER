@@ -20,14 +20,12 @@ const { GetClientTaches, CreateClientTache } = require("../Infrastructure/Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
     .then(async (res) => {
-
-      res = res.map((item, index) => {
+      res = res.map((item) => {
         let clientFirectory = `./Pieces/${item.ClientId}/`;
         if (!fs.existsSync(clientFirectory)) { item.Photo = null; }
         else {
           let photoProfile = fs.readdirSync(clientFirectory).find(x => x.toLowerCase().startsWith("profile"))
-          if (photoProfile != null)
-            item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
+          if (photoProfile != null) item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
           else item.Photo = null;
         }
         return item;
@@ -41,6 +39,15 @@ router.get("/GetClient", async (request, response) => {
     .then((res) => {
       if (res != null && res.length > 0) {
         let client = res[0];
+
+        let clientFirectory = `./Pieces/${client.ClientId}/`;
+        if (!fs.existsSync(clientFirectory)) { client.Photo = null; }
+        else {
+          let photoProfile = fs.readdirSync(clientFirectory).find(x => x.toLowerCase().startsWith("profile"))
+          if (photoProfile != null) client.Photo = `Pieces/${client.ClientId}/${photoProfile}`;
+          else client.Photo = null;
+        }
+
         const promise1 = GetProches(client.ClientId);
         const promise2 = GetClientPieces(client.ClientId);
         const promise3 = GetPatrimoines(client.ClientId);
