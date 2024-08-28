@@ -9,11 +9,11 @@ services:
       - C:/DockerVolumes/acm/pdfs:/pdfs
       - C:/DockerVolumes/acm/Pieces:/Pieces
       # - C:/DockerVolumes/acm/templates:/templates
-      # - ${WEBAPP_STORAGE_HOME}/acm/logs:/logs
-      # - ${WEBAPP_STORAGE_HOME}/acm/pdfs:/pdfs
-      # - ${WEBAPP_STORAGE_HOME}/acm/Pieces:/Pieces
+      # - ${WEBAPP_STORAGE_HOME}/acmData/logs:/logs
+      # - ${WEBAPP_STORAGE_HOME}/acmData/pdfs:/pdfs
+      # - ${WEBAPP_STORAGE_HOME}/acmData/Pieces:/Pieces
     ports:
-      - "3000:3000"
+      - "80:3000"
 
 #   keycloak_acm:
 #     # image: quay.io/keycloak/keycloak:22.0.4

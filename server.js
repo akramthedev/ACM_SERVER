@@ -194,7 +194,7 @@ async function getTemplateHtml(template) {
     let html = await fs.promises.readFile(templatePath, "utf8");
     try {
       // Intégrer les images en base64
-      const logoBase64 = getImageBase64(path.resolve("./LOGO-BGG.png"));
+      const logoBase64 = getImageBase64(path.resolve(__dirname, "./templates/assets/LOGO-BGG.png"));
       html = html.replace(`<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
     } catch (ex) {
       return Promise.reject("Could not load photo");
@@ -205,27 +205,18 @@ async function getTemplateHtml(template) {
   }
 }
 async function generatePdf(template, data, options) {
-  log.Info("genPdf: template: ", template);
   try {
     const res = await getTemplateHtml(template);
-    // log.Info("Good: getTemplateHtml ");
     const templateCompiled = hb.compile(res, { strict: true });
-    // log.Info("Good: compile ");
     const htmlTemplate = templateCompiled(data);
-    // log.Info("Good: templateCompiled ")
     const browser = await puppeteer.launch({
       headless: true, // or false if you want a visible browser
       args: ['--no-sandbox']
     });
-    // log.Info("Good: getTemplateHtml ")
     const page = await browser.newPage();
-    // log.Info("Good: browser.newPage ");
     await page.setContent(htmlTemplate);
-    // log.Info("Good: page.setContent ");
     await page.pdf(options);
-    // log.Info("Good: page.pdf ");
     await browser.close();
-    // log.Info("PDF Generated !! file: " + options.path);
     return options.path;
   } catch (err) {
     log.Error("\n --------------------- \n\n error generatePdf");

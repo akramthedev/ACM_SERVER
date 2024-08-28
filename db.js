@@ -25,7 +25,7 @@ const connect = async () => {
   } catch (err) {
     console.log("sql connection error !!!!! \n\n");
     console.log(err);
-    throw err; // Re-throw the error for handling in the main application
+    throw err;
   }
 };
 
