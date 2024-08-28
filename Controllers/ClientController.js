@@ -19,7 +19,21 @@ const { GetClientTaches, CreateClientTache } = require("../Infrastructure/Client
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
-    .then((res) => response.status(200).send(res))
+    .then(async (res) => {
+
+      res = res.map((item, index) => {
+        let clientFirectory = `./Pieces/${item.ClientId}/`;
+        if (!fs.existsSync(clientFirectory)) { item.Photo = null; }
+        else {
+          let photoProfile = fs.readdirSync(clientFirectory).find(x => x.toLowerCase().startsWith("profile"))
+          if (photoProfile != null)
+            item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
+          else item.Photo = null;
+        }
+        return item;
+      })
+      response.status(200).send(res);
+    })
     .catch((error) => response.status(400).send(error));
 });
 router.get("/GetClient", async (request, response) => {

@@ -3,11 +3,12 @@ console.clear();
 const express = require("express");
 const sql = require("mssql");
 const log = require("node-file-logger");
+// const log = require("./Helper/log");
 const fs = require("fs");
 const fileUpload = require("express-fileupload");
 // const upload = require('./Helper/upload');
 // const http = require('http');
-const { connect } = require("./db");
+const { connect } = require("./Helper/db");
 var passport = require("passport");
 const { jwtStrategy } = require("./Auth/passport");
 const puppeteer = require("puppeteer");
@@ -30,12 +31,14 @@ let options = {
   fileNameSuffix: "",
   fileNameExtension: ".log",
   dateFormat: "YYYY-MM-DD",
-  timeFormat: "HH:mm:ss.SSS",
+  timeFormat: "YYYY-MM-DD HH:mm:ss.SSS",
   logLevel: "debug",
   onlyFileLogging: true,
 };
 log.SetUserOptions(options);
 log.Info("ACM Server started ...........");
+
+
 
 // require('./ClientController');
 const app = express();
@@ -46,12 +49,7 @@ app.use("/Pieces", express.static("Pieces"));
 const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
-  try {
-    await connect();
-  } catch (err) {
-    console.error("Error connecting to database:", err);
-    process.exit(1);
-  }
+  try { await connect(); } catch (err) { console.error("Error connecting to database:", err); process.exit(1); }
 })();
 
 app.use(express.json());
