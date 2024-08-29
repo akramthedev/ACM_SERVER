@@ -10,6 +10,7 @@ const config = {
   options: { encrypt: false },
 };
 */
+
 // prod
  const config = {
    server: "SQL6032.site4now.net",
