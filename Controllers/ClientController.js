@@ -22,28 +22,30 @@ router.get("/GetClients", async (request, response) => {
     .then(async (res) => {
       res = res.map((item) => {
         let clientFirectory = `./Pieces/${item.ClientId}/`;
-        if (!fs.existsSync(clientFirectory)) { item.Photo = null; }
-        else {
-          let photoProfile = fs.readdirSync(clientFirectory).find(x => x.toLowerCase().startsWith("profile"))
+        if (!fs.existsSync(clientFirectory)) {
+          item.Photo = null;
+        } else {
+          let photoProfile = fs.readdirSync(clientFirectory).find((x) => x.toLowerCase().startsWith("profile"));
           if (photoProfile != null) item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
           else item.Photo = null;
         }
         return item;
-      })
+      });
       response.status(200).send(res);
     })
     .catch((error) => response.status(400).send(error));
 });
 router.get("/GetClient", async (request, response) => {
   await GetClient(request.query.ClientId)
-    .then((res) => {
+    .then(async (res) => {
       if (res != null && res.length > 0) {
         let client = res[0];
 
         let clientFirectory = `./Pieces/${client.ClientId}/`;
-        if (!fs.existsSync(clientFirectory)) { client.Photo = null; }
-        else {
-          let photoProfile = fs.readdirSync(clientFirectory).find(x => x.toLowerCase().startsWith("profile"))
+        if (!fs.existsSync(clientFirectory)) {
+          client.Photo = null;
+        } else {
+          let photoProfile = fs.readdirSync(clientFirectory).find((x) => x.toLowerCase().startsWith("profile"));
           if (photoProfile != null) client.Photo = `Pieces/${client.ClientId}/${photoProfile}`;
           else client.Photo = null;
         }
@@ -59,10 +61,24 @@ router.get("/GetClient", async (request, response) => {
         const promise9 = GetClientTaches(client.ClientId);
 
         Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8, promise9]).then(
-          (values) => {
+          async (values) => {
             client.Proches = values[0];
             client.ClientPieces = values[1];
-            client.Patrimoines = values[2];
+            // Récupérer les patrimoines et ajouter le chemin du document de statut
+            client.Patrimoines = values[2].map((patrimoine) => {
+              const statusDocumentDirectory = `./Pieces/${client.ClientId}/Status/`;
+              if (fs.existsSync(statusDocumentDirectory)) {
+                let statusDocument = fs.readdirSync(statusDocumentDirectory).find((file) => file.toLowerCase().startsWith(patrimoine.PatrimoineId.toLowerCase()));
+                if (statusDocument) {
+                  patrimoine.StatusDocumentPath = `Pieces/${client.ClientId}/Status/${statusDocument}`;
+                } else {
+                  patrimoine.StatusDocumentPath = null;
+                }
+              } else {
+                patrimoine.StatusDocumentPath = null;
+              }
+              return patrimoine;
+            });
             client.Passifs = values[3];
             client.Budgets = values[4];
             client.Conjoint = values[5];
@@ -199,7 +215,7 @@ async function getTemplateHtml(template) {
 
     // Intégrer les images en base64
     const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
-    console.log("__dirname: ", __dirname)
+    console.log("__dirname: ", __dirname);
     html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
 
     return html;
@@ -293,14 +309,18 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
 
     // Générez le PDF avec les données du client
     const generatedPdfPath = await generatePdf(template, client, pdfOptions);
-    if (!fs.existsSync("./pdfs")) { fs.mkdirSync("./pdfs"); }
+    if (!fs.existsSync("./pdfs")) {
+      fs.mkdirSync("./pdfs");
+    }
     //console.log("clientMissionData : ", clientMissionData);
     // console.log("client : ", client);
 
     // Lisez le fichier PDF généré et envoyez-le en réponse
     const data = fs.readFileSync(generatedPdfPath);
     // delete file
-    setTimeout(() => { fs.rmSync(generatedPdfPath); }, 1000);
+    setTimeout(() => {
+      fs.rmSync(generatedPdfPath);
+    }, 1000);
     res.contentType("application/pdf");
     res.send(data);
   } catch (error) {

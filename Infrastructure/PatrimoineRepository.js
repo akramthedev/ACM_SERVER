@@ -1,5 +1,33 @@
 const sql = require("mssql");
 
+const fs = require("fs");
+const path = require("path");
+
+// function GetPatrimoines(ClientId) {
+//   return new Promise((resolve, reject) => {
+//     new sql.Request()
+//       .input("ClientId", sql.UniqueIdentifier, ClientId)
+//       .execute("ps_get_patrimoines")
+//       .then((result) => {
+//         // const patrimoines = result.recordset;
+
+//         // patrimoines.forEach((patrimoine) => {
+//         //   if (patrimoine.StatusDocumentPath) {
+//         //     const documentPath = path.join(__dirname, "..", "Pieces", ClientId, "Status", patrimoine.StatusDocumentPath);
+//         //     if (fs.existsSync(documentPath)) {
+//         //       patrimoine.StatusDocumentPath = `${process.env.SERVER_URL}/Pieces/${ClientId}/Status/${patrimoine.StatusDocumentPath}`;
+//         //     } else {
+//         //       patrimoine.StatusDocumentPath = null;
+//         //     }
+//         //   }
+//         // });
+
+//         resolve(patrimoines);
+//       })
+//       .catch((error) => reject(error?.originalError?.info?.message));
+//   });
+// }
+
 function GetPatrimoines(ClientId) {
   return new Promise((resolve, reject) => {
     new sql.Request()
