@@ -64,6 +64,59 @@ router.post("/CreateClientPiece", async (request, response) => {
     );
   });
 });
+router.get("/getPatrimoine/:id", async (req, res) => {
+  const patrimoineId = req.params.id;
+  const patrimoine = await Patrimoine.findById(patrimoineId);
+
+  if (patrimoine) {
+    // Inclure le chemin du document de statut dans la réponse
+    res.json({
+      ...patrimoine.toJSON(),
+      StatusDocumentPath: patrimoine.StatusDocumentPath ? `/Pieces/${patrimoine.ClientId}/Status/${patrimoine.StatusDocumentPath}` : null,
+    });
+  } else {
+    res.status(404).send("Patrimoine not found");
+  }
+});
+
+router.post("/uploadStatusDocument", (req, res) => {
+  const { ClientId, PatrimoineId } = req.body;
+
+  // Dossier où stocker le document
+  const clientDirectory = `./Pieces/${ClientId}/Status`;
+
+  // Créez le répertoire s'il n'existe pas
+  if (!fs.existsSync(clientDirectory)) {
+    fs.mkdirSync(clientDirectory, { recursive: true });
+  }
+
+  if (!req.files || !req.files.file) {
+    return res.status(400).send("Aucun fichier n'a été téléchargé.");
+  }
+
+  const file = req.files.file;
+  const fileExtension = path.extname(file.name);
+
+  if (fileExtension !== ".pdf") {
+    return res.status(400).send("Seuls les fichiers PDF sont autorisés.");
+  }
+
+  const filePath = `${clientDirectory}/${PatrimoineId}.pdf`;
+
+  // Supprimer l'ancien fichier s'il existe
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  file.mv(filePath, (err) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+
+    // Retourne l'URL pour accéder au document
+    res.send({ documentUrl: `/Pieces/${ClientId}/Status/${PatrimoineId}.pdf` });
+  });
+});
 
 // router.post("/UploadProfileImage", async (request, response) => {
 //   let ClientId = request.body.ClientId;

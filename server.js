@@ -38,18 +38,22 @@ let options = {
 log.SetUserOptions(options);
 log.Info("ACM Server started ...........");
 
-
-
 // require('./ClientController');
 const app = express();
 const cors = require("cors");
 app.use(cors());
 app.use("/Pieces", express.static("Pieces"));
+app.use("/Pieces", express.static(path.join(__dirname, "Pieces")));
 
 const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
-  try { await connect(); } catch (err) { console.error("Error connecting to database:", err); process.exit(1); }
+  try {
+    await connect();
+  } catch (err) {
+    console.error("Error connecting to database:", err);
+    process.exit(1);
+  }
 })();
 
 app.use(express.json());
@@ -110,34 +114,36 @@ app.get("/test", (request, response) => {
 app.get("/email", (request, response) => {
   let mailOptions = {
     from: "acm@netwaciila.ma",
-    to: "amine.laghlabi@e-polytechnique.ma",//"boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
+    to: "amine.laghlabi@e-polytechnique.ma", //"boulloul.123@gmail.com", //amine.laghlabi@e-polytechnique.ma //boulloul.123@gmail.com //cecile@acm-maroc.com
     subject: "TestEmail",
     html: "<b>TestEmail</b>",
   };
   console.log("sending email ......");
-  log.Info("sending email")
+  log.Info("sending email");
   mailer.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
-      log.Error("send email Failed")
+      log.Error("send email Failed");
       response.status(200).send("error email");
     } else {
       console.log("Email sent: " + info.response);
-      log.Info("mail sent :D")
+      log.Info("mail sent :D");
       response.status(200).send("email sent !!!!!");
     }
   });
 });
 
 app.get("/email2", (request, response) => {
-  sendEmail("amine.laghlabi@e-polytechnique.ma", "TestEmail2", "<b>TestEmail</b>")
-    .then((res) => {
+  sendEmail("amine.laghlabi@e-polytechnique.ma", "TestEmail2", "<b>TestEmail</b>").then(
+    (res) => {
       response.status(200).send("email sent !!!!!");
-    }, (error) => {
+    },
+    (error) => {
       console.log("Error send email: ");
       console.log(error);
       response.status(200).send("error email");
-    })
+    }
+  );
 });
 function sendEmail(to, subject, htmlBody) {
   let mailOptions = {
@@ -150,15 +156,15 @@ function sendEmail(to, subject, htmlBody) {
     mailer.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
-        reject(error)
+        reject(error);
         // response.status(200).send("error email");
       } else {
-        resolve(true)
+        resolve(true);
         // console.log("Email sent: " + info.response);
         // response.status(200).send("email sent !!!!!");
       }
     });
-  })
+  });
 }
 
 //#region GeneratePDF
@@ -209,7 +215,7 @@ async function generatePdf(template, data, options) {
     const htmlTemplate = templateCompiled(data);
     const browser = await puppeteer.launch({
       headless: true, // or false if you want a visible browser
-      args: ['--no-sandbox']
+      args: ["--no-sandbox"],
     });
     const page = await browser.newPage();
     await page.setContent(htmlTemplate);
@@ -231,7 +237,7 @@ app.get("/print", async (request, response) => {
     NumeroRecu: "123456",
     Matricule: "1234564789",
     Nom: "EtdNom",
-    Prenom: "EtdPrenom " + (new Date()).toISOString(),
+    Prenom: "EtdPrenom " + new Date().toISOString(),
     Filiere: "Ingénierie Financière, Contrôle et Audit",
     Niveau: "4ème année",
     Annee: "2023-2024",
@@ -247,12 +253,16 @@ app.get("/print", async (request, response) => {
   const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
 
   // Ensure the pdfs directory exists
-  if (!fs.existsSync("./pdfs")) { fs.mkdirSync("./pdfs"); }
+  if (!fs.existsSync("./pdfs")) {
+    fs.mkdirSync("./pdfs");
+  }
 
   try {
     const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
     const data = fs.readFileSync(generatedPdfPath);
-    setTimeout(() => { fs.rmSync(generatedPdfPath); }, 1000);
+    setTimeout(() => {
+      fs.rmSync(generatedPdfPath);
+    }, 1000);
     response.contentType("application/pdf");
     response.send(data);
   } catch (errorGen) {
