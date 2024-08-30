@@ -1,5 +1,7 @@
 var express = require("express");
 var router = express.Router();
+const fs = require("fs");
+const path = require("path");
 const { CreatePatrimoine, UpdatePatrimoine, DeletePatrimoine, GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
 
 //#region Patrimoine
@@ -88,11 +90,75 @@ router.put("/UpdatePatrimoine", async (request, response) => {
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
-router.delete("/DeletePatrimoine/:PatrimoineId", async (request, response) => {
-  await DeletePatrimoine(request.params.PatrimoineId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+// router.delete("/DeletePatrimoine/:PatrimoineId", async (request, response) => {
+//   await DeletePatrimoine(request.params.PatrimoineId)
+//     .then((res) => response.status(200).send(res))
+//     .catch((error) => response.status(400).send(error));
+// });*
+// router.delete("/DeletePatrimoine", async (request, response) => {
+//   try {
+//     let patrimoineId = request.query.PatrimoineId;
+//     let clientId = request.query.ClientId;
+//     patrimoineId = patrimoineId != null ? patrimoineId.toLowerCase() : null;
+//     // clientId = clientId != null ? clientId.toLowerCase() : null;
+//     // Construct the document path directly using the PatrimoineId
+//     const statusDocumentDirectory = path.join(__dirname, `../Pieces/${clientId}/`, "Status/");
+//     const documentPath = path.join(statusDocumentDirectory, `${patrimoineId}.pdf`);
+
+//     // Delete the document from the filesystem if it exists
+//     if (fs.existsSync(documentPath)) {
+//       fs.unlinkSync(documentPath); // Deletes the file
+//       console.log(`Document ${documentPath} deleted successfully`);
+//     } else {
+//       console.log(`Document ${documentPath} does not exist`);
+//     }
+
+//     // Delete the Patrimoine from the database
+//     const deleteResult = await DeletePatrimoine(patrimoineId);
+
+//     if (deleteResult) {
+//       response.status(200).send("Patrimoine and its document deleted successfully");
+//     } else {
+//       response.status(400).send("Error deleting patrimoine");
+//     }
+//   } catch (error) {
+//     console.error("Error deleting patrimoine", error);
+//     response.status(500).send("Error deleting patrimoine");
+//   }
+// });
+router.delete("/DeletePatrimoine", async (request, response) => {
+  try {
+    let patrimoineId = request.query.PatrimoineId;
+    let clientId = request.query.ClientId;
+    patrimoineId = patrimoineId != null ? patrimoineId.toLowerCase() : null;
+    clientId = clientId != null ? clientId.toLowerCase() : null;
+
+    // Construct the document path directly using the PatrimoineId
+    const statusDocumentDirectory = path.join(__dirname, `../Pieces/${clientId}/`, "Status/");
+    const documentPath = path.join(statusDocumentDirectory, `${patrimoineId}.pdf`);
+
+    // Delete the document from the filesystem if it exists
+    if (fs.existsSync(documentPath)) {
+      fs.unlinkSync(documentPath); // Deletes the file
+      console.log(`Document ${documentPath} deleted successfully`);
+    } else {
+      console.log(`Document ${documentPath} does not exist`);
+    }
+
+    // Delete the Patrimoine from the database
+    const deleteResult = await DeletePatrimoine(patrimoineId);
+
+    if (deleteResult) {
+      response.status(200).json({ message: "Patrimoine and its document deleted successfully" });
+    } else {
+      response.status(400).json({ error: "Error deleting patrimoine" });
+    }
+  } catch (error) {
+    console.error("Error deleting patrimoine", error);
+    response.status(500).json({ error: "Error deleting patrimoine" });
+  }
 });
+
 //#endregion Patrimoine
 
 module.exports = router;
