@@ -99,12 +99,12 @@ app.listen(PORT, (error) => {
   else console.log("Error occurred, server can't start", error);
 });
 app.get("/", (request, response) => {
-  response.status(200).send("Server works 22/08/2024 13:26");
+  response.status(200).send("Server works 28/08/2024 16:02");
 });
 app.get("/test", (request, response) => {
   log.Info("test route works ...........");
   console.log("test route")
-  response.status(200).send("test works 22/08/2024 13:26 !!!!!!!!!!!!!!!!");
+  response.status(200).send("test works 28/08/2024 16:02 !!!!!!!!!!!!!!!!");
 });
 
 app.get("/email", (request, response) => {
