@@ -16,6 +16,8 @@ const { GetConjoint } = require("../Infrastructure/ConjointRepository");
 const { CreateClientMission, GetClientMissions, GetLettreMissions } = require("../Infrastructure/ClientMissionRepository");
 const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
 const { GetClientTaches, CreateClientTache } = require("../Infrastructure/ClientTacheRepository");
+const { generatePdf, getImageBase64 } = require("../Helper/pdf-gen");
+
 //#region Client
 router.get("/GetClients", async (request, response) => {
   await GetClients(request.query.CabinetId)
@@ -199,60 +201,130 @@ router.delete("/DeleteClient/:ClientId", async (request, response) => {
     .catch((error) => response.status(400).send(error));
 });
 
-const readFile = utils.promisify(fs.readFile);
+// const readFile = utils.promisify(fs.readFile);
 // async function getTemplateHtml(template) {
 //   try {
 //     const invoicePath = path.resolve(template);
-//     return await readFile(invoicePath, "utf8");
+//     let html = await fs.promises.readFile(invoicePath, "utf8");
+
+//     // Intégrer les images en base64
+//     const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
+//     console.log("__dirname: ", __dirname);
+//     html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
+
+//     return html;
 //   } catch (err) {
 //     return Promise.reject("Could not load html template");
 //   }
 // }
-async function getTemplateHtml(template) {
-  try {
-    const invoicePath = path.resolve(template);
-    let html = await fs.promises.readFile(invoicePath, "utf8");
+// async function generatePdf0(template, data, options) {
+//   // console.log("genPdf: template: ", template);
+//   // console.log("dtata : ", data);
+//   try {
+//     const res = await getTemplateHtml(template);
+//     const templateCompiled = hb.compile(res, { strict: true });
+//     const htmlTemplate = templateCompiled(data);
+//     const browser = await puppeteer.launch({
+//       // headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"],
+//       headless: true, args: ["--no-sandbox"],
+//     });
+//     const page = await browser.newPage();
+//     await page.setContent(htmlTemplate);
+//     await page.pdf(options);
+//     await browser.close();
+//     // console.log("PDF Generated !! file: " + options.path);
+//     return options.path;
+//   } catch (err) {
+//     console.error("Error generatePdf");
+//     console.error(err);
+//     throw err;
+//   }
+// }
+// function getImageBase640(imagePath) {
+//   const image = fs.readFileSync(imagePath);
+//   return `data:image/png;base64,${image.toString("base64")}`;
+// }
+// router.get("/GetLettreMission0/:ClientMissionId", async (req, res) => {
+//   const clientMissionId = req.params.ClientMissionId;
+//   console.log(req.params);
+//   try {
+//     // Récupérer les informations du client par son ID
+//     const clientMissionData = await GetLettreMissions(clientMissionId);
 
-    // Intégrer les images en base64
-    const logoBase64 = getImageBase64(path.resolve(__dirname, "../LOGO-BGG.png"));
-    console.log("__dirname: ", __dirname);
-    html = html.replace(/<img src="\.\.\/LOGO-BGG\.png" alt="" style="height: 90px; width: 160px; opacity: 90%" \/>/g, `<img src="${logoBase64}" alt="" style="height: 90px; width: 160px; opacity: 90%" />`);
+//     if (!clientMissionData || clientMissionData.length === 0) {
+//       return res.status(404).send("Client mission not found");
+//     }
+//     const currentDate = new Date();
+//     const formattedDate = [String(currentDate.getDate()).padStart(2, "0"), String(currentDate.getMonth() + 1).padStart(2, "0"), currentDate.getFullYear()].join("/");
+//     console.log("currentFormated date : ", formattedDate);
 
-    return html;
-  } catch (err) {
-    return Promise.reject("Could not load html template");
-  }
-}
-async function generatePdf(template, data, options) {
-  // console.log("genPdf: template: ", template);
-  // console.log("dtata : ", data);
-  try {
-    const res = await getTemplateHtml(template);
-    const templateCompiled = hb.compile(res, { strict: true });
-    const htmlTemplate = templateCompiled(data);
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.setContent(htmlTemplate);
-    await page.pdf(options);
-    await browser.close();
-    // console.log("PDF Generated !! file: " + options.path);
-    return options.path;
-  } catch (err) {
-    console.error("\n --------------------- \n\n error generatePdf");
-    console.error(err);
-    throw err;
-  }
-}
-function getImageBase64(imagePath) {
-  const image = fs.readFileSync(imagePath);
-  return `data:image/png;base64,${image.toString("base64")}`;
-}
+//     const clientMission = clientMissionData[0];
+//     const clientId = clientMission.ClientId;
+
+//     // Complétez les données du client avec les informations associées
+//     const promises = [GetClient(clientId), GetProches(clientId), GetClientPieces(clientId), GetPatrimoines(clientId), GetPassifs(clientId), GetBudgets(clientId), GetConjoint(clientId), GetClientMissions(clientId), GetClientMissionPrestations(clientId), GetClientTaches(clientId)];
+
+//     const [clientt, proches, clientPieces, patrimoines, passifs, budgets, conjoint, clientMissions, clientMissionPrestations, clientTaches] = await Promise.all(promises);
+//     function formatDateFromString(dateString) {
+//       const date = new Date(dateString);
+
+//       const day = String(date.getDate()).padStart(2, "0");
+//       const month = String(date.getMonth() + 1).padStart(2, "0"); // Les mois commencent à 0
+//       const year = date.getFullYear();
+
+//       return `${day}/${month}/${year}`;
+//     }
+//     const DateResidence = clientt[0].DateResidence;
+//     const formattedResidenceDate = formatDateFromString(DateResidence);
+//     console.log("DateResidence : ", formatDateFromString);
+//     const client = {
+//       CurrentDate: formattedDate,
+//       Client: clientt,
+//       Proches: proches,
+//       ClientPieces: clientPieces,
+//       Patrimoines: patrimoines,
+//       Passifs: passifs,
+//       Budgets: budgets,
+//       Conjoint: conjoint,
+//       ClientMissions: clientMissions,
+//       ClientMissionPrestations: clientMissionPrestations,
+//       ClientTaches: clientTaches,
+//       ClientMissionId: clientMissionId,
+//       DateResidence: formattedResidenceDate,
+//     };
+//     const ClientSituationFamiliale = client.Client[0].SituationFamiliale;
+
+//     // Définissez le modèle HTML pour le PDF
+//     const template = "./templates/Lettre_Mission_Maroc.html";
+//     const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
+
+//     // Options pour la génération du PDF
+//     const pdfOptions = { path: fileName, format: "A4", printBackground: true };
+
+//     // Générez le PDF avec les données du client
+//     const generatedPdfPath = await generatePdf(template, client, pdfOptions);
+//     if (!fs.existsSync("./pdfs")) {
+//       fs.mkdirSync("./pdfs");
+//     }
+//     //console.log("clientMissionData : ", clientMissionData);
+//     // console.log("client : ", client);
+
+//     // Lisez le fichier PDF généré et envoyez-le en réponse
+//     const data = fs.readFileSync(generatedPdfPath);
+//     // delete file
+//     setTimeout(() => {
+//       fs.rmSync(generatedPdfPath);
+//     }, 1000);
+//     res.contentType("application/pdf");
+//     res.send(data);
+//   } catch (error) {
+//     console.error("Error generating PDF: ", error);
+//     res.status(500).send(error);
+//   }
+// });
+
 router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
   const clientMissionId = req.params.ClientMissionId;
-  console.log(req.params);
   try {
     // Récupérer les informations du client par son ID
     const clientMissionData = await GetLettreMissions(clientMissionId);
@@ -262,7 +334,6 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     }
     const currentDate = new Date();
     const formattedDate = [String(currentDate.getDate()).padStart(2, "0"), String(currentDate.getMonth() + 1).padStart(2, "0"), currentDate.getFullYear()].join("/");
-    console.log("currentFormated date : ", formattedDate);
 
     const clientMission = clientMissionData[0];
     const clientId = clientMission.ClientId;
@@ -282,7 +353,6 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     }
     const DateResidence = clientt[0].DateResidence;
     const formattedResidenceDate = formatDateFromString(DateResidence);
-    console.log("DateResidence : ", formatDateFromString);
     const client = {
       CurrentDate: formattedDate,
       Client: clientt,
@@ -301,21 +371,22 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     const ClientSituationFamiliale = client.Client[0].SituationFamiliale;
 
     // Définissez le modèle HTML pour le PDF
-    const template = "./templates/Lettre_Mission_Maroc.html";
-    const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
+    // const template = "./templates/Lettre_Mission_Maroc.html";
+    const template = path.resolve(__dirname, "../templates/Lettre_Mission_Maroc.html");
+    // const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
+    const fileName = path.resolve(__dirname, `../pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`);
+
 
     // Options pour la génération du PDF
     const pdfOptions = { path: fileName, format: "A4", printBackground: true };
 
-    // Générez le PDF avec les données du client
-    const generatedPdfPath = await generatePdf(template, client, pdfOptions);
-    if (!fs.existsSync("./pdfs")) {
-      fs.mkdirSync("./pdfs");
-    }
-    //console.log("clientMissionData : ", clientMissionData);
-    // console.log("client : ", client);
+    const photo1 = getImageBase64(path.resolve(__dirname, "../templates/assets/LOGO-BGG.png"));
 
-    // Lisez le fichier PDF généré et envoyez-le en réponse
+    let imagesToReplace = [
+      { old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` },
+    ]
+    // Générez le PDF avec les données du client
+    const generatedPdfPath = await generatePdf(template, client, pdfOptions, imagesToReplace);
     const data = fs.readFileSync(generatedPdfPath);
     // delete file
     setTimeout(() => {
