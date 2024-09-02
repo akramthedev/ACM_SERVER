@@ -18,6 +18,9 @@ const path = require("path");
 var mailer = require("./Helper/mailer");
 // var crypto = require('crypto');
 // var guard = require('express-jwt-permissions')()
+const config = require('./config.json');
+let version = "1.0.1";
+
 
 // setup logger
 let options = {
@@ -36,9 +39,9 @@ let options = {
   onlyFileLogging: true,
 };
 log.SetUserOptions(options);
-log.Info("ACM Server started ...........");
+log.Info("ACM Server started ...........", "version: " + version, null, config);
+// log.Info("1", "2", "3", config.db);
 
-// require('./ClientController');
 const app = express();
 const cors = require("cors");
 app.use(cors());
@@ -49,7 +52,7 @@ const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
   try {
-    await connect();
+    await connect(config.db);
   } catch (err) {
     console.error("Error connecting to database:", err);
     process.exit(1);
@@ -285,3 +288,28 @@ app.get("/cabinets", (request, response) => {
     }
   });
 });
+
+app.get("/config", (request, response) => {
+  response.send(config);
+});
+app.get("/version", (request, response) => {
+  response.send(version);
+});
+app.get("/logs", (request, response) => {
+  let files = fs.readdirSync("./logs")
+  console.log("files: ", files)
+  let content = "";
+  for (let i = 0; i < files.length; i++) {
+    fs.readFile(`./logs/${files[i]}`, 'utf-8', async (err, data) => {
+      console.log(i + " ", files[i])
+      content += data;
+      if (i == files.length - 1) {
+        console.log("allDone")
+        response.attachment('logs.txt')
+        response.type('txt')
+        response.send(content)
+      }
+    })
+  }
+});
+

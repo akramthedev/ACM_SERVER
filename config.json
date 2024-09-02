@@ -1,0 +1,8 @@
+{
+    "db": {
+        "server": "SQL6032.site4now.net",
+        "user": "db_a3973b_acm_admin",
+        "password": "acm123456",
+        "database": "db_a3973b_acm"
+    }
+}
