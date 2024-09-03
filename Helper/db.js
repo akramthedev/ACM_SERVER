@@ -1,13 +1,13 @@
 const sql = require("mssql");
 
 // dev
-const config = {
-  server: "SQL6032.site4now.net",
-  user: "db_a3973b_acm_admin",
-  password: "acm123456",
-  database: "db_a3973b_acm",
-  options: { encrypt: false },
-};
+// const config = {
+//   server: "SQL6032.site4now.net",
+//   user: "db_a3973b_acm_admin",
+//   password: "acm123456",
+//   database: "db_a3973b_acm",
+//   options: { encrypt: false },
+// };
 
 
 // prod
@@ -19,7 +19,7 @@ const config = {
 //   options: { encrypt: false },
 // };
 
-const connect = async () => {
+const connect = async (config) => {
   try {
     await sql.connect(config);
     console.log("SQL server Connection Successful!");

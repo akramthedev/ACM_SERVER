@@ -9,6 +9,7 @@ const fileUpload = require("express-fileupload");
 // const upload = require('./Helper/upload');
 // const http = require('http');
 const { connect } = require("./Helper/db");
+const { generatePdf } = require("./Helper/pdf-gen");
 var passport = require("passport");
 const { jwtStrategy } = require("./Auth/passport");
 const puppeteer = require("puppeteer");
@@ -18,27 +19,17 @@ const path = require("path");
 var mailer = require("./Helper/mailer");
 // var crypto = require('crypto');
 // var guard = require('express-jwt-permissions')()
+const config = require('./config.json');
+let version = "1.0.1";
 
-// setup logger
-let options = {
-  timeZone: "Africa/Casablanca",
-  folderPath: "./logs/",
-  dateBasedFileNaming: true,
-  // Required only if dateBasedFileNaming is set to false
-  fileName: "All_Logs",
-  // Required only if dateBasedFileNaming is set to true
-  fileNamePrefix: "Logs_",
-  fileNameSuffix: "",
-  fileNameExtension: ".log",
-  dateFormat: "YYYY-MM-DD",
-  timeFormat: "YYYY-MM-DD HH:mm:ss.SSS",
-  logLevel: "debug",
-  onlyFileLogging: true,
-};
-log.SetUserOptions(options);
-log.Info("ACM Server started ...........");
 
-// require('./ClientController');
+log.SetUserOptions(config.loggerOptions);
+log.Info("ACM Server started ...........", "version: " + version, null, config);
+// Ensure the pdfs directory exists
+if (!fs.existsSync("./pdfs")) {
+  fs.mkdirSync("./pdfs");
+}
+
 const app = express();
 const cors = require("cors");
 app.use(cors());
@@ -49,7 +40,7 @@ const PORT = process.env.PORT || 3000;
 // sql server login
 (async () => {
   try {
-    await connect();
+    await connect(config.db);
   } catch (err) {
     console.error("Error connecting to database:", err);
     process.exit(1);
@@ -168,7 +159,7 @@ function sendEmail(to, subject, htmlBody) {
 }
 
 //#region GeneratePDF
-const readFile = utils.promisify(fs.readFile);
+// const readFile = utils.promisify(fs.readFile);
 // Register a custom helper to check equality
 hb.registerHelper("eq", function (a, b) {
   return a === b;
@@ -208,7 +199,7 @@ async function getTemplateHtml(template) {
     return Promise.reject("Could not load html template");
   }
 }
-async function generatePdf(template, data, options) {
+async function generatePdf0(template, data, options) {
   try {
     const res = await getTemplateHtml(template);
     const templateCompiled = hb.compile(res, { strict: true });
@@ -258,7 +249,7 @@ app.get("/print", async (request, response) => {
   }
 
   try {
-    const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
+    const generatedPdfPath = await generatePdf0(recuPaiementTemplate, recuPaiementData, recuPaiementOptions);
     const data = fs.readFileSync(generatedPdfPath);
     setTimeout(() => {
       fs.rmSync(generatedPdfPath);
@@ -271,6 +262,52 @@ app.get("/print", async (request, response) => {
   }
 });
 
+setTimeout(() => {
+  console.log("\n\n\n")
+}, 1000);
+app.get("/print2", async (request, response) => {
+  console.log("__dirname ", __dirname);
+
+  // const recuPaiementTemplate = `${__dirname}/templates/testt.html`;
+  const recuPaiementTemplate = path.resolve(__dirname, "templates/testt.html");
+  const recuPaiementFileName = path.resolve(__dirname, `pdfs/Lettre_Mission_${new Date().getTime()}.pdf`);
+
+  const photo1 = getImageBase64(path.resolve(__dirname, "templates/assets/LOGO-BGG.png"));
+  let imagesToReplace = [
+    { old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` },
+  ]
+
+  const recuPaiementData = {
+    NumeroRecu: "123456",
+    Matricule: "1234564789",
+    Nom: "EtdNom",
+    Prenom: "EtdPrenom " + new Date().toISOString(),
+    Filiere: "Ingénierie Financière, Contrôle et Audit",
+    Niveau: "4ème année",
+    Annee: "2023-2024",
+    // img: path.resolve("LOGO-BG.png"),
+    data: [
+      { nom: "aa", prenom: "aaa" },
+      { nom: "bb", prenom: "bbb" },
+      { nom: "cc", prenom: "ccc" },
+    ],
+  };
+
+  const recuPaiementOptions = { path: recuPaiementFileName, format: "A4", printBackground: true, landscape: false };
+
+  try {
+    const generatedPdfPath = await generatePdf(recuPaiementTemplate, recuPaiementData, recuPaiementOptions, imagesToReplace);
+    const data = fs.readFileSync(generatedPdfPath);
+    setTimeout(() => {
+      fs.rmSync(generatedPdfPath);
+    }, 1000);
+    response.contentType("application/pdf");
+    response.send(data);
+  } catch (errorGen) {
+    console.log("errorGen: ", errorGen);
+    response.status(500).send(errorGen);
+  }
+});
 //#endregion GeneratePDF
 
 app.get("/cabinets", (request, response) => {
@@ -285,3 +322,28 @@ app.get("/cabinets", (request, response) => {
     }
   });
 });
+
+app.get("/config", (request, response) => {
+  response.send(config);
+});
+app.get("/version", (request, response) => {
+  response.send(version);
+});
+app.get("/logs", (request, response) => {
+  let files = fs.readdirSync("./logs")
+  console.log("files: ", files)
+  let content = "";
+  for (let i = 0; i < files.length; i++) {
+    fs.readFile(`./logs/${files[i]}`, 'utf8', async (err, data) => {
+      console.log(i + " ", files[i])
+      content += data;
+      if (i == files.length - 1) {
+        console.log("allDone")
+        response.attachment('logs.txt')
+        response.type('txt')
+        response.send(content)
+      }
+    })
+  }
+});
+

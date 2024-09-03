@@ -1,0 +1,20 @@
+{
+    "db": {
+        "server": "SQL6032.site4now.net",
+        "user": "db_a3973b_acm_admin",
+        "password": "acm123456",
+        "database": "db_a3973b_acm"
+    },
+    "loggerOptions": {
+        "timeZone": "Africa/Casablanca",
+        "folderPath": "./logs/",
+        "dateBasedFileNaming": true,
+        "fileNamePrefix": "Logs_",
+        "fileNameSuffix": "",
+        "fileNameExtension": ".log",
+        "dateFormat": "YYYY-MM-DD",
+        "timeFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+        "logLevel": "debug",
+        "onlyFileLogging": true
+    }
+}
