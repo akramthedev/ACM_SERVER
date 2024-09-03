@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const fileUpload = require("express-fileupload");
 var router = express.Router();
-const { CreateClientPiece, DeleteClientPiece, GetClientPiece } = require("../Infrastructure/ClientPieceRepository");
+const { CreateClientPiece, DeleteClientPiece, GetClientPiece, UpdateClientPiece } = require("../Infrastructure/ClientPieceRepository");
 const { GetPieces } = require("../Infrastructure/PieceRepository");
 
 //#region ClientPiece
@@ -118,32 +118,8 @@ router.post("/uploadStatusDocument", (req, res) => {
   });
 });
 
-// router.post("/UploadProfileImage", async (request, response) => {
-//   let ClientId = request.body.ClientId;
-//   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
-
-//   if (!request.files || Object.keys(request.files).length === 0) return response.status(400).send("No files were uploaded.");
-
-//   let fileToUpload = request.files.file;
-//   let fileExtension = fileToUpload.name.split(".")[fileToUpload.name.split(".").length - 1];
-
-//   // create ClientPiecesDirectory if it doesn't exist
-//   let exists = fs.existsSync(ClientPiecesDirectory);
-//   if (!exists) fs.mkdirSync(ClientPiecesDirectory);
-
-//   let uploadPath = `${ClientPiecesDirectory}/profile.${fileExtension}`;
-
-//   // Use the mv() method to place the file somewhere on your server
-//   fileToUpload.mv(uploadPath, async function (err) {
-//     if (err) return response.status(500).send(err);
-
-//     // Return success with the image URL
-//     response.status(200).send({ imageUrl: `/Pieces/${ClientId}/profile.${fileExtension}` });
-//   });
-// });
-
 // Route pour uploader une image de profil
-router.post("/UploadProfileImage", async (request, response) => {
+router.post("/UploadProfileImage", (request, response) => {
   let ClientId = request.body.ClientId;
   let ClientPiecesDirectory = `./Pieces/${ClientId}`;
 
@@ -180,29 +156,110 @@ router.post("/UploadProfileImage", async (request, response) => {
     response.status(200).send({ imageUrl: `/Pieces/${ClientId}/profile.${fileExtension}` });
   });
 });
+// router.post("/UploadClientPieceFile", async (req, res) => {
+//   try {
+//     const { ClientPieceId, ClientId, Extension } = req.body;
+//     console.log("ClientPieceId: ", ClientPieceId);
+//     console.log("ClientId: ", ClientId);
+//     console.log("Extension: ", Extension);
 
-// router.delete("/deleteProfileImage/:ClientId", (req, res) => {
-//   const clientId = req.params.ClientId;
-//   const imageDirectory = `./Pieces/${clientId}`;
-//   const extensions = ["jpg", "jpeg", "png"];
-
-//   // Vérification et suppression des fichiers de profil avec les différentes extensions
-//   let imageDeleted = false;
-//   extensions.forEach((ext) => {
-//     const filePath = `${imageDirectory}/profile.${ext}`;
-//     if (fs.existsSync(filePath)) {
-//       fs.unlinkSync(filePath);
-//       imageDeleted = true;
-//       console.log(`Deleted image: ${filePath}`);
+//     // Ensure the ClientPieceId and ClientId are provided
+//     if (!ClientPieceId || !ClientId) {
+//       return res.status(400).send("ClientPieceId and ClientId are required");
 //     }
-//   });
 
-//   if (imageDeleted) {
-//     res.status(200).send("Image de profil supprimée avec succès.");
-//   } else {
-//     res.status(404).send("Aucune image de profil n'a été trouvée.");
+//     // Path to the directory where the pieces are stored
+//     const pieceDirectory = path.join(__dirname, `../Pieces/${ClientId}/`);
+
+//     // Ensure the directory exists
+//     if (!fs.existsSync(pieceDirectory)) {
+//       fs.mkdirSync(pieceDirectory, { recursive: true });
+//     }
+
+//     // If there's a file in the request, handle the file upload
+//     if (req.files && req.files.file) {
+//       const file = req.files.file;
+//       const fileExtension = path.extname(file.name);
+//       const filePath = path.join(pieceDirectory, `${ClientPieceId}${fileExtension}`);
+
+//       // Save the file
+//       file.mv(filePath, (err) => {
+//         if (err) {
+//           console.error("Error saving the file", err);
+//           return res.status(500).send("Error saving the file");
+//         }
+
+//         res.json({ message: "File uploaded successfully" });
+//       });
+//     } else {
+//       res.status(400).send("No file provided");
+//     }
+//   } catch (error) {
+//     console.error("Error uploading client piece", error);
+//     res.status(500).send("Error uploading client piece");
 //   }
 // });
+
+router.post("/UploadClientPieceFile", async (req, res) => {
+  try {
+    const { ClientPieceId, ClientId } = req.body;
+    console.log("ClientPieceId: ", ClientPieceId);
+    console.log("ClientId: ", ClientId);
+
+    // Ensure the ClientPieceId and ClientId are provided
+    if (!ClientPieceId || !ClientId) {
+      return res.status(400).json({ error: "ClientPieceId and ClientId are required" });
+    }
+
+    // Path to the directory where the pieces are stored
+    const pieceDirectory = path.join(__dirname, `../Pieces/${ClientId}/`);
+
+    // Ensure the directory exists
+    if (!fs.existsSync(pieceDirectory)) {
+      fs.mkdirSync(pieceDirectory, { recursive: true });
+    }
+
+    // If there's a file in the request, handle the file upload
+    if (req.files && req.files.file) {
+      const file = req.files.file;
+      const fileExtension = path.extname(file.name);
+      const filePath = path.join(pieceDirectory, `${ClientPieceId}${fileExtension}`);
+
+      // Save the file
+      file.mv(filePath, async (err) => {
+        if (err) {
+          console.error("Error saving the file", err);
+          return res.status(500).json({ error: "Error saving the file" });
+        }
+
+        // Update the client piece in the database after the file is saved
+        try {
+          const updateResult = await UpdateClientPiece(req.body);
+          console.log("Updated successfully");
+          return res.status(200).json({ message: "File uploaded and piece updated successfully", updateResult });
+        } catch (error) {
+          console.error("Error updating client piece, deleting the uploaded file", error);
+
+          // Delete the file if the update fails
+          try {
+            fs.unlinkSync(filePath);
+            console.log(`Deleted file: ${filePath}`);
+          } catch (deleteError) {
+            console.error("Error deleting the file after failed update", deleteError);
+          }
+
+          return res.status(500).json({ error: "Error updating client piece, file deleted" });
+        }
+      });
+    } else {
+      res.status(400).json({ error: "No file provided" });
+    }
+  } catch (error) {
+    console.error("Error uploading client piece", error);
+    res.status(500).json({ error: "Error uploading client piece" });
+  }
+});
+
 router.delete("/deleteProfileImage/:ClientId/profile.:ext", (req, res) => {
   const clientId = req.params.ClientId;
   const extension = req.params.ext;
@@ -238,6 +295,12 @@ router.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => 
         } else response.status(200).send("not found");
       }
     })
+    .catch((error) => response.status(400).send(error));
+});
+
+router.put("/UpdateClientPiece", async (request, response) => {
+  await UpdateClientPiece(request.body)
+    .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
 //#endregion ClientPiece
