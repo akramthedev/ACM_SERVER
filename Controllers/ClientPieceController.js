@@ -303,6 +303,28 @@ router.put("/UpdateClientPiece", async (request, response) => {
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
+
+router.get("/DownloadClientPiece/:ClientPieceId", async (req, res) => {
+  const { ClientPieceId } = req.params;
+
+  try {
+    const piece = await GetClientPiece(ClientPieceId); // Retrieve piece details
+    if (!piece || piece.length === 0) {
+      return res.status(404).send("Client piece not found");
+    }
+
+    const filePath = path.join(__dirname, `../Pieces/${piece[0].ClientId}/${piece[0].ClientPieceId}.${piece[0].Extension}`);
+    if (fs.existsSync(filePath)) {
+      res.download(filePath); // This triggers the file download
+    } else {
+      res.status(404).send("File not found");
+    }
+  } catch (error) {
+    console.error("Error downloading file: ", error);
+    res.status(500).send("Error downloading file");
+  }
+});
+
 //#endregion ClientPiece
 
 module.exports = router;
