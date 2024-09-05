@@ -1,10 +1,15 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
+const { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation, GetClientMissionPrestationSimple } = require("../Infrastructure/ClientMissionPrestationRepository");
 
 //#region ClientMissionPrestation
 router.get("/GetClientMissionPrestations", async (request, response) => {
   await GetClientMissionPrestations(request.query.ClientId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error));
+});
+router.get("/GetClientMissionPrestationSimple", async (request, response) => {
+  await GetClientMissionPrestationSimple(request.query.ClientId)
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });

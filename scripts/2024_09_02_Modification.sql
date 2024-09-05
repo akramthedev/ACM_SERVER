@@ -188,3 +188,83 @@ INSERT INTO Piece VALUES (NEWID(),'Justificatif de domicile',null,'P82');
 
 
 
+CREATE PROCEDURE ps_get_client_mission_prestation_simple
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT 
+        cmp.ClientMissionPrestationId,
+        cmp.ClientMissionId,
+        cmp.PrestationId,
+        p.Designation AS PrestationDesignation,  -- Prestation information
+        p.Description AS PrestationDescription,
+        m.MissionId,
+        m.Designation AS MissionDesignation,  -- Mission information
+        m.Description AS MissionDescription,
+        s.ServiceId,
+        s.Designation AS ServiceDesignation,  -- Service information
+        s.Description AS ServiceDescription,
+        cmp.DateAffectation
+    FROM 
+        ClientMissionPrestation cmp
+    LEFT JOIN 
+        ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN
+        Prestation p ON cmp.PrestationId = p.PrestationId
+    LEFT JOIN
+        Mission m ON p.MissionId = m.MissionId
+    LEFT JOIN
+        Service s ON m.ServiceId = s.ServiceId
+    WHERE
+        cm.ClientId = @ClientId
+    ORDER BY 
+        CAST(SUBSTRING(p.Numero_Ordre, 2, LEN(p.Numero_Ordre) - 1) AS INT);
+END;
+GO
+
+CREATE PROCEDURE ps_delete_client_mission_prestation
+    @ClientMissionPrestationId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Supprimer d'abord les tâches associées à cette prestation
+    DELETE FROM ClientTache WHERE ClientMissionPrestationId = @ClientMissionPrestationId;
+
+    -- Ensuite, supprimer la prestation du client
+    DELETE FROM ClientMissionPrestation WHERE ClientMissionPrestationId = @ClientMissionPrestationId;
+    
+END;
+GO
+
+ALTER PROCEDURE ps_get_client_mission_prestation_simple
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT 
+        cmp.ClientMissionPrestationId,
+        cmp.ClientMissionId,
+        cmp.PrestationId,
+        p.Designation AS PrestationDesignation,  -- Prestation information
+        p.Description AS PrestationDescription,
+        m.MissionId,
+        m.Designation AS MissionDesignation,  -- Mission information
+        m.Description AS MissionDescription,
+        s.ServiceId,
+        s.Designation AS ServiceDesignation,  -- Service information
+        s.Description AS ServiceDescription,
+        cmp.DateAffectation
+    FROM 
+        ClientMissionPrestation cmp
+    LEFT JOIN 
+        ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+    LEFT JOIN
+        Prestation p ON cmp.PrestationId = p.PrestationId
+    LEFT JOIN
+        Mission m ON p.MissionId = m.MissionId
+    LEFT JOIN
+        Service s ON m.ServiceId = s.ServiceId
+    WHERE
+        cm.ClientId = @ClientId
+    ORDER BY 
+        CAST(SUBSTRING(p.Numero_Ordre, 2, LEN(p.Numero_Ordre) - 1) AS INT);
+END;
+GO
