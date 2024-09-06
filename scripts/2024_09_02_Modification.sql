@@ -268,3 +268,29 @@ BEGIN
         CAST(SUBSTRING(p.Numero_Ordre, 2, LEN(p.Numero_Ordre) - 1) AS INT);
 END;
 GO
+
+CREATE PROCEDURE ps_get_unassigned_prestations_for_client
+    @ClientId UNIQUEIDENTIFIER,
+    @MissionId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Sélectionner toutes les prestations de la mission qui ne sont pas dans ClientMissionPrestation
+    SELECT 
+        p.PrestationId,
+        p.Designation AS PrestationDesignation,
+        p.Description AS PrestationDescription
+    FROM 
+        Prestation p
+    LEFT JOIN 
+        ClientMissionPrestation cmp ON p.PrestationId = cmp.PrestationId
+        AND cmp.ClientMissionId IN (SELECT cm.ClientMissionId 
+                                    FROM ClientMission cm 
+                                    WHERE cm.ClientId = @ClientId 
+                                    AND cm.MissionId = @MissionId)
+    WHERE 
+        p.MissionId = @MissionId 
+        AND cmp.ClientMissionPrestationId IS NULL  -- Exclure les prestations déjà affectées
+    ORDER BY 
+        p.Designation;
+END;
+GO

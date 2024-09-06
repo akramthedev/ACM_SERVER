@@ -18,6 +18,16 @@ function GetClientMissionPrestationSimple(ClientId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+function GetUnassignedClientMissionPrestationSimple(ClientId, MissionId) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientId", sql.UniqueIdentifier, ClientId)
+      .input("MissionId", sql.UniqueIdentifier, MissionId)
+      .execute("ps_get_unassigned_prestations_for_client")
+      .then((result) => resolve(result.recordset))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 
 function CreateClientMissionPrestation(data) {
   return new Promise((resolve, reject) => {
@@ -40,4 +50,4 @@ function DeleteClientMissionPrestation(ClientMissionId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
-module.exports = { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation, GetClientMissionPrestationSimple };
+module.exports = { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation, GetClientMissionPrestationSimple, GetUnassignedClientMissionPrestationSimple };
