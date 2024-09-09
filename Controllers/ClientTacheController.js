@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache } = require("../Infrastructure/ClientTacheRepository");
 
 //#region ClientTache
 router.get("/GetClientTaches", async (request, response) => {
@@ -19,7 +19,11 @@ router.get("/GetAllClientTaches", async (request, response) => {
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
-
+router.get("/GetUnassignedClientTache", async (request, response) => {
+  await GetUnassignedClientTache(request.query.ClientId, request.query.PrestationId)
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error));
+});
 router.post("/CreateClientTache", async (request, response) => {
   await CreateClientTache(request.body)
     .then((res) => response.status(200).send(res))

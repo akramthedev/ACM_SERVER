@@ -294,3 +294,31 @@ BEGIN
         p.Designation;
 END;
 GO
+
+CREATE PROCEDURE ps_get_unassigned_tasks_for_prestation
+    @ClientId UNIQUEIDENTIFIER,
+    @PrestationId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Sélectionner toutes les tâches de la prestation qui ne sont pas dans ClientTache
+    SELECT 
+        t.TacheId,
+        t.Intitule AS TaskTitle,
+        t.Description AS TaskDescription,
+        t.Numero_Ordre AS TaskOrder
+    FROM 
+        Tache t
+    LEFT JOIN 
+        ClientTache ct ON t.TacheId = ct.TacheId
+        AND ct.ClientMissionPrestationId IN (SELECT cmp.ClientMissionPrestationId 
+                                             FROM ClientMissionPrestation cmp
+                                             JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+                                             WHERE cm.ClientId = @ClientId 
+                                             AND cmp.PrestationId = @PrestationId)
+    WHERE 
+        t.PrestationId = @PrestationId
+        AND ct.ClientTacheId IS NULL  -- Exclure les tâches déjà affectées
+    ORDER BY 
+        t.Numero_Ordre;
+END;
+GO

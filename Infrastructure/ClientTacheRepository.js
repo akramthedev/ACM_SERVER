@@ -27,6 +27,16 @@ function GetAllClientTaches() {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+function GetUnassignedClientTache(ClientId, PrestationId) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientId", sql.UniqueIdentifier, ClientId)
+      .input("PrestationId", sql.UniqueIdentifier, PrestationId)
+      .execute("ps_get_unassigned_tasks_for_prestation")
+      .then((result) => resolve(result.recordset))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 
 function CreateClientTache(data) {
   return new Promise((resolve, reject) => {
@@ -85,4 +95,4 @@ function DeleteClientTache(ClientTacheId) {
   });
 }
 
-module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache };
+module.exports = { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
