@@ -322,3 +322,54 @@ BEGIN
         t.Numero_Ordre;
 END;
 GO
+
+-- ALTER proc ps_get_client_mission_prestations --Original
+--     @ClientId uniqueidentifier
+-- AS
+-- BEGIN
+--     select cmp.ClientMissionPrestationId,cmp.ClientMissionId,cmp.PrestationId,cmp.DateAffectation,cm.ClientMissionId,cm.ClientId,m.MissionId,m.Designation AS Mission,p.PrestationId,p.Designation AS Prestation
+--     from ClientMissionPrestation cmp
+--     left join ClientMission cm on cm.ClientMissionId=cmp.ClientMissionId
+--     left join Mission m on cm.MissionId=m.MissionId
+--     left join Prestation p on p.PrestationId=cmp.PrestationId
+--     where cm.ClientId=@ClientId
+-- END
+-- GO
+
+ALTER proc ps_get_client_mission_prestations  --Modified because it get 2
+    @ClientId uniqueidentifier
+AS
+BEGIN
+    select cmp.ClientMissionPrestationId,cmp.ClientMissionId,cmp.PrestationId,cmp.DateAffectation,cm.ClientId,m.MissionId,m.Designation AS Mission,p.Designation AS Prestation
+    from ClientMissionPrestation cmp
+    left join ClientMission cm on cm.ClientMissionId=cmp.ClientMissionId
+    left join Mission m on cm.MissionId=m.MissionId
+    left join Prestation p on p.PrestationId=cmp.PrestationId
+    where cm.ClientId=@ClientId
+END
+GO
+
+ALTER PROCEDURE ps_get_unassigned_prestations_for_client
+    @ClientMissionId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Sélectionner toutes les prestations de la mission spécifique qui ne sont pas dans ClientMissionPrestation
+    SELECT 
+        p.PrestationId,
+        p.Designation AS PrestationDesignation,
+        p.Description AS PrestationDescription
+    FROM 
+        Prestation p
+    LEFT JOIN 
+        ClientMissionPrestation cmp 
+        ON p.PrestationId = cmp.PrestationId
+        AND cmp.ClientMissionId = @ClientMissionId  -- Vérifier la ClientMissionId au lieu de MissionId
+    WHERE 
+        p.MissionId = (SELECT cm.MissionId 
+                       FROM ClientMission cm 
+                       WHERE cm.ClientMissionId = @ClientMissionId)  -- Trouver la MissionId associée à la ClientMissionId
+        AND cmp.ClientMissionPrestationId IS NULL  -- Exclure les prestations déjà affectées à cette ClientMission
+    ORDER BY 
+        p.Designation;
+END;
+GO

@@ -18,11 +18,10 @@ function GetClientMissionPrestationSimple(ClientId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
-function GetUnassignedClientMissionPrestationSimple(ClientId, MissionId) {
+function GetUnassignedClientMissionPrestationSimple(ClientMissionId) {
   return new Promise((resolve, reject) => {
     new sql.Request()
-      .input("ClientId", sql.UniqueIdentifier, ClientId)
-      .input("MissionId", sql.UniqueIdentifier, MissionId)
+      .input("ClientMissionId", sql.UniqueIdentifier, ClientMissionId)
       .execute("ps_get_unassigned_prestations_for_client")
       .then((result) => resolve(result.recordset))
       .catch((error) => reject(error?.originalError?.info?.message));
