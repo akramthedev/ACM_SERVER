@@ -39,6 +39,17 @@ function CreateClientMissionPrestation(data) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+function CreateClientMissionPrestationCustom(data) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientMissionPrestationId", sql.UniqueIdentifier, data.ClientMissionPrestationId)
+      .input("ClientMissionId", sql.UniqueIdentifier, data.ClientMissionId)
+      .input("PrestationId", sql.UniqueIdentifier, data.PrestationId)
+      .execute("ps_create_client_mission_prestation_custom")
+      .then((result) => resolve(result.rowsAffected[0] > 0))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
 
 function DeleteClientMissionPrestation(ClientMissionId) {
   return new Promise((resolve, reject) => {
@@ -49,4 +60,4 @@ function DeleteClientMissionPrestation(ClientMissionId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
-module.exports = { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation, GetClientMissionPrestationSimple, GetUnassignedClientMissionPrestationSimple };
+module.exports = { GetClientMissionPrestations, CreateClientMissionPrestation, DeleteClientMissionPrestation, GetClientMissionPrestationSimple, GetUnassignedClientMissionPrestationSimple, CreateClientMissionPrestationCustom };

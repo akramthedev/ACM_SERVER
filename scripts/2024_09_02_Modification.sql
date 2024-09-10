@@ -373,3 +373,45 @@ BEGIN
         p.Designation;
 END;
 GO
+
+CREATE PROCEDURE ps_create_client_mission_prestation_custom
+    @ClientMissionPrestationId UNIQUEIDENTIFIER,
+    @ClientMissionId UNIQUEIDENTIFIER,
+    @PrestationId UNIQUEIDENTIFIER
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Step 1: Insert the ClientMissionPrestation
+        INSERT INTO ClientMissionPrestation(ClientMissionPrestationId, ClientMissionId, PrestationId, DateAffectation)
+        VALUES (@ClientMissionPrestationId, @ClientMissionId, @PrestationId, CURRENT_TIMESTAMP);
+
+        -- Step 2: Retrieve tasks associated with the PrestationId
+        DECLARE @Intitule NVARCHAR(255), @Numero_Ordre NVARCHAR(255), @AgentResposable UNIQUEIDENTIFIER, @TacheId UNIQUEIDENTIFIER;
+
+        -- Step 3: Insert corresponding tasks into ClientTache
+        INSERT INTO ClientTache(ClientTacheId, ClientMissionPrestationId, ClientMissionId, TacheId, Intitule, Numero_Ordre, Status, AgentResposable)
+        SELECT 
+            NEWID() AS ClientTacheId,               -- Generate new unique identifier for ClientTache
+            @ClientMissionPrestationId AS ClientMissionPrestationId, -- Use the ClientMissionPrestationId passed to the procedure
+            @ClientMissionId AS ClientMissionId,    -- Use the ClientMissionId passed to the procedure
+            t.TacheId,                              -- Task ID from Tache table
+            t.Intitule,                             -- Task Intitule from Tache table
+            t.Numero_Ordre,                         -- Task Numero_Ordre from Tache table
+            'En attente' AS Status,                 -- Default status 'En attente'
+            t.AgentId AS AgentResposable            -- Task AgentResponsable from Tache table
+        FROM 
+            Tache t
+        WHERE 
+            t.PrestationId = @PrestationId;         -- Filter tasks by PrestationId
+
+        -- Step 4: Commit the transaction if all operations succeed
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Step 5: Rollback transaction if any error occurs
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
