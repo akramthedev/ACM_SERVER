@@ -9,4 +9,12 @@ function GetMissions(ServiceId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
-module.exports = { GetMissions };
+function GetMissionsWithPrestationsCount() {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .execute("ps_get_missions_with_prestation_count")
+      .then((result) => resolve(result.recordset))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
+module.exports = { GetMissions, GetMissionsWithPrestationsCount };

@@ -415,3 +415,97 @@ BEGIN
     END CATCH
 END;
 GO
+CREATE PROCEDURE ps_get_missions_with_prestation_count
+AS
+BEGIN
+    SELECT 
+        m.MissionId,
+        m.Designation AS MissionDesignation,
+        m.Description AS MissionDescription,
+        COUNT(p.PrestationId) AS NumberOfPrestations
+    FROM 
+        Mission m
+    LEFT JOIN 
+        Prestation p ON m.MissionId = p.MissionId
+    GROUP BY 
+        m.MissionId, 
+        m.Designation, 
+        m.Description
+    ORDER BY 
+        m.Designation;
+END;
+GO
+
+
+-- ALTER PROC ps_create_client_mission (original)
+--     @ClientMissionId UNIQUEIDENTIFIER,
+--     @ClientId UNIQUEIDENTIFIER,
+--     @MissionId UNIQUEIDENTIFIER
+-- AS
+-- BEGIN
+--     BEGIN TRANSACTION;
+--     BEGIN TRY
+--         -- Insertion dans la table ClientMission
+--         INSERT INTO ClientMission(ClientMissionId, ClientId, MissionId, DateAffectation)
+--         VALUES(@ClientMissionId, @ClientId, @MissionId, CURRENT_TIMESTAMP);
+
+--         -- Insertion de toutes les pièces dans la table ClientPiece
+--         INSERT INTO ClientPiece (ClientPieceID, ClientId, PieceId)
+--         SELECT NEWID(), @ClientId, mp.PieceId
+--         FROM MissionPiece mp
+--         WHERE mp.MissionId=@MissionId;
+
+--         COMMIT TRANSACTION;
+--     END TRY
+--     BEGIN CATCH
+--         ROLLBACK TRANSACTION;
+--         THROW;
+--     END CATCH
+-- END;
+-- GO
+
+
+ALTER PROC ps_create_client_mission
+    @ClientMissionId UNIQUEIDENTIFIER,
+    @ClientId UNIQUEIDENTIFIER,
+    @MissionId UNIQUEIDENTIFIER
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Insertion dans la table ClientMission
+        INSERT INTO ClientMission(ClientMissionId, ClientId, MissionId, DateAffectation)
+        VALUES(@ClientMissionId, @ClientId, @MissionId, CURRENT_TIMESTAMP);
+
+        -- Insertion de toutes les nouvelles pièces dans la table ClientPiece
+        INSERT INTO ClientPiece (ClientPieceID, ClientId, PieceId)
+        SELECT NEWID(), @ClientId, mp.PieceId
+        FROM MissionPiece mp
+        WHERE mp.MissionId = @MissionId 
+        AND mp.PieceId NOT IN (
+            SELECT cp.PieceId 
+            FROM ClientPiece cp 
+            WHERE cp.ClientId = @ClientId
+        );
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE PROCEDURE ps_get_client_pieces_affecter
+    @ClientId uniqueidentifier
+AS
+BEGIN
+    select cp.ClientPieceId,cp.ClientId,cp.PieceId,cp.Extension,p.Libelle,p.Description
+    from ClientPiece cp
+    left join Piece p on p.PieceId=cp.PieceId
+    where cp.ClientId=@ClientId
+    ORDER BY 
+        CAST(SUBSTRING(p.Numero_Ordre, 2, LEN(p.Numero_Ordre) - 1) AS INT);
+END
+GO
