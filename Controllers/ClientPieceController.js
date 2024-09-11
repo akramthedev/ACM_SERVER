@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const fileUpload = require("express-fileupload");
 var router = express.Router();
-const { CreateClientPiece, DeleteClientPiece, GetClientPiece, UpdateClientPiece } = require("../Infrastructure/ClientPieceRepository");
+const { CreateClientPiece, DeleteClientPiece, GetClientPiece, UpdateClientPiece, GetClientPieces } = require("../Infrastructure/ClientPieceRepository");
 const { GetPieces } = require("../Infrastructure/PieceRepository");
 
 //#region ClientPiece
@@ -22,6 +22,11 @@ router.get("/GetClientPieces", async (request, response) => {
 });
 router.get("/GetPieces", async (request, response) => {
   await GetPieces()
+    .then((res) => response.status(200).send(res))
+    .catch((error) => response.status(400).send(error));
+});
+router.get("/GetClientPiecess", async (request, response) => {
+  await GetClientPieces(request.query.ClientId)
     .then((res) => response.status(200).send(res))
     .catch((error) => response.status(400).send(error));
 });
