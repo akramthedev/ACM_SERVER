@@ -1,4 +1,5 @@
 console.clear();
+// https://medium.com/@erinlim555/simple-keycloak-rbac-with-node-js-express-js-bc9031c9f1ba
 
 const express = require("express");
 const sql = require("mssql");
@@ -8,7 +9,7 @@ const fs = require("fs");
 const fileUpload = require("express-fileupload");
 // const upload = require('./Helper/upload');
 // const http = require('http');
-const { connect } = require("./Helper/db");
+const { connect, } = require("./Helper/db");
 const { generatePdf } = require("./Helper/pdf-gen");
 var passport = require("passport");
 const { jwtStrategy } = require("./Auth/passport");
@@ -37,10 +38,11 @@ app.use("/Pieces", express.static("Pieces"));
 app.use("/Pieces", express.static(path.join(__dirname, "Pieces")));
 
 const PORT = process.env.PORT || 3000;
+let connection = null;
 // sql server login
 (async () => {
   try {
-    await connect(config.db);
+    connection = await connect(config.db);
   } catch (err) {
     console.error("Error connecting to database:", err);
     process.exit(1);
@@ -323,8 +325,8 @@ app.get("/cabinets", (request, response) => {
   });
 });
 
-app.get("/config", (request, response) => {
-  response.send(config);
+app.get("/db", (request, response) => {
+  response.send(connection.config.database);
 });
 app.get("/version", (request, response) => {
   response.send(version);
