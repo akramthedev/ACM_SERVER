@@ -25,7 +25,7 @@ let version = "1.0.1";
 
 
 log.SetUserOptions(config.loggerOptions);
-log.Info("ACM Server started ...........", "version: " + version, null, config);
+log.Info("ACM Server started ...........", "version: " + version, null, "database: " + config.db.database);
 // Ensure the pdfs directory exists
 if (!fs.existsSync("./pdfs")) {
   fs.mkdirSync("./pdfs");
