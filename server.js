@@ -9,7 +9,7 @@ const fs = require("fs");
 const fileUpload = require("express-fileupload");
 // const upload = require('./Helper/upload');
 // const http = require('http');
-const { connect, } = require("./Helper/db");
+const { connect } = require("./Helper/db");
 const { generatePdf } = require("./Helper/pdf-gen");
 var passport = require("passport");
 const { jwtStrategy } = require("./Auth/passport");
@@ -20,9 +20,8 @@ const path = require("path");
 var mailer = require("./Helper/mailer");
 // var crypto = require('crypto');
 // var guard = require('express-jwt-permissions')()
-const config = require('./config.json');
+const config = require("./config.json");
 let version = "1.0.1";
-
 
 log.SetUserOptions(config.loggerOptions);
 log.Info("ACM Server started ...........", "version: " + version, null, "database: " + config.db.database);
@@ -70,6 +69,7 @@ var ClientMissionController = require("./Controllers/ClientMissionController");
 var ClientMissionPrestationController = require("./Controllers/ClientMissionPrestationController");
 var ClientTacheController = require("./Controllers/ClientTacheController");
 var MissionPieceController = require("./Controllers/MissionPieceController");
+var EmailController = require("./Controllers/EmailController");
 app.use("/Auth/", AuthController);
 app.use("/", ClientController);
 app.use("/", ProcheController);
@@ -86,6 +86,7 @@ app.use("/", ClientMissionController);
 app.use("/", ClientMissionPrestationController);
 app.use("/", ClientTacheController);
 app.use("/", MissionPieceController);
+app.use("/", EmailController);
 
 app.use(function (req, res, next) {
   /*req.testing = 'testing';*/ return next();
@@ -100,7 +101,7 @@ app.get("/", (request, response) => {
 });
 app.get("/test", (request, response) => {
   log.Info("test route works ...........");
-  console.log("test route")
+  console.log("test route");
   response.status(200).send("test works 28/08/2024 16:02 !!!!!!!!!!!!!!!!");
 });
 
@@ -127,7 +128,8 @@ app.get("/email", (request, response) => {
 });
 
 app.get("/email2", (request, response) => {
-  sendEmail("amine.laghlabi@e-polytechnique.ma", "TestEmail2", "<b>TestEmail</b>").then(
+  console.log("request.query Email2 : ", request.query);
+  sendEmail(request.query.to, request.query.subject, request.query.html).then(
     (res) => {
       response.status(200).send("email sent !!!!!");
     },
@@ -265,7 +267,7 @@ app.get("/print", async (request, response) => {
 });
 
 setTimeout(() => {
-  console.log("\n\n\n")
+  console.log("\n\n\n");
 }, 1000);
 app.get("/print2", async (request, response) => {
   console.log("__dirname ", __dirname);
@@ -275,9 +277,7 @@ app.get("/print2", async (request, response) => {
   const recuPaiementFileName = path.resolve(__dirname, `pdfs/Lettre_Mission_${new Date().getTime()}.pdf`);
 
   const photo1 = getImageBase64(path.resolve(__dirname, "templates/assets/LOGO-BGG.png"));
-  let imagesToReplace = [
-    { old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` },
-  ]
+  let imagesToReplace = [{ old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` }];
 
   const recuPaiementData = {
     NumeroRecu: "123456",
@@ -332,20 +332,19 @@ app.get("/version", (request, response) => {
   response.send(version);
 });
 app.get("/logs", (request, response) => {
-  let files = fs.readdirSync("./logs")
-  console.log("files: ", files)
+  let files = fs.readdirSync("./logs");
+  console.log("files: ", files);
   let content = "";
   for (let i = 0; i < files.length; i++) {
-    fs.readFile(`./logs/${files[i]}`, 'utf8', async (err, data) => {
-      console.log(i + " ", files[i])
+    fs.readFile(`./logs/${files[i]}`, "utf8", async (err, data) => {
+      console.log(i + " ", files[i]);
       content += data;
       if (i == files.length - 1) {
-        console.log("allDone")
-        response.attachment('logs.txt')
-        response.type('txt')
-        response.send(content)
+        console.log("allDone");
+        response.attachment("logs.txt");
+        response.type("txt");
+        response.send(content);
       }
-    })
+    });
   }
 });
-

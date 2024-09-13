@@ -1,6 +1,37 @@
 var express = require("express");
 var router = express.Router();
 const { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
+var mailer = require("../Helper/mailer");
+
+function formatDateToDDMMYYYY(date) {
+  const day = String(date.getDate()).padStart(2, "0"); // Obtenir le jour
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtenir le mois (les mois commencent à 0)
+  const year = date.getFullYear(); // Obtenir l'année
+  return `${day}/${month}/${year}`;
+}
+
+function sendEmail(to, subject, htmlBody) {
+  let mailOptions = {
+    from: "acm@netwaciila.ma",
+    to: to,
+    subject: subject,
+    html: htmlBody,
+  };
+  return new Promise((resolve, reject) => {
+    mailer.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        reject(error);
+        // response.status(200).send("error email");
+      } else {
+        resolve(true);
+        // console.log("Email sent: " + info.response);
+        // response.status(200).send("email sent !!!!!");
+      }
+    });
+  });
+}
 
 //#region ClientTache
 router.get("/GetClientTaches", async (request, response) => {
@@ -35,10 +66,63 @@ router.post("/CreateClientTacheCustom", async (request, response) => {
     .catch((error) => response.status(400).send(error));
 });
 router.put("/UpdateClientTache", async (request, response) => {
-  console.log("request body udateClientTache : ", request.body);
-  await UpdateClientTache(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+  console.log("request body updateClientTache : ", request.body);
+
+  try {
+    // Récupérer la tâche avant la mise à jour pour obtenir l'ancien statut
+    const originalTask = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
+    const originalStatus = originalTask[0]?.Status; // Récupérer l'ancien statut
+
+    // Vérifier si le statut a changé de "non terminé" à "Terminé"
+    if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
+      // Si le statut change en "Terminé", mettre à jour la date d'exécution à la date actuelle
+      request.body.Date_Execution = new Date();
+    } else if (originalStatus === "Terminé" || request.body.Date_Execution === null) {
+      // Si la tâche est déjà "Terminé", ne pas changer la Date_Execution
+      request.body.Date_Execution = originalTask[0].Date_Execution; // Garder la date d'exécution d'origine
+    }
+
+    // Mettre à jour la tâche (update même si l'email échoue)
+    await UpdateClientTache(request.body);
+
+    // Récupérer les détails de la tâche après la mise à jour
+    const clientTacheDetails = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
+
+    console.log("response GetClientTacheDetailsForEmail : ", clientTacheDetails);
+    console.log("originalstatus : ", originalStatus);
+
+    // Essayer d'envoyer l'email si le statut passe de "non terminé" à "Terminé"
+    if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
+      const agentEmail = clientTacheDetails[0]?.AgentEmail;
+
+      if (agentEmail) {
+        const emailSubject = `Tâche terminée : ${request.body.Intitule}`;
+        const emailBody = `
+          <p>La tâche suivante a été marquée comme terminée :</p>
+          <ul>
+            <li><strong>Intitulé :</strong> ${request.body.Intitule}</li>
+            <li><strong>Date d'exécution :</strong> ${formatDateToDDMMYYYY(request.body.Date_Execution) || "Non spécifiée"}</li>
+          </ul>
+          <p>Merci.</p>
+        `;
+
+        // Essayer d'envoyer l'email, mais ne pas affecter la mise à jour en cas d'échec
+        try {
+          await sendEmail(agentEmail, emailSubject, emailBody);
+          console.log("Email envoyé à l'agent :", agentEmail);
+        } catch (emailError) {
+          console.error("Erreur lors de l'envoi de l'email :", emailError);
+        }
+      } else {
+        console.log("Aucun email d'agent trouvé pour la tâche.");
+      }
+    }
+
+    // Envoyer la réponse avec les détails de la tâche, même si l'email échoue
+    return response.status(200).send(clientTacheDetails);
+  } catch (error) {
+    return response.status(400).send(error);
+  }
 });
 router.delete("/DeleteClientTache/:ClientTacheId", async (request, response) => {
   await DeleteClientTache(request.params.ClientTacheId)

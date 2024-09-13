@@ -65,7 +65,6 @@ function CreateClientTacheCustom(data) {
   });
 }
 function UpdateClientTache(data) {
-  console.log("UpdateClientTache :", data);
   return new Promise((resolve, reject) => {
     new sql.Request()
       .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
