@@ -22,6 +22,8 @@ var mailer = require("./Helper/mailer");
 // var guard = require('express-jwt-permissions')()
 const config = require("./config.json");
 let version = "1.0.1";
+const Keycloak = require("keycloak-connect");
+const keycloakConfig = require("./keycloak.json");
 
 log.SetUserOptions(config.loggerOptions);
 log.Info("ACM Server started ...........", "version: " + version, null, "database: " + config.db.database);
@@ -32,6 +34,11 @@ if (!fs.existsSync("./pdfs")) {
 
 const app = express();
 const cors = require("cors");
+//Initialize Keycloak
+const keycloak = new Keycloak(keycloakConfig);
+
+//Protect routes with keycloak
+app.use(keycloak.middleware());
 app.use(cors());
 app.use("/Pieces", express.static("Pieces"));
 app.use("/Pieces", express.static(path.join(__dirname, "Pieces")));
@@ -103,6 +110,14 @@ app.get("/test", (request, response) => {
   log.Info("test route works ...........");
   console.log("test route");
   response.status(200).send("test works 28/08/2024 16:02 !!!!!!!!!!!!!!!!");
+});
+app.get("/test1", (request, response) => {
+  console.log("test1 route");
+  response.status(200).send("test1 works 18/09/2024 !!!!!!!!!!!!!!!!");
+});
+app.get("/test2", keycloak.protect(), (request, response) => {
+  console.log("test2 route protected with keycloak");
+  response.status(200).send("test2 route protected with keycloak works 18/09/2024  !!!!!!!!!!!!!!!!");
 });
 
 app.get("/email", (request, response) => {
