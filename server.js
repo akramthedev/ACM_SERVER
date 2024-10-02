@@ -22,8 +22,8 @@ var mailer = require("./Helper/mailer");
 // var guard = require('express-jwt-permissions')()
 const config = require("./config.json");
 let version = "1.0.1";
-const Keycloak = require("keycloak-connect");
-const keycloakConfig = require("./keycloak.json");
+const keycloak = require("./keycloak-config");
+// const keycloakConfig = require("./keycloak.json");
 
 log.SetUserOptions(config.loggerOptions);
 log.Info("ACM Server started ...........", "version: " + version, null, "database: " + config.db.database);
@@ -35,7 +35,7 @@ if (!fs.existsSync("./pdfs")) {
 const app = express();
 const cors = require("cors");
 //Initialize Keycloak
-const keycloak = new Keycloak(keycloakConfig);
+// const keycloak = new Keycloak(keycloakConfig);
 
 //Protect routes with keycloak
 app.use(keycloak.middleware());
@@ -115,10 +115,38 @@ app.get("/test1", (request, response) => {
   console.log("test1 route");
   response.status(200).send("test1 works 18/09/2024 !!!!!!!!!!!!!!!!");
 });
-app.get("/test2", keycloak.protect(), (request, response) => {
-  console.log("test2 route protected with keycloak");
-  response.status(200).send("test2 route protected with keycloak works 18/09/2024  !!!!!!!!!!!!!!!!");
-});
+
+app.get(
+  "/test2",
+  keycloak.protect((token, request) => token.hasRole(`realm:bp_afficher`)),
+  (request, response) => {
+    // Récupérer le token JWT de l'utilisateur authentifié
+    const tokenContent = request.kauth.grant.access_token.content;
+
+    const username = tokenContent.preferred_username; // Nom d'utilisateur
+    const email = tokenContent.email; // Email de l'utilisateur
+    const roles = tokenContent.realm_access.roles; // Rôles de l'utilisateur
+    const fullName = tokenContent.name; // Nom complet
+
+    // Log des informations utilisateur
+    console.log("Nom d'utilisateur :", username);
+    console.log("Email :", email);
+    console.log("Rôles de l'utilisateur :", roles);
+    console.log("Nom complet :", fullName);
+
+    // Répondre avec un message contenant les infos utilisateur
+    response.status(200).send(`Utilisateur authentifié : ${username}, Email: ${email}, Rôles: ${roles}`);
+  }
+);
+
+app.get(
+  "/test3",
+  keycloak.protect((token, request) => token.hasRole(`realm:piece_afficher`)),
+  (request, response) => {
+    console.log("test3 route protected with keycloak piece-afficher");
+    response.status(200).send("test2 route protected with keycloak piece_afficher works 18/09/2024  !!!!!!!!!!!!!!!!");
+  }
+);
 
 app.get("/email", (request, response) => {
   let mailOptions = {
@@ -363,3 +391,5 @@ app.get("/logs", (request, response) => {
     });
   }
 });
+
+module.exports = keycloak;

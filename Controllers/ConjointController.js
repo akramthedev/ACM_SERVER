@@ -1,27 +1,52 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require('../Infrastructure/ConjointRepository');
+const { GetConjoint, CreateConjoint, UpdateConjoint, DeleteConjoint } = require("../Infrastructure/ConjointRepository");
+const log = require("node-file-logger");
 
 //#region Conjoint
 router.get("/GetConjoint", async (request, response) => {
-    await GetConjoint(request.query.ClientId)
-        .then((res) => response.status(200).send(res))
-        .catch((error) => response.status(400).send(error))
+  await GetConjoint(request.query.ClientId)
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.post("/CreateConjoint", async (request, response) => {
-    await CreateConjoint(request.body)
-        .then((res) => response.status(200).send(res))
-        .catch((error) => response.status(400).send(error))
+  await CreateConjoint(request.body)
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.put("/UpdateConjoint", async (request, response) => {
-    await UpdateConjoint(request.body)
-        .then((res) => response.status(200).send(res))
-        .catch((error) => response.status(400).send(error))
+  await UpdateConjoint(request.body)
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.delete("/DeleteConjoint/:ConjointId", async (request, response) => {
-    await DeleteConjoint(request.params.ConjointId)
-        .then((res) => response.status(200).send(res))
-        .catch((error) => response.status(400).send(error))
+  await DeleteConjoint(request.params.ConjointId)
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 //#endregion Conjoint
 

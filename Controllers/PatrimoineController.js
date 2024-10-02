@@ -3,6 +3,7 @@ var router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const { CreatePatrimoine, UpdatePatrimoine, DeletePatrimoine, GetPatrimoines } = require("../Infrastructure/PatrimoineRepository");
+const log = require("node-file-logger");
 
 //#region Patrimoine
 // router.get("/GetPatrimoines", async (request, response) => {
@@ -57,6 +58,7 @@ router.post("/CreatePatrimoine", async (request, response) => {
       const statusDocumentPath = path.join(statusDocumentDirectory, `${patrimoineId}.pdf`);
       file.mv(statusDocumentPath, (err) => {
         if (err) {
+          log.Info("Error saving the status document", err);
           console.error("Error saving the status document", err);
           return response.status(500).send("Error saving the status document");
         }
@@ -69,9 +71,11 @@ router.post("/CreatePatrimoine", async (request, response) => {
           .then(() => {
             // Send the updated response back to the client
             newPatrimoine.StatusDocumentPath = `${process.env.SERVER_URL}/Pieces/${clientId}/Status/${patrimoineId}.pdf`;
+            log.Info("newPatrimoine : ", newPatrimoine);
             response.status(200).send(newPatrimoine);
           })
           .catch((updateError) => {
+            log.Info("Error updating StatusDocumentPath in the database", updateError);
             console.error("Error updating StatusDocumentPath in the database", updateError);
             response.status(500).send("Error updating StatusDocumentPath in the database");
           });
@@ -80,6 +84,7 @@ router.post("/CreatePatrimoine", async (request, response) => {
       response.status(200).send(newPatrimoine);
     }
   } catch (error) {
+    log.Info("Error creating patrimoine", error);
     console.error("Error creating patrimoine", error);
     response.status(500).send("Error creating patrimoine");
   }
@@ -87,8 +92,14 @@ router.post("/CreatePatrimoine", async (request, response) => {
 
 router.put("/UpdatePatrimoine", async (request, response) => {
   await UpdatePatrimoine(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.delete("/DeletePatrimoine", async (request, response) => {
   try {
@@ -108,15 +119,18 @@ router.delete("/DeletePatrimoine", async (request, response) => {
       if (fs.existsSync(documentPath)) {
         fs.unlinkSync(documentPath); // Deletes the file
         console.log(`Document ${documentPath} deleted successfully`);
+        log.Info("Document Deleted : ", documentPath);
       } else {
         console.log(`Document ${documentPath} does not exist`);
       }
 
       response.status(200).json({ message: "Patrimoine and its document deleted successfully" });
     } else {
+      log.Info("Error deleting patrimoine");
       response.status(400).json({ error: "Error deleting patrimoine" });
     }
   } catch (error) {
+    log.Info("Error deleting patrimoine", error);
     console.error("Error deleting patrimoine", error);
     response.status(500).json({ error: "Error deleting patrimoine" });
   }

@@ -5,6 +5,8 @@ const path = require("path");
 const fs = require("fs");
 var express = require("express");
 var router = express.Router();
+const log = require("node-file-logger");
+const keycloak = require("../keycloak-config");
 const { GetClients, GetClient, CreateClient, UpdateClient, DeleteClient } = require("../Infrastructure/ClientRepository");
 const { GetProches, CreateProche } = require("../Infrastructure/ProcheRepository");
 const { CreateConjoint } = require("../Infrastructure/ConjointRepository");
@@ -19,24 +21,45 @@ const { GetClientTaches, CreateClientTache } = require("../Infrastructure/Client
 const { generatePdf, getImageBase64 } = require("../Helper/pdf-gen");
 
 //#region Client
-router.get("/GetClients", async (request, response) => {
-  await GetClients(request.query.CabinetId)
-    .then(async (res) => {
-      res = res.map((item) => {
-        let clientFirectory = `./Pieces/${item.ClientId}/`;
-        if (!fs.existsSync(clientFirectory)) {
-          item.Photo = null;
-        } else {
-          let photoProfile = fs.readdirSync(clientFirectory).find((x) => x.toLowerCase().startsWith("profile"));
-          if (photoProfile != null) item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
-          else item.Photo = null;
-        }
-        return item;
+router.get(
+  "/GetClients",
+  keycloak.protect((token, req) => token.hasRole(`realm:bp_afficher`)),
+  async (request, response) => {
+    // Récupérer le token JWT de l'utilisateur authentifié
+    const tokenContent = request.kauth.grant.access_token.content;
+
+    const username = tokenContent.preferred_username; // Nom d'utilisateur
+    const email = tokenContent.email; // Email de l'utilisateur
+    const roles = tokenContent.realm_access.roles; // Rôles de l'utilisateur
+    const fullName = tokenContent.name; // Nom complet
+
+    // Log des informations utilisateur
+    console.log("Nom d'utilisateur :", username);
+    console.log("Email :", email);
+    console.log("Rôles de l'utilisateur :", roles);
+    console.log("Nom complet :", fullName);
+    await GetClients(request.query.CabinetId)
+      .then(async (res) => {
+        log.Info(`Get Clients : ${res} , efféctuer par :${username}`);
+        res = res.map((item) => {
+          let clientFirectory = `./Pieces/${item.ClientId}/`;
+          if (!fs.existsSync(clientFirectory)) {
+            item.Photo = null;
+          } else {
+            let photoProfile = fs.readdirSync(clientFirectory).find((x) => x.toLowerCase().startsWith("profile"));
+            if (photoProfile != null) item.Photo = `Pieces/${item.ClientId}/${photoProfile}`;
+            else item.Photo = null;
+          }
+          return item;
+        });
+        response.status(200).send(res);
+      })
+      .catch((error) => {
+        log.Error(error);
+        response.status(400).send(error);
       });
-      response.status(200).send(res);
-    })
-    .catch((error) => response.status(400).send(error));
-});
+  }
+);
 router.get("/GetClient", async (request, response) => {
   await GetClient(request.query.ClientId)
     .then(async (res) => {
@@ -91,6 +114,7 @@ router.get("/GetClient", async (request, response) => {
           },
           (error) => {
             console.log("Error promise.All: ", error);
+            log.Error("Get Client", error);
             client.Proches = null;
             client.ClientPieces = null;
             client.Patrimoines = null;
@@ -105,7 +129,10 @@ router.get("/GetClient", async (request, response) => {
         );
       } else response.status(200).send(null);
     })
-    .catch((error) => response.status(400).send(error));
+    .catch((error) => {
+      log.Error(error);
+      response.status(400).send(error);
+    });
 });
 router.post("/CreateClient", async (request, response) => {
   await CreateClient(request.body)
@@ -116,10 +143,13 @@ router.post("/CreateClient", async (request, response) => {
           for (let i = 0; i < request.body.Proches.length; i++) {
             await CreateProche(request.body.Proches[i])
               .then((resProche) => {
-                console.log("resProche: ", resProche);
+                // console.log("resProche: ", resProche);
+                if (resProche) log.Info("CreateProcheDone", request.body.Proches[i]);
+                else log.Warn("CreateProcheNotDone", request.body.Proches[i]);
               })
               .catch((errorProche) => {
-                console.log("ErrorProche: ", errorProche);
+                // console.log("ErrorProche: ", errorProche);
+                log.Error("CreateProcheError", request.body.Proches[i]);
               });
           }
         }
@@ -130,9 +160,11 @@ router.post("/CreateClient", async (request, response) => {
             await CreateConjoint(request.body.Conjoint[i])
               .then((resConjoint) => {
                 console.log("resConjoint: ", resConjoint);
+                log.Info("resProche", resConjoint);
               })
               .catch((errorConjoint) => {
                 console.log("ErrorConjoint: ", errorConjoint);
+                log.Info("ErrorConjoint", errorConjoint);
               });
           }
         }
@@ -142,9 +174,11 @@ router.post("/CreateClient", async (request, response) => {
           await CreateService(request.body.Service)
             .then((resService) => {
               console.log("resService: ", resService);
+              log.Info("resService", resService);
             })
             .catch((errorService) => {
               console.log("ErrorService: ", errorService);
+              log.Info("ErrorService", errorService);
             });
         }
 
@@ -154,9 +188,11 @@ router.post("/CreateClient", async (request, response) => {
             await CreateClientMission(request.body.ClientMission[i])
               .then((resClientMission) => {
                 console.log("resClientMission: ", resClientMission);
+                log.Info("resClientMission", resClientMission);
               })
               .catch((errorClientMission) => {
                 console.log("ErrorClientMission: ", errorClientMission);
+                log.Info("ErrorClientMission", errorClientMission);
               });
           }
         }
@@ -166,9 +202,11 @@ router.post("/CreateClient", async (request, response) => {
             await CreateClientMissionPrestation(request.body.ClientMissionPrestation[i])
               .then((resClientMissionPrestation) => {
                 console.log("resClientMissionPrestation: ", resClientMissionPrestation);
+                log.Info("resClientMissionPrestation", resClientMissionPrestation);
               })
               .catch((errorClientMissionPrestation) => {
                 console.log("ErrorClientMissionPrestation: ", errorClientMissionPrestation);
+                log.Info("ErrorClientMissionPrestation", errorClientMissionPrestation);
               });
           }
         }
@@ -178,9 +216,11 @@ router.post("/CreateClient", async (request, response) => {
             await CreateClientTache(request.body.ClientTaches[i])
               .then((resClientTaches) => {
                 console.log("resClientTaches: ", resClientTaches);
+                log.Info("resClientTaches", resClientTaches);
               })
               .catch((errorClientTaches) => {
                 console.log("errorClientTaches: ", errorClientTaches);
+                log.Info("errorClientTaches", errorClientTaches);
               });
           }
         }
@@ -188,17 +228,32 @@ router.post("/CreateClient", async (request, response) => {
 
       response.status(200).send(res);
     })
-    .catch((error) => response.status(400).send(error));
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.put("/UpdateClient", async (request, response) => {
   await UpdateClient(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.delete("/DeleteClient/:ClientId", async (request, response) => {
   await DeleteClient(request.params.ClientId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 
 // const readFile = utils.promisify(fs.readFile);
@@ -376,15 +431,12 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     // const fileName = `./pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`;
     const fileName = path.resolve(__dirname, `../pdfs/LM_M_${clientId}_${new Date().getTime()}.pdf`);
 
-
     // Options pour la génération du PDF
     const pdfOptions = { path: fileName, format: "A4", printBackground: true };
 
     const photo1 = getImageBase64(path.resolve(__dirname, "../templates/assets/LOGO-BGG.png"));
 
-    let imagesToReplace = [
-      { old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` },
-    ]
+    let imagesToReplace = [{ old: `<img src="../LOGO-BGG.png" alt="" style="height: 90px; width: 160px; opacity: 90%" />`, new: `<img src="${photo1}" alt="" style="height: 90px; width: 160px; opacity: 90%" />` }];
     // Générez le PDF avec les données du client
     const generatedPdfPath = await generatePdf(template, client, pdfOptions, imagesToReplace);
     const data = fs.readFileSync(generatedPdfPath);
@@ -396,6 +448,7 @@ router.get("/GetLettreMission/:ClientMissionId", async (req, res) => {
     res.send(data);
   } catch (error) {
     console.error("Error generating PDF: ", error);
+    log.Info(error);
     res.status(500).send(error);
   }
 });

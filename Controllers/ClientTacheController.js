@@ -3,6 +3,7 @@ var router = express.Router();
 const { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache } = require("../Infrastructure/ClientTacheRepository");
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
+const log = require("node-file-logger");
 
 function formatDateToDDMMYYYY(date) {
   const day = String(date.getDate()).padStart(2, "0"); // Obtenir le jour
@@ -21,6 +22,7 @@ function sendEmail(to, subject, htmlBody) {
   return new Promise((resolve, reject) => {
     mailer.sendMail(mailOptions, function (error, info) {
       if (error) {
+        log.Info(error);
         console.log(error);
         reject(error);
         // response.status(200).send("error email");
@@ -36,34 +38,70 @@ function sendEmail(to, subject, htmlBody) {
 //#region ClientTache
 router.get("/GetClientTaches", async (request, response) => {
   await GetClientTaches(request.query.ClientId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 
 router.get("/GetClientTachesSimple", async (request, response) => {
   await GetClientTachesSimple(request.query.ClientId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.get("/GetAllClientTaches", async (request, response) => {
   await GetAllClientTaches()
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.get("/GetUnassignedClientTache", async (request, response) => {
   await GetUnassignedClientTache(request.query.ClientId, request.query.PrestationId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.post("/CreateClientTache", async (request, response) => {
   await CreateClientTache(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.post("/CreateClientTacheCustom", async (request, response) => {
   await CreateClientTacheCustom(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.put("/UpdateClientTache", async (request, response) => {
   console.log("request body updateClientTache : ", request.body);
@@ -110,10 +148,13 @@ router.put("/UpdateClientTache", async (request, response) => {
         try {
           await sendEmail(agentEmail, emailSubject, emailBody);
           console.log("Email envoyé à l'agent :", agentEmail);
+          log.Info("Email envoyé à l'agent :", agentEmail);
         } catch (emailError) {
+          log.Info("Erreur lors de l'envoi de l'email :", emailError);
           console.error("Erreur lors de l'envoi de l'email :", emailError);
         }
       } else {
+        log.Info("Aucun email d'agent trouvé pour la tâche.");
         console.log("Aucun email d'agent trouvé pour la tâche.");
       }
     }
@@ -126,8 +167,14 @@ router.put("/UpdateClientTache", async (request, response) => {
 });
 router.delete("/DeleteClientTache/:ClientTacheId", async (request, response) => {
   await DeleteClientTache(request.params.ClientTacheId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 //#endregion CLientTache
 

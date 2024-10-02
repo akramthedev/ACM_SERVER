@@ -5,6 +5,7 @@ const fileUpload = require("express-fileupload");
 var router = express.Router();
 const { CreateClientPiece, DeleteClientPiece, GetClientPiece, UpdateClientPiece, GetClientPieces } = require("../Infrastructure/ClientPieceRepository");
 const { GetPieces } = require("../Infrastructure/PieceRepository");
+const log = require("node-file-logger");
 
 //#region ClientPiece
 router.get("/GetClientPieces", async (request, response) => {
@@ -22,13 +23,25 @@ router.get("/GetClientPieces", async (request, response) => {
 });
 router.get("/GetPieces", async (request, response) => {
   await GetPieces()
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.get("/GetClientPiecess", async (request, response) => {
   await GetClientPieces(request.query.ClientId)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 router.post("/CreateClientPiece", async (request, response) => {
   let ClientId = request.body.ClientId;
@@ -61,9 +74,11 @@ router.post("/CreateClientPiece", async (request, response) => {
     };
     await CreateClientPiece(newClientPiece).then(
       (res) => {
+        log.Info(res);
         response.status(200).send(res);
       },
       (err) => {
+        log.Info(err);
         response.status(500).send(err);
       }
     );
@@ -241,15 +256,19 @@ router.post("/UploadClientPieceFile", async (req, res) => {
         try {
           const updateResult = await UpdateClientPiece(req.body);
           console.log("Updated successfully");
+          log.Info("File uploaded and piece updated successfully ", updateResult);
           return res.status(200).json({ message: "File uploaded and piece updated successfully", updateResult });
         } catch (error) {
+          log.Info(error);
           console.error("Error updating client piece, deleting the uploaded file", error);
 
           // Delete the file if the update fails
           try {
             fs.unlinkSync(filePath);
             console.log(`Deleted file: ${filePath}`);
+            log.Info("Deleted file :", filePath);
           } catch (deleteError) {
+            log.Info(deleteError);
             console.error("Error deleting the file after failed update", deleteError);
           }
 
@@ -257,9 +276,11 @@ router.post("/UploadClientPieceFile", async (req, res) => {
         }
       });
     } else {
+      log.Info("No file provided");
       res.status(400).json({ error: "No file provided" });
     }
   } catch (error) {
+    log.Info(error);
     console.error("Error uploading client piece", error);
     res.status(500).json({ error: "Error uploading client piece" });
   }
@@ -274,9 +295,11 @@ router.delete("/deleteProfileImage/:ClientId/profile.:ext", (req, res) => {
     try {
       fs.unlinkSync(filePath);
       console.log(`Deleted image: ${filePath}`);
+      log.Info("Image de profil supprimée avec succès.");
       res.status(200).send("Image de profil supprimée avec succès.");
     } catch (error) {
       console.error(`Error deleting image: ${error}`);
+      log.Info(`Error deleting image: ${error}`);
       res.status(500).send("Erreur lors de la suppression de l'image.");
     }
   } else {
@@ -295,18 +318,33 @@ router.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => 
           fs.rmSync(fileNameToDelete);
 
           await DeleteClientPiece(request.params.ClientPieceId)
-            .then((res) => response.status(200).send(res))
-            .catch((error) => response.status(400).send(error));
+            .then((res) => {
+              log.Info(res);
+              response.status(200).send(res);
+            })
+            .catch((error) => {
+              log.Info(error);
+              response.status(400).send(error);
+            });
         } else response.status(200).send("not found");
       }
     })
-    .catch((error) => response.status(400).send(error));
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 
 router.put("/UpdateClientPiece", async (request, response) => {
   await UpdateClientPiece(request.body)
-    .then((res) => response.status(200).send(res))
-    .catch((error) => response.status(400).send(error));
+    .then((res) => {
+      log.Info(res);
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      log.Info(error);
+      response.status(400).send(error);
+    });
 });
 
 router.get("/DownloadClientPiece/:ClientPieceId", async (req, res) => {
@@ -325,6 +363,7 @@ router.get("/DownloadClientPiece/:ClientPieceId", async (req, res) => {
       res.status(404).send("File not found");
     }
   } catch (error) {
+    log.Info("Error downloading file: ", error);
     console.error("Error downloading file: ", error);
     res.status(500).send("Error downloading file");
   }
