@@ -21,7 +21,7 @@ var mailer = require("./Helper/mailer");
 // var crypto = require('crypto');
 // var guard = require('express-jwt-permissions')()
 const config = require("./config.json");
-let version = "1.0.2";
+let version = "1.0.3";
 const keycloak = require("./keycloak-config");
 // const keycloakConfig = require("./keycloak.json");
 
