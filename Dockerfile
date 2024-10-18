@@ -17,7 +17,7 @@
 FROM node
 WORKDIR /
 COPY package.json /
-RUN npm install
+RUN npm install --force
 COPY . /
 # COPY Pieces/ ./Pieces/
 CMD ["node","server.js"]
