@@ -23,7 +23,6 @@ const { generatePdf, getImageBase64 } = require("../Helper/pdf-gen");
 //#region Client
 router.get(
   "/GetClients",
-  keycloak.protect((token, req) => token.hasRole(`realm:bp_afficher`)),
   async (request, response) => {
     // Récupérer le token JWT de l'utilisateur authentifié
     const tokenContent = request.kauth.grant.access_token.content;
@@ -32,15 +31,18 @@ router.get(
     const email = tokenContent.email; // Email de l'utilisateur
     const roles = tokenContent.realm_access.roles; // Rôles de l'utilisateur
     const fullName = tokenContent.name; // Nom complet
+    const userId=tokenContent.sid
 
     // Log des informations utilisateur
     console.log("Nom d'utilisateur :", username);
     console.log("Email :", email);
     console.log("Rôles de l'utilisateur :", roles);
     console.log("Nom complet :", fullName);
+    console.log("user id :", userId);
+
     await GetClients(request.query.CabinetId)
       .then(async (res) => {
-        log.Info(`Get Clients : ${res} , efféctuer par :${username}`);
+        // log.Info(`Get Clients : ${JSON.stringify(res)} , efféctuer par :${username} , userId: ${userId}`);
         res = res.map((item) => {
           let clientFirectory = `./Pieces/${item.ClientId}/`;
           if (!fs.existsSync(clientFirectory)) {
@@ -138,14 +140,15 @@ router.post("/CreateClient", async (request, response) => {
   await CreateClient(request.body)
     .then(async (res) => {
       if (res != null && res == true) {
+        log.Info("CreateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
         // create proches
         if (request.body.Proches != null && request.body.Proches.length > 0) {
           for (let i = 0; i < request.body.Proches.length; i++) {
             await CreateProche(request.body.Proches[i])
               .then((resProche) => {
                 // console.log("resProche: ", resProche);
-                if (resProche) log.Info("CreateProcheDone", request.body.Proches[i]);
-                else log.Warn("CreateProcheNotDone", request.body.Proches[i]);
+                if (resProche) log.Info("CreateProche", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Proches[i]);
+                else log.Warn("CreateProche", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Proches[i]);
               })
               .catch((errorProche) => {
                 // console.log("ErrorProche: ", errorProche);
@@ -159,12 +162,13 @@ router.post("/CreateClient", async (request, response) => {
             console.log("request.body.Conjoint : ", request.body.Conjoint);
             await CreateConjoint(request.body.Conjoint[i])
               .then((resConjoint) => {
-                console.log("resConjoint: ", resConjoint);
-                log.Info("resProche", resConjoint);
+                console.log(`CreateConjoint: response : ${resConjoint}, object : ${JSON.stringify(request.body.Conjoint[i])}, création est faites par : ${request.kauth.grant.access_token.content.preferred_username}`);
+                // log.Info("CreateConjoint", resConjoint);
+                log.Info("CreateConjoint", resConjoint, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Conjoint[i]);
               })
               .catch((errorConjoint) => {
-                console.log("ErrorConjoint: ", errorConjoint);
-                log.Info("ErrorConjoint", errorConjoint);
+                console.log("ErrorCreateConjoint: ", errorConjoint);
+                log.Info("ErrorCreateConjoint", errorConjoint);
               });
           }
         }
@@ -173,12 +177,14 @@ router.post("/CreateClient", async (request, response) => {
         if (request.body.Service != null) {
           await CreateService(request.body.Service)
             .then((resService) => {
-              console.log("resService: ", resService);
-              log.Info("resService", resService);
+              log.Info("CreateService", resService, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Service);
+
+              console.log("CreateService: ", resService);
+              // log.Info("CreateService", resService);
             })
             .catch((errorService) => {
-              console.log("ErrorService: ", errorService);
-              log.Info("ErrorService", errorService);
+              console.log("ErrorCreateService: ", errorService);
+              log.Info("ErrorCreateService", errorService);
             });
         }
 
@@ -187,12 +193,14 @@ router.post("/CreateClient", async (request, response) => {
           for (let i = 0; i < request.body.ClientMission.length; i++) {
             await CreateClientMission(request.body.ClientMission[i])
               .then((resClientMission) => {
-                console.log("resClientMission: ", resClientMission);
-                log.Info("resClientMission", resClientMission);
+                log.Info("CreateClientMission", resClientMission, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientMission[i]);
+
+                console.log("CreateClientMission: ", resClientMission);
+                // log.Info("CreateClientMission", resClientMission);
               })
               .catch((errorClientMission) => {
-                console.log("ErrorClientMission: ", errorClientMission);
-                log.Info("ErrorClientMission", errorClientMission);
+                console.log("ErrorCreateClientMission: ", errorClientMission);
+                log.Info("ErrorCreateClientMission", errorClientMission);
               });
           }
         }
@@ -201,12 +209,14 @@ router.post("/CreateClient", async (request, response) => {
           for (let i = 0; i < request.body.ClientMissionPrestation.length; i++) {
             await CreateClientMissionPrestation(request.body.ClientMissionPrestation[i])
               .then((resClientMissionPrestation) => {
-                console.log("resClientMissionPrestation: ", resClientMissionPrestation);
-                log.Info("resClientMissionPrestation", resClientMissionPrestation);
+                log.Info("CreateClientMissionPrestation", resClientMissionPrestation, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientMissionPrestation[i]);
+
+                console.log("CreateClientMissionPrestation: ", resClientMissionPrestation);
+                // log.Info("CreateClientMissionPrestation", resClientMissionPrestation);
               })
               .catch((errorClientMissionPrestation) => {
-                console.log("ErrorClientMissionPrestation: ", errorClientMissionPrestation);
-                log.Info("ErrorClientMissionPrestation", errorClientMissionPrestation);
+                console.log("ErrorCreateClientMissionPrestation: ", errorClientMissionPrestation);
+                log.Info("ErrorCreateClientMissionPrestation", errorClientMissionPrestation);
               });
           }
         }
@@ -215,12 +225,14 @@ router.post("/CreateClient", async (request, response) => {
           for (let i = 0; i < request.body.ClientTaches.length; i++) {
             await CreateClientTache(request.body.ClientTaches[i])
               .then((resClientTaches) => {
-                console.log("resClientTaches: ", resClientTaches);
-                log.Info("resClientTaches", resClientTaches);
+                log.Info("CreateClientTache", resClientTaches, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTaches[i]);
+
+                console.log("CreateClientTaches: ", resClientTaches);
+                // log.Info("CreateClientTaches", resClientTaches);
               })
               .catch((errorClientTaches) => {
-                console.log("errorClientTaches: ", errorClientTaches);
-                log.Info("errorClientTaches", errorClientTaches);
+                console.log("errorCreateClientTaches: ", errorClientTaches);
+                log.Info("errorCreateClientTaches", errorClientTaches);
               });
           }
         }
@@ -236,7 +248,8 @@ router.post("/CreateClient", async (request, response) => {
 router.put("/UpdateClient", async (request, response) => {
   await UpdateClient(request.body)
     .then((res) => {
-      log.Info(res);
+      // log.Info(res);
+      log.Info("UpdateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
       response.status(200).send(res);
     })
     .catch((error) => {
@@ -247,7 +260,8 @@ router.put("/UpdateClient", async (request, response) => {
 router.delete("/DeleteClient/:ClientId", async (request, response) => {
   await DeleteClient(request.params.ClientId)
     .then((res) => {
-      log.Info(res);
+      // log.Info(res);
+      log.Info("DeleteClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, `client deleted : ${request.params.ClientId}`);
       response.status(200).send(res);
     })
     .catch((error) => {

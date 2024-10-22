@@ -7,11 +7,15 @@ const log = require("node-file-logger");
 router.get("/GetTaches", async (request, response) => {
   await GetTaches()
     .then((res) => {
-      log.Info(res);
+      // log.Info(`Get Taches : ${JSON.stringify(res)} `);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error(`Get Taches Error: ${error} `);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });

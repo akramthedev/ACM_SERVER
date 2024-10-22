@@ -81,10 +81,14 @@ router.post("/CreatePatrimoine", async (request, response) => {
           });
       });
     } else {
+      log.Info("CreatePatrimoine", newPatrimoine, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
       response.status(200).send(newPatrimoine);
     }
   } catch (error) {
-    log.Info("Error creating patrimoine", error);
+    log.Error("CreatePatrimoine Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+    // log.Info("Error creating patrimoine", error);
     console.error("Error creating patrimoine", error);
     response.status(500).send("Error creating patrimoine");
   }
@@ -93,11 +97,15 @@ router.post("/CreatePatrimoine", async (request, response) => {
 router.put("/UpdatePatrimoine", async (request, response) => {
   await UpdatePatrimoine(request.body)
     .then((res) => {
-      log.Info(res);
+      log.Info("UpdatePatrimoine", JSON.stringify(res), `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      log.Error("UpdatePatrimoine Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
@@ -123,14 +131,15 @@ router.delete("/DeletePatrimoine", async (request, response) => {
       } else {
         console.log(`Document ${documentPath} does not exist`);
       }
+      log.Info("DeletePatrimoine", deleteResult, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, patrimoineId);
 
       response.status(200).json({ message: "Patrimoine and its document deleted successfully" });
     } else {
-      log.Info("Error deleting patrimoine");
+      log.Info("DeletePatrimoine Error", deleteResult, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, patrimoineId);
       response.status(400).json({ error: "Error deleting patrimoine" });
     }
   } catch (error) {
-    log.Info("Error deleting patrimoine", error);
+    log.Info("DeletePatrimoine Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, patrimoineId);
     console.error("Error deleting patrimoine", error);
     response.status(500).json({ error: "Error deleting patrimoine" });
   }

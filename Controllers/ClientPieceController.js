@@ -24,22 +24,30 @@ router.get("/GetClientPieces", async (request, response) => {
 router.get("/GetPieces", async (request, response) => {
   await GetPieces()
     .then((res) => {
-      log.Info(res);
+      // log.Info(res);
+      // log.Info("GetPieces", JSON.stringify(res), `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`,null);
+
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetPieces Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, null);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
 router.get("/GetClientPiecess", async (request, response) => {
   await GetClientPieces(request.query.ClientId)
     .then((res) => {
-      log.Info(res);
+      // log.Info("GetClientPieces", JSON.stringify(res), `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetClientPieces Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
@@ -74,11 +82,15 @@ router.post("/CreateClientPiece", async (request, response) => {
     };
     await CreateClientPiece(newClientPiece).then(
       (res) => {
-        log.Info(res);
+        log.Info("CreateClientPiece", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, newClientPiece);
+
+        // log.Info(res);
         response.status(200).send(res);
       },
       (err) => {
-        log.Info(err);
+        log.Error("CreateClientPiece Error", err, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, null);
+
+        // log.Info(err);
         response.status(500).send(err);
       }
     );
@@ -319,11 +331,15 @@ router.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => 
 
           await DeleteClientPiece(request.params.ClientPieceId)
             .then((res) => {
-              log.Info(res);
+              log.Info("DeleteClientPiece", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientPieceId);
+
+              // log.Info(res);
               response.status(200).send(res);
             })
             .catch((error) => {
-              log.Info(error);
+              log.Error("DeleteClientPiece Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientPieceId);
+
+              // log.Info(error);
               response.status(400).send(error);
             });
         } else response.status(200).send("not found");
@@ -338,11 +354,15 @@ router.delete("/DeleteClientPiece/:ClientPieceId", async (request, response) => 
 router.put("/UpdateClientPiece", async (request, response) => {
   await UpdateClientPiece(request.body)
     .then((res) => {
-      log.Info(res);
+      log.Info("UpdateClientPiece", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      log.Error("UpdateClientPiece Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
@@ -358,6 +378,8 @@ router.get("/DownloadClientPiece/:ClientPieceId", async (req, res) => {
 
     const filePath = path.join(__dirname, `../Pieces/${piece[0].ClientId}/${piece[0].ClientPieceId}.${piece[0].Extension}`);
     if (fs.existsSync(filePath)) {
+      log.Info("DownloadClientPiece : ", filePath);
+
       res.download(filePath); // This triggers the file download
     } else {
       res.status(404).send("File not found");

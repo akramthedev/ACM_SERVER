@@ -39,11 +39,15 @@ function sendEmail(to, subject, htmlBody) {
 router.get("/GetClientTaches", async (request, response) => {
   await GetClientTaches(request.query.ClientId)
     .then((res) => {
-      log.Info(res);
+      // log.Info("GetClientTaches", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetClientTaches Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
@@ -51,55 +55,75 @@ router.get("/GetClientTaches", async (request, response) => {
 router.get("/GetClientTachesSimple", async (request, response) => {
   await GetClientTachesSimple(request.query.ClientId)
     .then((res) => {
-      log.Info(res);
+      // log.Info("GetClientTachesSimple", JSON.stringify(res), `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetClientTachesSimple Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.query.ClientId);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
 router.get("/GetAllClientTaches", async (request, response) => {
   await GetAllClientTaches()
     .then((res) => {
-      log.Info(res);
+      // log.Info("GetAllClientTaches", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, null);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetAllClientTaches Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, null);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
 router.get("/GetUnassignedClientTache", async (request, response) => {
   await GetUnassignedClientTache(request.query.ClientId, request.query.PrestationId)
     .then((res) => {
-      log.Info(res);
+      // log.Info("GetUnassignedClientTache", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, `${request.query.ClientId} , ${ request.query.PrestationId}`);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      // log.Error("GetUnassignedClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, `${request.query.ClientId} , ${ request.query.PrestationId}`);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
 router.post("/CreateClientTache", async (request, response) => {
   await CreateClientTache(request.body)
     .then((res) => {
-      log.Info(res);
+      log.Info("CreateClientTache", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+console.log("dans la methode ")
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      log.Error("CreateClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
 router.post("/CreateClientTacheCustom", async (request, response) => {
   await CreateClientTacheCustom(request.body)
     .then((res) => {
-      log.Info(res);
+      log.Info("CreateClientTacheCustom", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      log.Error("CreateClientTacheCustom Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
@@ -125,6 +149,7 @@ router.put("/UpdateClientTache", async (request, response) => {
 
     // Récupérer les détails de la tâche après la mise à jour
     const clientTacheDetails = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
+    log.Info("Tache updated successfully", JSON.stringify(clientTacheDetails), `Updated by: ${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
 
     console.log("response GetClientTacheDetailsForEmail : ", clientTacheDetails);
     console.log("originalstatus : ", originalStatus);
@@ -162,17 +187,22 @@ router.put("/UpdateClientTache", async (request, response) => {
     // Envoyer la réponse avec les détails de la tâche, même si l'email échoue
     return response.status(200).send(clientTacheDetails);
   } catch (error) {
+    log.Error("UpdateClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
+
     return response.status(400).send(error);
   }
 });
 router.delete("/DeleteClientTache/:ClientTacheId", async (request, response) => {
   await DeleteClientTache(request.params.ClientTacheId)
     .then((res) => {
-      log.Info(res);
+      log.Info("DeleteClientTache", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientTacheId);
+      // log.Info(res);
       response.status(200).send(res);
     })
     .catch((error) => {
-      log.Info(error);
+      log.Error("DeleteClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientTacheId);
+
+      // log.Info(error);
       response.status(400).send(error);
     });
 });
