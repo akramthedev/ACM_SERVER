@@ -157,12 +157,16 @@ router.put("/UpdateClientTache", async (request, response) => {
     // Essayer d'envoyer l'email si le statut passe de "non terminé" à "Terminé"
     if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
       const agentEmail = clientTacheDetails[0]?.AgentEmail;
+      const clientNom=clientTacheDetails[0]?.ClientNom
+      const clientPrenom=clientTacheDetails[0]?.ClientPrenom
+
 
       if (agentEmail) {
-        const emailSubject = `Tâche terminée : ${request.body.Intitule}`;
+        const emailSubject = `Tâche terminée pour ${clientPrenom} ${clientNom} : ${request.body.Intitule}`;
         const emailBody = `
           <p>La tâche suivante a été marquée comme terminée :</p>
           <ul>
+            <li><strong>Client :</strong> ${clientPrenom} ${clientNom}</li>
             <li><strong>Intitulé :</strong> ${request.body.Intitule}</li>
             <li><strong>Date d'exécution :</strong> ${formatDateToDDMMYYYY(request.body.Date_Execution) || "Non spécifiée"}</li>
           </ul>
