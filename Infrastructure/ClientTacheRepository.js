@@ -209,23 +209,27 @@ function CreateClientTacheCustom(data) {
 function UpdateClientTache(data) {
   return new Promise((resolve, reject) => {
     new sql.Request()
-      .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
-      .input("ClientMissionPrestationId", sql.UniqueIdentifier, data.ClientMissionPrestationId)
-      .input("ClientMissionId", sql.UniqueIdentifier, data.ClientMissionId)
-      .input("TacheId", sql.UniqueIdentifier, data.TacheId)
-      .input("Intitule", sql.NVarChar(255), data.Intitule)
-      .input("Numero_Ordre", sql.NVarChar(255), data.Numero_Ordre)
-      .input("Commentaire", sql.NVarChar(255), data.Commentaire)
-      .input("Deadline", sql.Float, data.Deadline)
-      .input("DateButoir", sql.Date, data.DateButoir)
-      .input("Date_Execution", sql.Date, data.Date_Execution)
-      .input("Status", sql.NVarChar(255), data.Status)
-      .input("AgentResposable", sql.NVarChar(255), data.AgentResposable)
+      .input("start_date", sql.DateTime, data.start_date)
+      .input("end_date", sql.DateTime, data.end_date)
       .execute("ps_update_ClientTache")
       .then((result) => resolve(result.rowsAffected[0] > 0))
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+function UpdateClientTacheDates(data) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientTacheId", sql.DateTime, data.ClientTacheId)
+      .input("start_date", sql.DateTime, data.start_date)
+      .input("end_date", sql.DateTime, data.end_date)
+      .execute("ps_update_ClientTache_Dates")
+      .then((result) => resolve(result.rowsAffected[0] > 0))
+      .catch((error) => reject(error?.originalError?.info?.message));
+  });
+}
+
+
 function DeleteClientTache(ClientTacheId) {
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -236,4 +240,4 @@ function DeleteClientTache(ClientTacheId) {
   });
 }
 
-module.exports = { GetClientTaches,GetClientTachesAllOfThem,  MarkAsDone, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
+module.exports = { GetClientTaches,GetClientTachesAllOfThem,  MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };

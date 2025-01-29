@@ -196,6 +196,55 @@ BEGIN
 END;
 GO
 
+
+
+
+
+
+
+CREATE PROCEDURE ps_update_ClientTache_Dates
+    @ClientTacheId UNIQUEIDENTIFIER,
+    @start_date DATETIME,
+    @end_date DATETIME
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Vérifier que la date de début n'est pas après la date de fin
+        IF @start_date > @end_date
+        BEGIN
+            THROW 50001, 'La date de début ne peut pas être après la date de fin.', 1;
+        END
+
+        -- Vérifier si le ClientTacheId existe avant la mise à jour
+        IF EXISTS (SELECT 1 FROM ClientTache WHERE ClientTacheId = @ClientTacheId)
+        BEGIN
+            -- Mise à jour de la table ClientTache avec les nouvelles valeurs
+            UPDATE ClientTache
+            SET 
+                end_date = @end_date,
+                start_date = @start_date
+            WHERE ClientTacheId = @ClientTacheId;
+        END
+        ELSE
+        BEGIN
+            THROW 50000, 'ClientTacheId introuvable.', 1;
+        END
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+
+
+
+
+
 CREATE PROCEDURE ps_get_client_taches_simple
     @ClientId UNIQUEIDENTIFIER
 AS

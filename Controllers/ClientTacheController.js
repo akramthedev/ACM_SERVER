@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches, CreateClientTache,MarkAsDone,  UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache,MarkAsDone,  UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
 const log = require("node-file-logger");
@@ -154,6 +154,39 @@ router.post("/CreateClientTacheCustom", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
+
+
+
+router.put("/UpdateClientTacheDates", async (request, response) => {
+  console.log("request body UpdateClientTacheDates : ", request.body);
+
+  try {
+    const originalTask = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
+    const originalStatus = originalTask[0]?.Status; 
+
+    if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
+      request.body.Date_Execution = new Date();
+    } else if (originalStatus === "Terminé" || request.body.Date_Execution === null) {
+      request.body.Date_Execution = originalTask[0].Date_Execution;  
+    }
+
+    await UpdateClientTache(request.body);
+    
+    return response.status(200).send("Vini Vidi Vici");
+  } catch (error) {
+    log.Error("UpdateClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
+
+    return response.status(400).send(error);
+  }
+});
+
+
+
+
 router.put("/UpdateClientTache", async (request, response) => {
   console.log("request body updateClientTache : ", request.body);
 
