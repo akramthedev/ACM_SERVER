@@ -169,6 +169,7 @@ function CreateClientTache(data) {
       .input("end_date", sql.DateTime, data.end_date)     // New field: end_date
       .input("color", sql.VarChar(7), data.color || '#7366fe') // New field: color (default if not provided)
       .input("isDone", sql.Bit, 0)                        // New field: isDone (default to 0)
+      .input("Intitule", sql.NVarChar(250), data.Intitule)                        // New field: isDone (default to 0)
       .execute("ps_create_client_tache")
       .then((result) => {
         if (result.rowsAffected[0] > 0) {

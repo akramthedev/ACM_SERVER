@@ -147,11 +147,40 @@ CREATE TABLE ClientTache(
     DateButoir Date,
     Date_Execution Date,
     Status NVARCHAR(255),
-    AgentResposable NVARCHAR(255)
+    AgentResposable NVARCHAR(255), 
+     color VARCHAR(7) DEFAULT '#7366fe' NULL,  
+    isDone BIT DEFAULT 0 , 
+    isReminder BIT DEFAULT 0, 
+    start_date DATETIME NULL, 
+    end_date DATETIME NULL, 
     FOREIGN KEY (ClientMissionPrestationId) REFERENCES ClientMissionPrestation(ClientMissionPrestationId),
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
 );
+
+
+
+
+
+
+
+CREATE TABLE Evenements (
+    EventId INT IDENTITY(1,1) PRIMARY KEY,
+    TacheId UNIQUEIDENTIFIER NOT NULL,
+    EventName VARCHAR(50) NULL, 
+    EventTimeStart DATETIME NULL, 
+	EventTimeEnd DATETIME NULL, 
+    EventDescription VARCHAR(250) NULL, 
+    color VARCHAR(10) DEFAULT '#7366fe',  
+    isDone BIT DEFAULT 0, 
+    CONSTRAINT FK_Evenements_ClientTache FOREIGN KEY (TacheId) REFERENCES ClientTache(ClientTacheId)
+);
+
+
+
+
+
+
 
 CREATE PROCEDURE ps_get_client_taches
     @ClientId uniqueidentifier
@@ -495,35 +524,76 @@ GO
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 CREATE TRIGGER trg_CreateEventsForTask
 ON ClientTache
-AFTER INSERT, UPDATE
+AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF EXISTS (
-        SELECT 1
-        FROM Inserted i
-        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000 
-    )
-    BEGIN
-        INSERT INTO Evenements (TacheId, EventName, EventTime, EventDescription)
-        SELECT 
-            i.ClientTacheId,  
-            'Midpoint Reminder',
-            DATEADD(SECOND, DATEDIFF(SECOND, i.start_date, i.end_date) / 2, i.start_date),  
-            'This is the midpoint event for the task.'
-        FROM Inserted i
-        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000;
+    DECLARE @TacheId UNIQUEIDENTIFIER, @StartDate DATETIME, @EndDate DATETIME, @IntituleTask NVARCHAR(MAX), @DiffHours INT;
+    DECLARE @RandomColor VARCHAR(7);
 
-        INSERT INTO Evenements (TacheId, EventName, EventTime, EventDescription)
-        SELECT 
-            i.ClientTacheId,  
-            'Pre-Finish Reminder',
-            DATEADD(SECOND, - DATEDIFF(SECOND, i.start_date, i.end_date) / 5, i.end_date),  
-            'This is the pre-finish event for the task.'
-        FROM Inserted i
-        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000;
-    END
+    -- Table variable to store predefined colors
+    DECLARE @Colors TABLE (Color VARCHAR(7));
+    INSERT INTO @Colors (Color) VALUES 
+        ('#6366f1'), ('#eab308'), ('#22c55e'), ('#3b82f6'), ('#ec4899'),
+        ('#ea2e08'), ('#06c27d'), ('#b007b0'), ('#07128f'), ('#5c5c5c');
+
+    -- Cursor to iterate over inserted rows
+    DECLARE task_cursor CURSOR FOR 
+    SELECT ClientTacheId, start_date, end_date, Intitule 
+    FROM Inserted;
+
+    OPEN task_cursor;
+    FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Generate a random color from the list
+        SELECT TOP 1 @RandomColor = Color FROM @Colors
+        ORDER BY NEWID();
+
+        -- Calculate time difference in hours
+        SET @DiffHours = DATEDIFF(HOUR, @StartDate, @EndDate);
+
+        -- Insert events with the randomly chosen color
+        IF @DiffHours BETWEEN 2 AND 24
+        BEGIN
+            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color)
+            VALUES 
+            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 3, @StartDate), DATEADD(MINUTE, 20, DATEADD(HOUR, @DiffHours / 3, @StartDate)), 'Event at first point', @RandomColor),
+            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate), DATEADD(MINUTE, 20, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate)), 'Event at second point', @RandomColor);
+        END
+        ELSE IF @DiffHours BETWEEN 24 AND 5000
+        BEGIN
+            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color)
+            VALUES 
+            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 4, @StartDate), DATEADD(MINUTE, 20, DATEADD(HOUR, @DiffHours / 4, @StartDate)), 'First event', @RandomColor),
+            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 4, @StartDate), DATEADD(MINUTE, 20, DATEADD(HOUR, 2 * @DiffHours / 4, @StartDate)), 'Second event', @RandomColor),
+            (@TacheId, @IntituleTask, DATEADD(HOUR, 3 * @DiffHours / 4, @StartDate), DATEADD(MINUTE, 20, DATEADD(HOUR, 3 * @DiffHours / 4, @StartDate)), 'Third event', @RandomColor);
+        END
+        -- Fetch next record
+        FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask;
+    END;
+
+    CLOSE task_cursor;
+    DEALLOCATE task_cursor;
 END;
