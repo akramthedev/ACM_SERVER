@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache,MarkAsDone,  UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
 const log = require("node-file-logger");
@@ -56,6 +56,7 @@ router.get("/GetClientTaches", async (request, response) => {
 router.get("/GetClientTachesAllOfThem", async (request, response) => {
   await GetClientTachesAllOfThem()
     .then((res) => {
+      console.log(res);
       response.status(200).send(res);
     })
     .catch((error) => {
@@ -64,204 +65,16 @@ router.get("/GetClientTachesAllOfThem", async (request, response) => {
 });
 
 
-/*
-
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-  DO NOT TOUCH THIS 
-
-
-
-*/
-
-
+router.put('/MarkAsDone/:ClientTacheId', async (req, res) => {
+  try {
+    console.log("A Executed...")
+    const { ClientTacheId } = req.params;  
+    await MarkAsDone(ClientTacheId);  
+    res.status(200).json({ message: "Tâche marquée comme faite avec succès." });
+  } catch (error) {
+    res.status(500).json({ error: error.toString() });
+  }
+});
 
 
 router.get("/GetClientTachesSimple", async (request, response) => {
@@ -283,7 +96,9 @@ router.get("/GetAllClientTaches", async (request, response) => {
   await GetAllClientTaches()
     .then((res) => {
       // log.Info("GetAllClientTaches", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, null);
-
+      console.log('666');
+      console.log(res);
+      console.log("666");
       // log.Info(res);
       response.status(200).send(res);
     })

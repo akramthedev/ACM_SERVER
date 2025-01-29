@@ -19,18 +19,80 @@ function GetClientTaches(ClientId) {
 
 
 
+
+
+
+
+
 function GetClientTachesAllOfThem() {
   console.log("GetClientTachesAllOfThem Function Executed...");
   return new Promise((resolve, reject) => {
     new sql.Request()
-      .query("SELECT * FROM ClientTache")  
+      .query(`
+        SELECT 
+            ct.ClientTacheId,
+            cmp.ClientMissionPrestationId,
+            cm.ClientMissionId,
+            cm.ClientId,
+            cl.Nom AS ClientNom,          
+            cl.Prenom AS ClientPrenom,
+            cl.DateNaissance AS ClientDateNaissance,
+            cl.Photo AS ClientPhoto,
+            cl.Profession AS ClientProfession,
+            cl.DateRetraite AS ClientDateRetraite,
+            cl.NumeroSS AS ClientNumeroSS,
+            cl.Adresse AS ClientAdresse,
+            cl.Email1 AS ClientEmail1,
+            cl.Email2 AS ClientEmail2,
+            cl.Telephone1 AS ClientTelephone1,
+            cl.Telephone2 AS ClientTelephone2,
+            cl.HasConjoint AS ClientHasConjoint,
+            cl.SituationFamiliale AS ClientSituationFamiliale,
+            m.Designation AS MissionDesignation,
+            t.TacheId,
+            t.Intitule AS TacheIntitule,
+            p.PrestationId,
+            p.Designation AS PrestationDesignation,
+            p.Description AS PrestationDescription,
+            t.Description AS TacheDescription,
+            ct.Intitule AS ClientTacheIntitule,
+            t.Numero_Ordre,
+            ct.Commentaire AS Commentaire,
+            ct.Deadline,
+            ct.DateButoir,
+            ct.Date_Execution,
+            ct.Intitule AS TacheClientIntitule, 
+            ct.start_date AS start_date , 
+            ct.end_date AS end_date, 
+            ct.isReminder AS isReminder, 
+            ct.isDone AS isDone ,
+            ct.color AS color, 
+            ct.Status AS Status,
+            ag.Nom AS AgentNom
+        FROM ClientTache ct
+        LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+        LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+        LEFT JOIN Mission m ON cm.MissionId = m.MissionId
+        LEFT JOIN Tache t ON ct.TacheId = t.TacheId
+        LEFT JOIN Prestation p ON t.PrestationId = p.PrestationId
+        LEFT JOIN Client cl ON cm.ClientId = cl.ClientId
+        LEFT JOIN Agent ag ON t.AgentId = ag.AgentId
+      `)  
       .then((result) => {
+        console.log("Tâches récupérées :", result.recordset);
         resolve(result.recordset);
-        console.log(result.recordset);
       })
-      .catch((error) => reject(error?.originalError?.info?.message || error.message));
+      .catch((error) => {
+        console.error("Erreur lors de la récupération des tâches :", error);
+        reject(error?.originalError?.info?.message || error.message);
+      });
   });
 }
+
+
+
+
+
 
 
 
@@ -63,6 +125,34 @@ function GetUnassignedClientTache(ClientId, PrestationId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+
+
+
+
+function MarkAsDone(ClientTacheId) {
+  console.log("B Executed...");
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId)
+      .input("isDone", sql.Bit, 1) 
+      .input("color", sql.VarChar(7), "#28a745") 
+      .query("UPDATE ClientTache SET isDone = @isDone, color = @color WHERE ClientTacheId = @ClientTacheId")
+      .then((result) => {
+        if (result.rowsAffected[0] > 0) {
+          resolve(true);
+        } else {
+          reject("Aucune tâche mise à jour, l'ID est peut-être incorrect.");
+        }
+      })
+      .catch((error) => reject(error?.originalError?.info?.message || error.message));
+  });
+}
+
+
+
+
+
 
 
 function CreateClientTache(data) {
@@ -146,4 +236,4 @@ function DeleteClientTache(ClientTacheId) {
   });
 }
 
-module.exports = { GetClientTaches,GetClientTachesAllOfThem,  CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
+module.exports = { GetClientTaches,GetClientTachesAllOfThem,  MarkAsDone, CreateClientTache, UpdateClientTache, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };

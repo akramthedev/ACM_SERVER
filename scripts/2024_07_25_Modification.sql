@@ -283,6 +283,9 @@ UPDATE Tache
 SET AgentId = '3d9d1ac0-ac20-469e-be24-97cb3c8c5187' //Redouane
 
 
+
+
+
 CREATE PROCEDURE ps_get_all_client_taches
 AS
 BEGIN
@@ -291,7 +294,7 @@ BEGIN
         cmp.ClientMissionPrestationId,
         cm.ClientMissionId,
         cm.ClientId,
-        m.Designation AS MissionDesignation,  -- Include MissionDesignation
+        m.Designation AS MissionDesignation,  
         t.TacheId,
         t.Intitule AS TacheIntitule,
         p.PrestationId,
@@ -313,13 +316,16 @@ BEGIN
     LEFT JOIN 
         ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
     LEFT JOIN 
-        Mission m ON cm.MissionId = m.MissionId   -- Join with Mission to get MissionDesignation
+        Mission m ON cm.MissionId = m.MissionId   
     LEFT JOIN 
         Tache t ON ct.TacheId = t.TacheId
     LEFT JOIN 
         Prestation p ON t.PrestationId = p.PrestationId
 END
 GO
+
+
+
 
 ALTER PROCEDURE ps_get_all_client_taches
 AS
@@ -329,7 +335,7 @@ BEGIN
         cmp.ClientMissionPrestationId,
         cm.ClientMissionId,
         cm.ClientId,
-        cl.Nom AS ClientNom,          -- Client information
+        cl.Nom AS ClientNom,          
         cl.Prenom AS ClientPrenom,
         cl.DateNaissance AS ClientDateNaissance,
         cl.Photo AS ClientPhoto,
@@ -357,7 +363,7 @@ BEGIN
         ct.DateButoir,
         ct.Date_Execution,
         ct.Status,
-        ag.Nom AS AgentNom               -- Agent information
+        ag.Nom AS AgentNom
     FROM 
         ClientTache ct
     LEFT JOIN 
@@ -394,6 +400,9 @@ BEGIN
         ct.Date_Execution,
         ct.Status,
         ct.AgentResposable,
+        m.Designation, 
+        p.Designation, 
+        t.Intitule, 
         p.Designation AS PrestationDesignation  -- Include PrestationDesignation
     FROM 
         ClientTache ct
