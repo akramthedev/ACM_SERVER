@@ -34,7 +34,7 @@ function GetClientTachesAllOfThem() {
             cmp.ClientMissionPrestationId,
             cm.ClientMissionId,
             cm.ClientId,
-            cl.Nom AS ClientNom,          
+            cl.Nom AS ClientNom,    
             cl.Prenom AS ClientPrenom,
             cl.DateNaissance AS ClientDateNaissance,
             cl.Photo AS ClientPhoto,
