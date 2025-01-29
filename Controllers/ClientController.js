@@ -19,6 +19,9 @@ const { CreateClientMission, GetClientMissions, GetLettreMissions } = require(".
 const { GetClientMissionPrestations, CreateClientMissionPrestation } = require("../Infrastructure/ClientMissionPrestationRepository");
 const { GetClientTaches, CreateClientTache } = require("../Infrastructure/ClientTacheRepository");
 const { generatePdf, getImageBase64 } = require("../Helper/pdf-gen");
+const sql = require("mssql");
+
+
 
 //#region Client
 router.get(
@@ -62,6 +65,8 @@ router.get(
       });
   }
 );
+
+
 router.get("/GetClient", async (request, response) => {
   await GetClient(request.query.ClientId)
     .then(async (res) => {
@@ -136,7 +141,14 @@ router.get("/GetClient", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
 router.post("/CreateClient", async (request, response) => {
+
+
+  
   await CreateClient(request.body)
     .then(async (res) => {
       if (res != null && res == true) {
@@ -220,24 +232,53 @@ router.post("/CreateClient", async (request, response) => {
               });
           }
         }
-        // create ClientTache
-        if (request.body.ClientTaches != null && request.body.ClientTaches.length > 0) {
-          for (let i = 0; i < request.body.ClientTaches.length; i++) {
-            await CreateClientTache(request.body.ClientTaches[i])
-              .then((resClientTaches) => {
-                log.Info("CreateClientTache", resClientTaches, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTaches[i]);
 
-                console.log("CreateClientTaches: ", resClientTaches);
-                // log.Info("CreateClientTaches", resClientTaches);
+        
+        
+        const clientTaches = request.body.ClientTaches;
+
+        if (Array.isArray(clientTaches) && clientTaches.length > 0) {
+
+          console.log("Index A");
+
+
+          for (const tache of clientTaches) {
+            
+            const request = new sql.Request();
+
+            let isR = 0;
+            if(tache.IsReminder === false){
+              isR = 0;
+            }
+            else{
+              isR = 1; 
+            }
+            
+
+            request
+              .input("ClientTacheId", sql.UniqueIdentifier, tache.ClientTacheId)
+              .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
+              .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
+              .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
+              .input("Intitule", sql.VarChar(200), tache.Intitule)
+              .input("Commentaire", sql.VarChar(200), tache.Commentaire)              
+              .input("start_date", sql.DateTime, tache.Start_date)  
+              .input("end_date", sql.DateTime, tache.End_date)     
+              .input("color", sql.VarChar(7), tache.Color || '#7366fe')  
+              .input("isDone", sql.Bit, 0)    
+              .input("isReminder", sql.Bit, isR || 0)                         
+              .execute("ps_create_client_tache")
+              .then((resClientTaches) => {
+                console.log("Index B")
+                console.log(resClientTaches);
               })
-              .catch((errorClientTaches) => {
-                console.log("errorCreateClientTaches: ", errorClientTaches);
-                log.Info("errorCreateClientTaches", errorClientTaches);
+              .catch((error) => {
+                console.log("Error: ", error);
+                console.warn("Error: ", error);
               });
           }
         }
       }
-
       response.status(200).send(res);
     })
     .catch((error) => {
@@ -245,6 +286,13 @@ router.post("/CreateClient", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
+
+
+
 router.put("/UpdateClient", async (request, response) => {
   await UpdateClient(request.body)
     .then((res) => {
@@ -257,6 +305,10 @@ router.put("/UpdateClient", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
 router.delete("/DeleteClient/:ClientId", async (request, response) => {
   await DeleteClient(request.params.ClientId)
     .then((res) => {

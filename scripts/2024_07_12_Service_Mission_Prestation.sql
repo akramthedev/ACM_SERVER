@@ -178,7 +178,12 @@ BEGIN
         ct.DateButoir,
         ct.Date_Execution,
         ct.Status,
-        ct.AgentResposable
+        ct.AgentResposable, 
+        ct.start_date AS Start_Date,
+        ct.end_date AS End_Date, 
+        ct.isDone AS IsDone , 
+        ct.isReminder  AS IsReminder, 
+        ct.color AS Color
     FROM 
         ClientTache ct
     LEFT JOIN 
@@ -200,10 +205,17 @@ create proc ps_create_client_tache
     @ClientTacheId uniqueidentifier,
     @ClientMissionPrestationId uniqueidentifier,
     @ClientMissionId uniqueidentifier,
-    @TacheId uniqueidentifier
+    @TacheId uniqueidentifier, 
+    @Intitule VARCHAR(200), 
+    @Commentaire VARCHAR(200), 
+    @start_date DATETIME,       
+    @end_date DATETIME,         
+    @color VARCHAR(7),         
+    @isDone BIT,                
+    @isReminder BIT                
 AS
-    insert into ClientTache(ClientTacheId,ClientMissionPrestationId,ClientMissionId,TacheId)
-    values(@ClientTacheId,@ClientMissionPrestationId,@ClientMissionId,@TacheId)
+    INSERT INTO ClientTache (ClientTacheId, ClientMissionPrestationId, ClientMissionId, TacheId,Intitule,Commentaire, start_date, end_date, color, isDone, isReminder)
+    VALUES (@ClientTacheId, @ClientMissionPrestationId, @ClientMissionId, @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder);
 GO
 ----------------------------------------------------------17/07/2024-------------------------------------------------------------
 
@@ -473,3 +485,45 @@ ORDER BY
  
 END
 GO
+
+
+
+
+
+
+
+
+
+
+CREATE TRIGGER trg_CreateEventsForTask
+ON ClientTache
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1
+        FROM Inserted i
+        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000 
+    )
+    BEGIN
+        INSERT INTO Evenements (TacheId, EventName, EventTime, EventDescription)
+        SELECT 
+            i.ClientTacheId,  
+            'Midpoint Reminder',
+            DATEADD(SECOND, DATEDIFF(SECOND, i.start_date, i.end_date) / 2, i.start_date),  
+            'This is the midpoint event for the task.'
+        FROM Inserted i
+        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000;
+
+        INSERT INTO Evenements (TacheId, EventName, EventTime, EventDescription)
+        SELECT 
+            i.ClientTacheId,  
+            'Pre-Finish Reminder',
+            DATEADD(SECOND, - DATEDIFF(SECOND, i.start_date, i.end_date) / 5, i.end_date),  
+            'This is the pre-finish event for the task.'
+        FROM Inserted i
+        WHERE DATEDIFF(SECOND, i.start_date, i.end_date) > 18000;
+    END
+END;
