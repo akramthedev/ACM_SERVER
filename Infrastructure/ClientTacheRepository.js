@@ -217,12 +217,28 @@ function UpdateClientTache(data) {
   });
 }
 
+
+
+function convertUTCToLocal(utcDateString) {
+  const date = new Date(utcDateString); // Convert string to Date object
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " "); // Format as 'YYYY-MM-DD HH:mm:ss'
+}
+
+
 function UpdateClientTacheDates(data) {
   return new Promise((resolve, reject) => {
+
+    const startDate = convertUTCToLocal(data.start_date);
+    const endDate = convertUTCToLocal(data.end_date);
+
+
     new sql.Request()
-      .input("ClientTacheId", sql.DateTime, data.ClientTacheId)
-      .input("start_date", sql.DateTime, data.start_date)
-      .input("end_date", sql.DateTime, data.end_date)
+      .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
+      .input("start_date", sql.DateTime, startDate)
+      .input("end_date", sql.DateTime, endDate)
       .execute("ps_update_ClientTache_Dates")
       .then((result) => resolve(result.rowsAffected[0] > 0))
       .catch((error) => reject(error?.originalError?.info?.message));
@@ -239,5 +255,6 @@ function DeleteClientTache(ClientTacheId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
 
 module.exports = { GetClientTaches,GetClientTachesAllOfThem,  MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };

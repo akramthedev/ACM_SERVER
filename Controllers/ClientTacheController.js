@@ -149,12 +149,9 @@ router.post("/CreateClientTacheCustom", async (request, response) => {
     })
     .catch((error) => {
       log.Error("CreateClientTacheCustom Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
-
-      // log.Info(error);
       response.status(400).send(error);
     });
 });
-
 
 
 
@@ -174,9 +171,8 @@ router.put("/UpdateClientTacheDates", async (request, response) => {
       request.body.Date_Execution = originalTask[0].Date_Execution;  
     }
 
-    await UpdateClientTache(request.body);
+    await UpdateClientTacheDates(request.body);
     
-    return response.status(200).send("Vini Vidi Vici");
   } catch (error) {
     log.Error("UpdateClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
 
