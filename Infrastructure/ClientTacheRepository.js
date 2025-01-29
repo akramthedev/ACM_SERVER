@@ -68,8 +68,15 @@ function GetClientTachesAllOfThem() {
             ct.isDone AS isDone ,
             ct.color AS color, 
             ct.Status AS Status,
-            ag.Nom AS AgentNom
+            ag.Nom AS AgentNom, 
+            ev.EventTimeStart as EventStart, 
+            ev.EventTimeEnd as EventEnd, 
+            ev.EventName as EventName, 
+            ev.color as EventColor, 
+            ev.isDone as EventIsDone, 
+            ev.EventId as EventId
         FROM ClientTache ct
+        LEFT JOIN Evenements ev ON ct.ClientTacheId = ev.TacheId 
         LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
         LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
         LEFT JOIN Mission m ON cm.MissionId = m.MissionId
