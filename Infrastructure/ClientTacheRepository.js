@@ -183,6 +183,7 @@ function CreateClientTache(data) {
     // Step 1: Insert the task into the database
     request
       .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
+      .input("ClientId", sql.UniqueIdentifier, data.ClientId)
       .input("ClientMissionPrestationId", sql.UniqueIdentifier, data.ClientMissionPrestationId)
       .input("ClientMissionId", sql.UniqueIdentifier, data.ClientMissionId)
       .input("TacheId", sql.UniqueIdentifier, data.TacheId)

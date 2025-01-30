@@ -37,12 +37,6 @@ router.get(
     const userId=tokenContent.sid
 
     // Log des informations utilisateur
-    console.log("Nom d'utilisateur :", username);
-    console.log("Email :", email);
-    console.log("Rôles de l'utilisateur :", roles);
-    console.log("Nom complet :", fullName);
-    console.log("user id :", userId);
-
     await GetClients(request.query.CabinetId)
       .then(async (res) => {
         // log.Info(`Get Clients : ${JSON.stringify(res)} , efféctuer par :${username} , userId: ${userId}`);
@@ -67,91 +61,117 @@ router.get(
 );
 
 
+
+
+
+
+
 router.get("/GetClient", async (request, response) => {
-  await GetClient(request.query.ClientId)
-    .then(async (res) => {
-      if (res != null && res.length > 0) {
-        let client = res[0];
+  try {
+    console.warn("ClientId received:", request.query.ClientId);
 
-        let clientFirectory = `./Pieces/${client.ClientId}/`;
-        if (!fs.existsSync(clientFirectory)) {
-          client.Photo = null;
-        } else {
-          let photoProfile = fs.readdirSync(clientFirectory).find((x) => x.toLowerCase().startsWith("profile"));
-          if (photoProfile != null) client.Photo = `Pieces/${client.ClientId}/${photoProfile}`;
-          else client.Photo = null;
-        }
+      let res = await GetClient(request.query.ClientId);
+      console.warn("Raw response from GetClient:", res);
+      
+      // Ensure res is an array and not undefined
+      if (!res || res.length === 0) {
+        console.warn("No client found for the given ClientId.");
+        return response.status(200).send(null);
+      }
+      
+      let client = res;
+      console.warn(client);
+      
 
-        const promise1 = GetProches(client.ClientId);
-        const promise2 = GetClientPieces(client.ClientId);
-        const promise3 = GetPatrimoines(client.ClientId);
-        const promise4 = GetPassifs(client.ClientId);
-        const promise5 = GetBudgets(client.ClientId);
-        const promise6 = GetConjoint(client.ClientId);
-        const promise7 = GetClientMissions(client.ClientId);
-        const promise8 = GetClientMissionPrestations(client.ClientId);
-        const promise9 = GetClientTaches(client.ClientId);
+    if (!client) {
+      return response.status(200).send(null);
+    }
 
-        Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7, promise8, promise9]).then(
-          async (values) => {
-            client.Proches = values[0];
-            client.ClientPieces = values[1];
-            // Récupérer les patrimoines et ajouter le chemin du document de statut
-            client.Patrimoines = values[2].map((patrimoine) => {
-              const statusDocumentDirectory = `./Pieces/${client.ClientId}/Status/`;
-              if (fs.existsSync(statusDocumentDirectory)) {
-                let statusDocument = fs.readdirSync(statusDocumentDirectory).find((file) => file.toLowerCase().startsWith(patrimoine.PatrimoineId.toLowerCase()));
-                if (statusDocument) {
-                  patrimoine.StatusDocumentPath = `Pieces/${client.ClientId}/Status/${statusDocument}`;
-                } else {
-                  patrimoine.StatusDocumentPath = null;
-                }
-              } else {
-                patrimoine.StatusDocumentPath = null;
-              }
-              return patrimoine;
-            });
-            client.Passifs = values[3];
-            client.Budgets = values[4];
-            client.Conjoint = values[5];
-            client.ClientMissions = values[6];
-            client.ClientMissionPrestations = values[7];
-            client.ClientTaches = values[8];
-            response.status(200).send(client);
-          },
-          (error) => {
-            console.log("Error promise.All: ", error);
-            log.Error("Get Client", error);
-            client.Proches = null;
-            client.ClientPieces = null;
-            client.Patrimoines = null;
-            client.Passifs = null;
-            client.Budgets = null;
-            client.Conjoint = null;
-            client.ClientMissions = null;
-            client.ClientMissionPrestations = null;
-            client.ClientTaches = null;
-            response.status(200).send(client);
-          }
+
+    let clientDirectory = `./Pieces/${client.ClientId}/`;
+
+    if (!fs.existsSync(clientDirectory)) {
+      client.Photo = null;
+    } else {
+      let photoProfile = fs.readdirSync(clientDirectory).find((x) => x.toLowerCase().startsWith("profile"));
+      client.Photo = photoProfile ? `Pieces/${client.ClientId}/${photoProfile}` : null;
+    }
+
+
+    let CLI = `${client.ClientId}`;
+    
+    
+    const promises = [
+      GetProches(CLI),
+      GetClientPieces(CLI),
+      GetPatrimoines(CLI),
+      GetPassifs(CLI),
+      GetBudgets(CLI),
+      GetConjoint(CLI),
+      GetClientMissions(CLI),
+      GetClientMissionPrestations(CLI),
+      GetClientTaches(CLI),
+    ];
+
+    const values = await Promise.all(promises);
+
+    client.Proches = values[0];
+    client.ClientPieces = values[1];
+
+    client.Patrimoines = values[2].map((patrimoine) => {
+      const statusDocumentDirectory = `./Pieces/${CLI}/Status/`;
+      let statusDocumentPath = null;
+      if (fs.existsSync(statusDocumentDirectory)) {
+        let statusDocument = fs.readdirSync(statusDocumentDirectory).find((file) =>
+          file.toLowerCase().startsWith(patrimoine.PatrimoineId.toLowerCase())
         );
-      } else response.status(200).send(null);
-    })
-    .catch((error) => {
-      log.Error(error);
-      response.status(400).send(error);
+        if (statusDocument) {
+          statusDocumentPath = `Pieces/${CLI}/Status/${statusDocument}`;
+        }
+      }
+      patrimoine.StatusDocumentPath = statusDocumentPath;
+      return patrimoine;
     });
+
+    client.Passifs = values[3];
+    client.Budgets = values[4];
+    client.Conjoint = values[5];
+    client.ClientMissions = values[6];
+    client.ClientMissionPrestations = values[7];
+    client.ClientTaches = values[8];
+
+    response.status(200).send(client);
+  } catch (error) {
+    console.error( error);
+    log.Error("Get Client", error);
+    response.status(400).send(error);
+  }
 });
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 router.post("/CreateClient", async (request, response) => {
-
-
   
   await CreateClient(request.body)
     .then(async (res) => {
-      if (res != null && res == true) {
+      console.log("Data In Controller");
+      console.warn(res);
+      if (res != null) {
         log.Info("CreateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
         // create proches
         if (request.body.Proches != null && request.body.Proches.length > 0) {
@@ -253,10 +273,10 @@ router.post("/CreateClient", async (request, response) => {
             else{
               isR = 1; 
             }
-            
 
             request
               .input("ClientTacheId", sql.UniqueIdentifier, tache.ClientTacheId)
+              .input("ClientId", sql.UniqueIdentifier, res.ClientId)
               .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
               .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
               .input("TacheId", sql.UniqueIdentifier, tache.TacheId)

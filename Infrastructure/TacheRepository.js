@@ -19,7 +19,6 @@ function GetTaches() {
       `) // Replace with your SQL query
       .then((result) => {
         resolve(result.recordset); // Resolve the fetched data
-        console.log("Fetched Taches:", result.recordset); // Log the data
       })
       .catch((error) => {
         console.error("Error fetching Taches:", error); // Log errors

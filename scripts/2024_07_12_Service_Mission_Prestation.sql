@@ -136,6 +136,7 @@ GO
 
 CREATE TABLE ClientTache(
     CLientTacheId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier,
     ClientMissionPrestationId uniqueidentifier NOT NULL, --Référence au ClientMissionPrestation
     ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
     TacheId uniqueidentifier NOT NULL, --Référence au Tache
@@ -153,6 +154,7 @@ CREATE TABLE ClientTache(
     isReminder BIT DEFAULT 0, 
     start_date DATETIME NULL, 
     end_date DATETIME NULL, 
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
     FOREIGN KEY (ClientMissionPrestationId) REFERENCES ClientMissionPrestation(ClientMissionPrestationId),
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
@@ -234,6 +236,7 @@ GO
 
 create proc ps_create_client_tache
     @ClientTacheId uniqueidentifier,
+    @ClientId uniqueidentifier,
     @ClientMissionPrestationId uniqueidentifier,
     @ClientMissionId uniqueidentifier,
     @TacheId uniqueidentifier, 
@@ -245,8 +248,8 @@ create proc ps_create_client_tache
     @isDone BIT,                
     @isReminder BIT                
 AS
-    INSERT INTO ClientTache (ClientTacheId, ClientMissionPrestationId, ClientMissionId, TacheId,Intitule,Commentaire, start_date, end_date, color, isDone, isReminder)
-    VALUES (@ClientTacheId, @ClientMissionPrestationId, @ClientMissionId, @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder);
+    INSERT INTO ClientTache (ClientTacheId,  ClientId,   ClientMissionPrestationId, ClientMissionId,  TacheId, Intitule,  Commentaire,  start_date,  end_date,  color,  isDone,  isReminder)
+    VALUES (@ClientTacheId,@ClientId, @ClientMissionPrestationId, @ClientMissionId, @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder);
 GO
 ----------------------------------------------------------17/07/2024-------------------------------------------------------------
 

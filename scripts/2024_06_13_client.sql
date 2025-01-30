@@ -36,6 +36,9 @@ AS
     select * from Client
     where CabinetId=@CabinetId
 GO
+
+
+
 create proc ps_get_client
     @ClientId uniqueidentifier
 AS
@@ -81,6 +84,10 @@ AS
     insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateResidence,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
     values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateResidence,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
+
+
+
+
 
 CREATE PROCEDURE ps_update_client
     @ClientId uniqueidentifier
