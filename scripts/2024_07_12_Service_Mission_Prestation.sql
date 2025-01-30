@@ -541,7 +541,6 @@ GO
 
 
 
-
 CREATE TRIGGER trg_CreateEventsForTask
 ON ClientTache
 AFTER INSERT
@@ -549,18 +548,19 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @TacheId UNIQUEIDENTIFIER, @StartDate DATETIME, @EndDate DATETIME, @IntituleTask NVARCHAR(MAX), @DiffHours INT;
-    DECLARE @RandomColor VARCHAR(7);
-
-    -- Table variable to store predefined colors
+    DECLARE @TacheId UNIQUEIDENTIFIER, @StartDate DATETIME2, @EndDate DATETIME2, @IntituleTask NVARCHAR(MAX), @DiffHours INT;
+    DECLARE @RandomColor VARCHAR(7), @EventStart DATETIME2, @EventEnd DATETIME2, @EventDate DATE;
+    DECLARE @NumberEvent INT, @EventCounter INT, @EventOffset INT;
+    
+    -- Table des couleurs aléatoires
     DECLARE @Colors TABLE (Color VARCHAR(7));
     INSERT INTO @Colors (Color) VALUES 
         ('#6366f1'), ('#eab308'), ('#3b82f6'), ('#ec4899'),
         ('#ea2e08'), ('#b007b0'), ('#07128f');
 
-    -- Cursor to iterate over inserted rows
+    -- Curseur pour parcourir les tâches insérées
     DECLARE task_cursor CURSOR FOR 
-    SELECT ClientTacheId, start_date, end_date, Intitule 
+    SELECT ClientTacheId, CAST(start_date AS DATETIME2), CAST(end_date AS DATETIME2), Intitule 
     FROM Inserted;
 
     OPEN task_cursor;
@@ -568,62 +568,55 @@ BEGIN
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        -- Generate a random color from the list
-        SELECT TOP 1 @RandomColor = Color FROM @Colors
-        ORDER BY NEWID();
+        -- Générer une couleur aléatoire
+        SELECT TOP 1 @RandomColor = Color FROM @Colors ORDER BY NEWID();
 
-        -- Calculate time difference in hours
+        -- Calculer la durée en heures
         SET @DiffHours = DATEDIFF(HOUR, @StartDate, @EndDate);
 
-        -- Insert events based on the specified hour ranges
-        IF @DiffHours BETWEEN 0 AND 24
+        -- Déterminer combien d'événements créer
+        IF @DiffHours BETWEEN 0 AND 400
+            SET @NumberEvent = 2;
+        ELSE IF @DiffHours BETWEEN 401 AND 2000
+            SET @NumberEvent = 3;
+        ELSE
+            SET @NumberEvent = 3; -- Sécurité pour éviter les erreurs
+
+        -- Initialiser les événements
+        SET @EventCounter = 1;
+
+        WHILE @EventCounter <= @NumberEvent
         BEGIN
-            -- Create 1 event
+            -- Déterminer le bon placement de l'événement selon la règle demandée
+            IF @EventCounter = 1
+                SET @EventOffset = @DiffHours / 2;
+            ELSE IF @EventCounter = 2
+                SET @EventOffset = @DiffHours - (CAST(@DiffHours AS FLOAT) / 3.2);
+            ELSE IF @EventCounter = 3
+                SET @EventOffset = @DiffHours - (@DiffHours / 8);
+            ELSE
+                SET @EventOffset = @DiffHours - (@DiffHours / 8);
+
+            -- Calculer uniquement la **date** de l'événement
+            SET @EventDate = CAST(DATEADD(HOUR, @EventOffset, @StartDate) AS DATE);
+
+            -- Fixer toujours l'heure à **08:45**
+            SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:45:00'), CAST(@EventDate AS DATETIME2));
+            SET @EventEnd = DATEADD(HOUR, 9, @EventStart); -- L'événement dure 1 heure
+
+            -- Insérer l'événement
             INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
             VALUES 
-            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 2, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, @DiffHours / 2, @StartDate)), 'Single Event', @RandomColor, 1);
-        END
-        ELSE IF @DiffHours BETWEEN 25 AND 134
-        BEGIN
-            -- Create 2 events
-            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
-            VALUES 
-            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 3, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, @DiffHours / 3, @StartDate)), 'First Event', @RandomColor, 2),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate)), 'Second Event', @RandomColor, 2);
-        END
-        ELSE IF @DiffHours BETWEEN 135 AND 250
-        BEGIN
-            -- Create 3 events
-            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
-            VALUES 
-            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 3, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, @DiffHours / 3, @StartDate)), 'First Event', @RandomColor, 2),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 2 * @DiffHours / 3, @StartDate)), 'Second Event', @RandomColor, 2);
-        END
-        ELSE IF @DiffHours BETWEEN 251 AND 800
-        BEGIN
-            -- Create 4 events
-            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
-            VALUES 
-            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 4, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, @DiffHours / 4, @StartDate)), 'First Event', @RandomColor, 3),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 4, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 2 * @DiffHours / 4, @StartDate)), 'Second Event', @RandomColor, 3),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 3 * @DiffHours / 4, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 3 * @DiffHours / 4, @StartDate)), 'Third Event', @RandomColor, 3);
-        END
-        ELSE IF @DiffHours > 800
-        BEGIN
-            -- Create 5 events
-            INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
-            VALUES 
-            (@TacheId, @IntituleTask, DATEADD(HOUR, @DiffHours / 5, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, @DiffHours / 5, @StartDate)), 'First Event', @RandomColor, 4),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 2 * @DiffHours / 5, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 2 * @DiffHours / 5, @StartDate)), 'Second Event', @RandomColor, 4),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 3 * @DiffHours / 5, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 3 * @DiffHours / 5, @StartDate)), 'Third Event', @RandomColor, 4),
-            (@TacheId, @IntituleTask, DATEADD(HOUR, 4 * @DiffHours / 5, @StartDate), DATEADD(MINUTE, 59, DATEADD(HOUR, 4 * @DiffHours / 5, @StartDate)), 'Fourth Event', @RandomColor, 4);
-        END
-        
-        -- Fetch next record
+            (@TacheId, @IntituleTask, @EventStart, @EventEnd, CONCAT('Event ', @EventCounter), @RandomColor, @NumberEvent);
+
+            -- Passer à l'événement suivant
+            SET @EventCounter = @EventCounter + 1;
+        END;
+
+        -- Passer à la tâche suivante
         FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask;
     END;
 
     CLOSE task_cursor;
     DEALLOCATE task_cursor;
 END;
-
