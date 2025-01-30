@@ -30,60 +30,64 @@ function GetClientTachesAllOfThem() {
     new sql.Request()
       .query(`
         SELECT 
-            ct.ClientTacheId,
-            cmp.ClientMissionPrestationId,
-            cm.ClientMissionId,
-            cm.ClientId,
-            cl.Nom AS ClientNom,    
-            cl.Prenom AS ClientPrenom,
-            cl.DateNaissance AS ClientDateNaissance,
-            cl.Photo AS ClientPhoto,
-            cl.Profession AS ClientProfession,
-            cl.DateRetraite AS ClientDateRetraite,
-            cl.NumeroSS AS ClientNumeroSS,
-            cl.Adresse AS ClientAdresse,
-            cl.Email1 AS ClientEmail1,
-            cl.Email2 AS ClientEmail2,
-            cl.Telephone1 AS ClientTelephone1,
-            cl.Telephone2 AS ClientTelephone2,
-            cl.HasConjoint AS ClientHasConjoint,
-            cl.SituationFamiliale AS ClientSituationFamiliale,
-            m.Designation AS MissionDesignation,
-            t.TacheId,
-            t.Intitule AS TacheIntitule,
-            p.PrestationId,
-            p.Designation AS PrestationDesignation,
-            p.Description AS PrestationDescription,
-            t.Description AS TacheDescription,
-            ct.Intitule AS ClientTacheIntitule,
-            t.Numero_Ordre,
-            ct.Commentaire AS Commentaire,
-            ct.Deadline,
-            ct.DateButoir,
-            ct.Date_Execution,
-            ct.Intitule AS TacheClientIntitule, 
-            ct.start_date AS start_date , 
-            ct.end_date AS end_date, 
-            ct.isReminder AS isReminder, 
-            ct.isDone AS isDone ,
-            ct.color AS color, 
-            ct.Status AS Status,
-            ag.Nom AS AgentNom, 
-            ev.EventTimeStart as EventStart, 
-            ev.EventTimeEnd as EventEnd, 
-            ev.EventName as EventName, 
-            ev.color as EventColor, 
-            ev.isDone as EventIsDone, 
-            ev.EventId as EventId
-        FROM ClientTache ct
-        LEFT JOIN Evenements ev ON ct.ClientTacheId = ev.TacheId 
-        LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
-        LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
-        LEFT JOIN Mission m ON cm.MissionId = m.MissionId
-        LEFT JOIN Tache t ON ct.TacheId = t.TacheId
-        LEFT JOIN Prestation p ON t.PrestationId = p.PrestationId
-        LEFT JOIN Client cl ON cm.ClientId = cl.ClientId
-        LEFT JOIN Agent ag ON t.AgentId = ag.AgentId
+          ct.ClientTacheId,
+          cmp.ClientMissionPrestationId,
+          cm.ClientMissionId,
+          cm.ClientId,
+          cl.Nom AS ClientNom,    
+          cl.Prenom AS ClientPrenom,
+          cl.DateNaissance AS ClientDateNaissance,
+          cl.Photo AS ClientPhoto,
+          cl.Profession AS ClientProfession,
+          cl.DateRetraite AS ClientDateRetraite,
+          cl.NumeroSS AS ClientNumeroSS,
+          cl.Adresse AS ClientAdresse,
+          cl.Email1 AS ClientEmail1,
+          cl.Email2 AS ClientEmail2,
+          cl.Telephone1 AS ClientTelephone1,
+          cl.Telephone2 AS ClientTelephone2,
+          cl.HasConjoint AS ClientHasConjoint,
+          cl.SituationFamiliale AS ClientSituationFamiliale,
+          m.Designation AS MissionDesignation,
+          t.TacheId,
+          t.Intitule AS TacheIntitule,
+          p.PrestationId,
+          p.Designation AS PrestationDesignation,
+          p.Description AS PrestationDescription,
+          t.Description AS TacheDescription,
+          ct.Intitule AS ClientTacheIntitule,
+          t.Numero_Ordre,
+          ct.Commentaire AS Commentaire,
+          ct.Deadline,
+          ct.DateButoir,
+          ct.Date_Execution,
+          ct.Intitule AS TacheClientIntitule, 
+          ct.start_date, 
+          ct.end_date, 
+          ct.isReminder, 
+          ct.isDone,
+          ct.color, 
+          ct.Status,
+          ag.Nom AS AgentNom, 
+          ev.EventTimeStart AS EventStart, 
+          ev.EventTimeEnd AS EventEnd, 
+          ev.EventName AS EventName, 
+          ev.color AS EventColor, 
+          ev.isDone AS EventIsDone, 
+          ev.isReminder AS EventIsReminder, 
+          ev.EventId, 
+          ev.EventDescription, 
+          ev.NumberEvent
+      FROM ClientTache ct
+      LEFT JOIN Evenements ev ON ct.ClientTacheId = ev.TacheId 
+      LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+      LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+      LEFT JOIN Mission m ON cm.MissionId = m.MissionId
+      LEFT JOIN Tache t ON ct.TacheId = t.TacheId
+      LEFT JOIN Prestation p ON t.PrestationId = p.PrestationId
+      LEFT JOIN Client cl ON cm.ClientId = cl.ClientId
+      LEFT JOIN Agent ag ON t.AgentId = ag.AgentId;
+
       `)  
       .then((result) => {
         console.log("Tâches récupérées :", result.recordset);
@@ -136,24 +140,34 @@ function GetUnassignedClientTache(ClientId, PrestationId) {
 
 
 
+async function MarkAsDone(ClientTacheId) {
+  try {
+    const request1 = new sql.Request();
+    request1.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
+    request1.input("isDone", sql.Bit, 1);
+    request1.input("color", sql.VarChar(7), "#28a745");
 
-function MarkAsDone(ClientTacheId) {
-  console.log("B Executed...");
-  return new Promise((resolve, reject) => {
-    new sql.Request()
-      .input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId)
-      .input("isDone", sql.Bit, 1) 
-      .input("color", sql.VarChar(7), "#28a745") 
-      .query("UPDATE ClientTache SET isDone = @isDone, color = @color WHERE ClientTacheId = @ClientTacheId")
-      .then((result) => {
-        if (result.rowsAffected[0] > 0) {
-          resolve(true);
-        } else {
-          reject("Aucune tâche mise à jour, l'ID est peut-être incorrect.");
-        }
-      })
-      .catch((error) => reject(error?.originalError?.info?.message || error.message));
-  });
+    const result1 = await request1.query(
+      "UPDATE ClientTache SET isDone = @isDone, color = @color WHERE ClientTacheId = @ClientTacheId"
+    );
+
+    if (result1.rowsAffected[0] === 0) {
+      throw new Error("Aucune tâche mise à jour, l'ID est peut-être incorrect.");
+    }
+
+    const request2 = new sql.Request();
+    request2.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
+    request2.input("isDone", sql.Bit, 1);
+    request2.input("color", sql.VarChar(7), "#28a745");
+
+    await request2.query(
+      "UPDATE Evenements SET isDone = @isDone, color = @color WHERE TacheId = @ClientTacheId"
+    );
+
+    return true;
+  } catch (error) {
+    throw new Error(error?.originalError?.info?.message || error.message);
+  }
 }
 
 
