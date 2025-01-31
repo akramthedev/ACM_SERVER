@@ -95,63 +95,26 @@ AS
     values(@ClientTacheId,@Intitule,@Numero_Ordre,@Commentaire,@Status)
 GO
 
-ALTER PROCEDURE ps_create_client_tache
-    @ClientTacheId UNIQUEIDENTIFIER,
-    @ClientMissionPrestationId UNIQUEIDENTIFIER,
-    @ClientMissionId UNIQUEIDENTIFIER,
-    @TacheId UNIQUEIDENTIFIER
-AS
-BEGIN
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        -- Récupération de l'intitulé et du numéro d'ordre de la tâche, et de la désignation de la prestation
-        DECLARE @Intitule NVARCHAR(255);
-        DECLARE @Numero_Ordre NVARCHAR(255);
-        DECLARE @Commentaire NVARCHAR(255);
-        DECLARE @AgentResposable UNIQUEIDENTIFIER;
 
-        SELECT 
-            @Intitule = t.Intitule,
-            @Numero_Ordre = t.Numero_Ordre,
-            @Commentaire = p.Designation,
-            @AgentResposable = t.AgentId
-        FROM 
-            Tache t
-        LEFT JOIN 
-            Prestation p ON t.PrestationId = p.PrestationId
-        WHERE 
-            t.TacheId = @TacheId;
 
-        -- Insertion dans la table ClientTache avec les valeurs récupérées et le statut "En cours"
-        INSERT INTO ClientTache(
-            ClientTacheId, 
-            ClientMissionPrestationId, 
-            ClientMissionId, 
-            TacheId, 
-            Intitule, 
-            Numero_Ordre, 
-            Commentaire,
-            Status,
-            AgentResposable)
-        VALUES(
-            @ClientTacheId, 
-            @ClientMissionPrestationId, 
-            @ClientMissionId, 
-            @TacheId, 
-            @Intitule, 
-            @Numero_Ordre, 
-            @Commentaire,
-            'En attente',
-            @AgentResposable);
 
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END;
-GO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 CREATE PROCEDURE ps_update_ClientTache
@@ -338,48 +301,8 @@ SET AgentId = '3d9d1ac0-ac20-469e-be24-97cb3c8c5187' //Redouane
 CREATE PROCEDURE ps_get_all_client_taches
 AS
 BEGIN
-    SELECT 
-        ct.ClientTacheId,
-        cmp.ClientMissionPrestationId,
-        cm.ClientMissionId,
-        cm.ClientId,
-        m.Designation AS MissionDesignation,  
-        t.TacheId,
-        t.Intitule AS TacheIntitule,
-        p.PrestationId,
-        p.Designation AS PrestationDesignation,
-        p.Description AS PrestationDescription,
-        t.Description AS TacheDescription,
-        ct.Intitule AS ClientTacheIntitule,
-        t.Numero_Ordre,
-        ct.Commentaire,
-        ct.Deadline,
-        ct.DateButoir,
-        ct.Date_Execution,
-        ct.Status,
-        ct.AgentResposable
-    FROM 
-        ClientTache ct
-    LEFT JOIN 
-        ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
-    LEFT JOIN 
-        ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
-    LEFT JOIN 
-        Mission m ON cm.MissionId = m.MissionId   
-    LEFT JOIN 
-        Tache t ON ct.TacheId = t.TacheId
-    LEFT JOIN 
-        Prestation p ON t.PrestationId = p.PrestationId
-END
-GO
 
-
-
-
-ALTER PROCEDURE ps_get_all_client_taches
-AS
-BEGIN
-    SELECT 
+SELECT 
         ct.ClientTacheId,
         cmp.ClientMissionPrestationId,
         cm.ClientMissionId,
@@ -406,6 +329,8 @@ BEGIN
         p.Description AS PrestationDescription,
         t.Description AS TacheDescription,
         ct.Intitule AS ClientTacheIntitule,
+        ct.isDone AS IsDone ,
+        ct.AgentResposable AS AgentResposable,
         t.Numero_Ordre,
         ct.Commentaire,
         ct.Deadline,
@@ -428,9 +353,16 @@ BEGIN
     LEFT JOIN 
         Client cl ON cm.ClientId = cl.ClientId   -- Join with Client to get client details
     LEFT JOIN 
-        Agent ag ON t.AgentId = ag.AgentId       -- Join with Agent to get agent details
+        Agent ag ON ct.AgentResposable = ag.AgentId    
+
 END
 GO
+
+
+
+
+
+
 
 ALTER PROCEDURE ps_get_client_taches_simple --add Prestation designation
     @ClientId UNIQUEIDENTIFIER
@@ -468,59 +400,62 @@ BEGIN
 END;
 GO
 
-ALTER PROCEDURE ps_create_client_tache
-    @ClientTacheId UNIQUEIDENTIFIER,
-    @ClientMissionPrestationId UNIQUEIDENTIFIER,
-    @ClientMissionId UNIQUEIDENTIFIER,
-    @TacheId UNIQUEIDENTIFIER
-AS
-BEGIN
-    BEGIN TRANSACTION;
-    BEGIN TRY
-        -- Récupération de l'intitulé et du numéro d'ordre de la tâche, et de la désignation de la prestation
-        DECLARE @Intitule NVARCHAR(255);
-        DECLARE @Numero_Ordre NVARCHAR(255);
-        DECLARE @AgentResposable UNIQUEIDENTIFIER;
 
-        SELECT 
-            @Intitule = t.Intitule,
-            @Numero_Ordre = t.Numero_Ordre,
-            @AgentResposable = t.AgentId
-        FROM 
-            Tache t
-        LEFT JOIN 
-            Prestation p ON t.PrestationId = p.PrestationId
-        WHERE 
-            t.TacheId = @TacheId;
 
-        -- Insertion dans la table ClientTache avec les valeurs récupérées et le statut "En cours"
-        INSERT INTO ClientTache(
-            ClientTacheId, 
-            ClientMissionPrestationId, 
-            ClientMissionId, 
-            TacheId, 
-            Intitule, 
-            Numero_Ordre,
-            Status,
-            AgentResposable)
-        VALUES(
-            @ClientTacheId, 
-            @ClientMissionPrestationId, 
-            @ClientMissionId, 
-            @TacheId, 
-            @Intitule, 
-            @Numero_Ordre,
-            'En attente',
-            @AgentResposable);
 
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
+
+
+
+
+
+
+
+CREATE PROC ps_create_client_tache  
+    @ClientTacheId UNIQUEIDENTIFIER,  
+    @ClientId UNIQUEIDENTIFIER,  
+    @AgentResponsable UNIQUEIDENTIFIER, 
+    @ClientMissionPrestationId UNIQUEIDENTIFIER,  
+    @ClientMissionId UNIQUEIDENTIFIER,  
+    @TacheId UNIQUEIDENTIFIER,   
+    @Intitule VARCHAR(200),   
+    @Commentaire VARCHAR(200) = NULL,  -- Allow NULL for optional fields
+    @start_date DATETIME,         
+    @end_date DATETIME,           
+    @color VARCHAR(7) = '#000000',  -- Default color if not provided
+    @isDone BIT = 0,               -- Default as 'not done'
+    @isReminder BIT = 0  
+AS  
+BEGIN  
+    SET NOCOUNT ON;  
+
+    BEGIN TRY  
+        INSERT INTO ClientTache (
+            ClientTacheId, ClientId, ClientMissionPrestationId, ClientMissionId,  
+            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResponsable
+        )  
+        VALUES (
+            @ClientTacheId, @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
+            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResponsable
+        );  
+    END TRY  
+    BEGIN CATCH  
+        -- Error handling
+        PRINT 'Error occurred: ' + ERROR_MESSAGE();  
+        THROW;  -- Rethrow the error for debugging
+    END CATCH  
 END;
-GO
+
+
+
+
+
+
+
+
+
+
+
+
 
 CREATE PROCEDURE ps_delete_ClientTache
     @ClientTacheId UNIQUEIDENTIFIER

@@ -184,6 +184,7 @@ function CreateClientTache(data) {
     request
       .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
       .input("ClientId", sql.UniqueIdentifier, data.ClientId)
+      .input("AgentId", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
       .input("ClientMissionPrestationId", sql.UniqueIdentifier, data.ClientMissionPrestationId)
       .input("ClientMissionId", sql.UniqueIdentifier, data.ClientMissionId)
       .input("TacheId", sql.UniqueIdentifier, data.TacheId)
@@ -195,9 +196,7 @@ function CreateClientTache(data) {
       .execute("ps_create_client_tache")
       .then((result) => {
         if (result.rowsAffected[0] > 0) {
-          // return new sql.Request()
-          //   .input("TacheId", sql.UniqueIdentifier, data.TacheId)
-          //   .execute("trg_CreateEventsForTask");
+          console.wanr("Done Done Done");
         } else {
           // throw new Error("Task creation failed.");
         }

@@ -274,9 +274,12 @@ router.post("/CreateClient", async (request, response) => {
               isR = 1; 
             }
 
+            console.warn("Executed X ---");
+
             request
               .input("ClientTacheId", sql.UniqueIdentifier, tache.ClientTacheId)
               .input("ClientId", sql.UniqueIdentifier, res.ClientId)
+              .input("AgentResponsable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
               .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
               .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
               .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
@@ -289,8 +292,7 @@ router.post("/CreateClient", async (request, response) => {
               .input("isReminder", sql.Bit, isR || 0)                         
               .execute("ps_create_client_tache")
               .then((resClientTaches) => {
-                console.log("Index B")
-                console.log(resClientTaches);
+                console.warn("Executed Y ---")
               })
               .catch((error) => {
                 console.log("Error: ", error);
