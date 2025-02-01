@@ -1,7 +1,7 @@
 const Keycloak = require("keycloak-connect");
 
 const keycloakConfig = {
-  realm: "acm",
+  realm: "acm-1",
   "auth-server-url": "https://acm-keycloak.azurewebsites.net",
   "ssl-required": "external",
   resource: "acm-client",
