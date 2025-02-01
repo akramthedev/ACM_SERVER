@@ -1,5 +1,17 @@
 const sql = require("mssql");
+// const { google } = require('googleapis');
+// const OAuth2 = google.auth.OAuth2;
 
+// const oauth2Client = new OAuth2(
+//   '267508651605-2vqqep29h97uef9tt7ahis82dskjsm1r.apps.googleusercontent.com',
+//   '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',
+//   'http://localhost:4200/#/'
+// );
+
+
+// oauth2Client.setCredentials({ refresh_token: 'AIzaSyBhI34z9rSK7S-rfmngJ1nmb48zfb5nUz8' });
+
+// const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
 
 
@@ -90,7 +102,6 @@ function GetClientTachesAllOfThem() {
 
       `)  
       .then((result) => {
-        console.log("Tâches récupérées :", result.recordset);
         resolve(result.recordset);
       })
       .catch((error) => {
@@ -126,6 +137,8 @@ function GetAllClientTaches() {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+
 function GetUnassignedClientTache(ClientId, PrestationId) {
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -140,7 +153,65 @@ function GetUnassignedClientTache(ClientId, PrestationId) {
 
 
 
-async function MarkAsDone(ClientTacheId) {
+
+async function GetAccessTokenGoogleCalendar(ClientIdOfCloack) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientIdOfCloack", sql.UniqueIdentifier, ClientIdOfCloack)  // Adding input to bind the parameter
+      .query(`
+       SELECT * 
+        FROM GoogleCalendar 
+        WHERE ClientIdOfCloack = @ClientIdOfCloack 
+          AND ClientIdOfCloack = (SELECT MAX(ClientIdOfCloack) FROM GoogleCalendar WHERE ClientIdOfCloack = @ClientIdOfCloack);
+
+      `)  // Added ordering to get the "latest" record based on a column, assuming you want the most recent entry.
+      .then((result) => {
+        console.warn("Access Token retrieved:", result.recordset);
+        resolve(result.recordset);
+      })
+      .catch((error) => {
+        console.error("Error retrieving access token:", error);
+        reject(error?.originalError?.info?.message || error.message);
+      });
+  });
+}
+
+
+
+
+async function CreateGoogleCalendarAccount(data){
+  
+  console.warn("B executed...");
+
+
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+    console.log(data);
+
+    request
+      .input("ClientIdOfCloack", sql.UniqueIdentifier, data.ClientIdOfCloack)
+      .input("EmailKeyCloack", sql.VarChar(255), data.EmailKeyCloack)
+      .input("AccessTokenGoogle", sql.VarChar(255), data.AccessTokenGoogle)
+      .input("ClientIdOfGoogle", sql.VarChar(255), data.ClientIdOfGoogle)
+      .execute("ps_create_google_calendar_account")
+      .then((result) => {
+        if (result.rowsAffected[0] > 0) {
+          console.warn("Done Done Done");
+        } else {
+        }
+      })
+      .then(() => {
+        console.warn("B succeeded");
+        resolve(true)})
+      .catch((error) => reject(error?.originalError?.info?.message || error.message));
+  });
+
+
+}
+
+
+
+async function  MarkAsDone(ClientTacheId) {
   try {
     const request1 = new sql.Request();
     request1.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
@@ -196,7 +267,7 @@ function CreateClientTache(data) {
       .execute("ps_create_client_tache")
       .then((result) => {
         if (result.rowsAffected[0] > 0) {
-          console.wanr("Done Done Done");
+          console.warn("Done Done Done");
         } else {
           // throw new Error("Task creation failed.");
         }
@@ -279,4 +350,23 @@ function DeleteClientTache(ClientTacheId) {
 }
 
 
-module.exports = { GetClientTaches,GetClientTachesAllOfThem,  MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
+function DeleteGoogleToken(data) {
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("ClientIdOfCloack", sql.UniqueIdentifier , data.ClientIdOfCloack) 
+      .query(`
+        DELETE FROM GoogleCalendar WHERE ClientIdOfCloack = @ClientIdOfCloack
+      `)  
+      .then((result) => {
+        console.warn("Access Token deleted:", result.recordset);
+        resolve(result.recordset);
+      })
+      .catch((error) => {
+        console.error("Error deleting access token:", error);
+        reject(error?.originalError?.info?.message || error.message);
+      });
+  });
+}
+
+
+module.exports = { GetClientTaches,GetClientTachesAllOfThem,  CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken,   MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };

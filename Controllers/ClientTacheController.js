@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches, CreateClientTache,MarkAsDone,  UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
+const { GetClientTaches, CreateClientTache,CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken, MarkAsDone,  UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
 const log = require("node-file-logger");
@@ -10,7 +10,7 @@ function formatDateToDDMMYYYY(date) {
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtenir le mois (les mois commencent à 0)
   const year = date.getFullYear(); // Obtenir l'année
   return `${day}/${month}/${year}`;
-}
+} 
 
 function sendEmail(to, subject, htmlBody) {
   let mailOptions = {
@@ -56,7 +56,6 @@ router.get("/GetClientTaches", async (request, response) => {
 router.get("/GetClientTachesAllOfThem", async (request, response) => {
   await GetClientTachesAllOfThem()
     .then((res) => {
-      console.log(res);
       response.status(200).send(res);
     })
     .catch((error) => {
@@ -92,6 +91,10 @@ router.get("/GetClientTachesSimple", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
 router.get("/GetAllClientTaches", async (request, response) => {
   await GetAllClientTaches()
     .then((res) => {
@@ -124,6 +127,52 @@ router.get("/GetUnassignedClientTache", async (request, response) => {
       response.status(400).send(error);
     });
 });
+
+
+
+
+router.post("/DeleteGoogleToken", async(request, response)=>{
+  await DeleteGoogleToken(request.body)
+    .then((res) => {
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      response.status(400).send(error);
+    });
+})
+
+
+
+router.get("/GetAccessTokenGoogleCalendar", async(request, response)=>{
+    await GetAccessTokenGoogleCalendar(request.query.ClientIdOfCloack)
+      .then((res) => {
+        response.status(200).send(res);
+      })
+      .catch((error) => {
+        response.status(400).send(error);
+      });
+})
+
+
+router.post("/CreateGoogleCalendarAccount", async(request, response)=>{
+
+  console.warn("A executed...");
+
+  await CreateGoogleCalendarAccount(request.body)
+    .then((res) => {
+      console.warn("A succeded");
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      console.warn("A failed");
+      console.log(error);
+      response.status(499).send(error);
+    });
+
+});
+
+
+
 router.post("/CreateClientTache", async (request, response) => {
   await CreateClientTache(request.body)
     .then((res) => {
@@ -139,6 +188,9 @@ console.log("dans la methode ")
       response.status(400).send(error);
     });
 });
+
+
+
 router.post("/CreateClientTacheCustom", async (request, response) => {
   await CreateClientTacheCustom(request.body)
     .then((res) => {

@@ -184,6 +184,16 @@ CREATE TABLE Evenements (
 
 
 
+CREATE TABLE GoogleCalendar (
+    ClientIdOfCloack UNIQUEIDENTIFIER PRIMARY KEY,
+    EmailKeyCloack VARCHAR(255) NULL,
+	AccessTokenGoogle VARCHAR(255) NULL, 
+    ClientIdOfGoogle VARCHAR(255) NULL, 
+);
+
+
+
+
 
 
 CREATE PROCEDURE ps_get_client_taches

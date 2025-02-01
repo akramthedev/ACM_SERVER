@@ -84,6 +84,46 @@ SELECT
 END
 GO
 
+
+
+
+
+
+
+
+CREATE PROCEDURE ps_create_google_calendar_account
+    @ClientIdOfCloack UNIQUEIDENTIFIER,
+    @EmailKeyCloack VARCHAR(255),
+    @AccessTokenGoogle VARCHAR(255),
+    @ClientIdOfGoogle VARCHAR(255)
+AS
+BEGIN
+    -- Check if a record with the given ClientIdOfCloack exists
+    IF EXISTS (SELECT 1 FROM GoogleCalendar WHERE ClientIdOfCloack = @ClientIdOfCloack)
+    BEGIN
+        -- If record exists, update it
+        UPDATE GoogleCalendar
+        SET
+            EmailKeyCloack = @EmailKeyCloack,
+            AccessTokenGoogle = @AccessTokenGoogle,
+            ClientIdOfGoogle = @ClientIdOfGoogle
+        WHERE ClientIdOfCloack = @ClientIdOfCloack;
+    END
+    ELSE
+    BEGIN
+        -- If record does not exist, insert a new one
+        INSERT INTO GoogleCalendar (ClientIdOfCloack, EmailKeyCloack, AccessTokenGoogle, ClientIdOfGoogle)
+        VALUES (@ClientIdOfCloack, @EmailKeyCloack, @AccessTokenGoogle, @ClientIdOfGoogle);
+    END
+END;
+GO
+
+
+
+
+
+
+
 create proc ps_create_client_tache_custom
     @ClientTacheId UNIQUEIDENTIFIER,
     @Intitule NVARCHAR(255),
