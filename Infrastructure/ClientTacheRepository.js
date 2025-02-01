@@ -1,19 +1,4 @@
 const sql = require("mssql");
-// const { google } = require('googleapis');
-// const OAuth2 = google.auth.OAuth2;
-
-// const oauth2Client = new OAuth2(
-//   '267508651605-2vqqep29h97uef9tt7ahis82dskjsm1r.apps.googleusercontent.com',
-//   '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',
-//   'http://localhost:4200/#/'
-// );
-
-
-// oauth2Client.setCredentials({ refresh_token: 'AIzaSyBhI34z9rSK7S-rfmngJ1nmb48zfb5nUz8' });
-
-// const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-
 
 
 function GetClientTaches(ClientId) {
