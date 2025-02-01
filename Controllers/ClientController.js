@@ -165,149 +165,212 @@ router.get("/GetClient", async (request, response) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 router.post("/CreateClient", async (request, response) => {
-  
-  await CreateClient(request.body)
-    .then(async (res) => {
-      console.log("Data In Controller");
-      console.warn(res);
-      if (res != null) {
-        log.Info("CreateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
-        // create proches
-        if (request.body.Proches != null && request.body.Proches.length > 0) {
-          for (let i = 0; i < request.body.Proches.length; i++) {
-            await CreateProche(request.body.Proches[i])
-              .then((resProche) => {
-                // console.log("resProche: ", resProche);
-                if (resProche) log.Info("CreateProche", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Proches[i]);
-                else log.Warn("CreateProche", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Proches[i]);
-              })
-              .catch((errorProche) => {
-                // console.log("ErrorProche: ", errorProche);
-                log.Error("CreateProcheError", request.body.Proches[i]);
-              });
-          }
-        }
-        // create conjoint
-        if (request.body.Conjoint != null && request.body.Conjoint.length > 0) {
-          for (let i = 0; i < request.body.Conjoint.length; i++) {
-            console.log("request.body.Conjoint : ", request.body.Conjoint);
-            await CreateConjoint(request.body.Conjoint[i])
-              .then((resConjoint) => {
-                console.log(`CreateConjoint: response : ${resConjoint}, object : ${JSON.stringify(request.body.Conjoint[i])}, création est faites par : ${request.kauth.grant.access_token.content.preferred_username}`);
-                // log.Info("CreateConjoint", resConjoint);
-                log.Info("CreateConjoint", resConjoint, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Conjoint[i]);
-              })
-              .catch((errorConjoint) => {
-                console.log("ErrorCreateConjoint: ", errorConjoint);
-                log.Info("ErrorCreateConjoint", errorConjoint);
-              });
-          }
-        }
+  try {
+    const res = await CreateClient(request.body);
+    console.log("Data In Controller");
+    console.warn(res);
 
-        // create service
-        if (request.body.Service != null) {
-          await CreateService(request.body.Service)
-            .then((resService) => {
-              log.Info("CreateService", resService, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.Service);
+    if (!res) {
+      return response.status(400).send("Client creation failed.");
+    }
 
-              console.log("CreateService: ", resService);
-              // log.Info("CreateService", resService);
-            })
-            .catch((errorService) => {
-              console.log("ErrorCreateService: ", errorService);
-              log.Info("ErrorCreateService", errorService);
-            });
-        }
+    log.Info("CreateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
 
-        // create ClientMission
-        if (request.body.ClientMission != null && request.body.ClientMission.length > 0) {
-          for (let i = 0; i < request.body.ClientMission.length; i++) {
-            await CreateClientMission(request.body.ClientMission[i])
-              .then((resClientMission) => {
-                log.Info("CreateClientMission", resClientMission, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientMission[i]);
+    // Process Proches, Conjoints, Services, etc. asynchronously
+    await Promise.all([
+      processProches(request.body.Proches),
+      processConjoints(request.body.Conjoint),
+      processServices(request.body.Service),
+      processClientMissions(request.body.ClientMission),
+      processClientMissionPrestations(request.body.ClientMissionPrestation),
+    ]);
 
-                console.log("CreateClientMission: ", resClientMission);
-                // log.Info("CreateClientMission", resClientMission);
-              })
-              .catch((errorClientMission) => {
-                console.log("ErrorCreateClientMission: ", errorClientMission);
-                log.Info("ErrorCreateClientMission", errorClientMission);
-              });
-          }
-        }
-        // create ClientMissionPrestation
-        if (request.body.ClientMissionPrestation != null && request.body.ClientMissionPrestation.length > 0) {
-          for (let i = 0; i < request.body.ClientMissionPrestation.length; i++) {
-            await CreateClientMissionPrestation(request.body.ClientMissionPrestation[i])
-              .then((resClientMissionPrestation) => {
-                log.Info("CreateClientMissionPrestation", resClientMissionPrestation, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientMissionPrestation[i]);
+    let insertedTasks = [];
 
-                console.log("CreateClientMissionPrestation: ", resClientMissionPrestation);
-                // log.Info("CreateClientMissionPrestation", resClientMissionPrestation);
-              })
-              .catch((errorClientMissionPrestation) => {
-                console.log("ErrorCreateClientMissionPrestation: ", errorClientMissionPrestation);
-                log.Info("ErrorCreateClientMissionPrestation", errorClientMissionPrestation);
-              });
-          }
-        }
+    if (Array.isArray(request.body.ClientTaches) && request.body.ClientTaches.length > 0) {
+      insertedTasks = await processClientTaches(request.body.ClientTaches, res.ClientId);
+    }
 
-        
-        
-        const clientTaches = request.body.ClientTaches;
-
-        if (Array.isArray(clientTaches) && clientTaches.length > 0) {
-
-          console.log("Index A");
-
-
-          for (const tache of clientTaches) {
-            
-            const request = new sql.Request();
-
-            let isR = 0;
-            if(tache.IsReminder === false){
-              isR = 0;
-            }
-            else{
-              isR = 1; 
-            }
-
-            console.warn("Executed X ---");
-
-            request
-              .input("ClientTacheId", sql.UniqueIdentifier, tache.ClientTacheId)
-              .input("ClientId", sql.UniqueIdentifier, res.ClientId)
-              .input("AgentResponsable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
-              .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
-              .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
-              .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
-              .input("Intitule", sql.VarChar(200), tache.Intitule)
-              .input("Commentaire", sql.VarChar(200), tache.Commentaire)              
-              .input("start_date", sql.DateTime, tache.Start_date)  
-              .input("end_date", sql.DateTime, tache.End_date)     
-              .input("color", sql.VarChar(7), tache.Color || '#7366fe')  
-              .input("isDone", sql.Bit, 0)    
-              .input("isReminder", sql.Bit, isR || 0)                         
-              .execute("ps_create_client_tache")
-              .then((resClientTaches) => {
-                console.warn("Executed Y ---")
-              })
-              .catch((error) => {
-                console.log("Error: ", error);
-                console.warn("Error: ", error);
-              });
-          }
-        }
-      }
-      response.status(200).send(res);
-    })
-    .catch((error) => {
-      log.Info(error);
-      response.status(400).send(error);
+    // ✅ Return message + inserted tasks
+    return response.status(200).json({ 
+      message: "Client created successfully.",
+      events: insertedTasks 
     });
+
+  } catch (error) {
+    console.log("Error: ", error);
+    log.Info(error);
+    return response.status(400).send(error);
+  }
 });
+
+
+
+
+
+
+async function processProches(Proches) {
+  if (Proches && Proches.length > 0) {
+    for (const proche of Proches) {
+      await CreateProche(proche).then((resProche) => {
+        if (resProche) log.Info("CreateProche", resProche);
+      }).catch(error => log.Error("CreateProcheError", error));
+    }
+  }
+}
+
+async function processConjoints(Conjoints) {
+  if (Conjoints && Conjoints.length > 0) {
+    for (const conjoint of Conjoints) {
+      await CreateConjoint(conjoint).then((resConjoint) => {
+        log.Info("CreateConjoint", resConjoint);
+      }).catch(error => log.Info("ErrorCreateConjoint", error));
+    }
+  }
+}
+
+async function processServices(Services) {
+  if (Services) {
+    await CreateService(Services).then((resService) => {
+      log.Info("CreateService", resService);
+    }).catch(error => log.Info("ErrorCreateService", error));
+  }
+}
+
+async function processClientMissions(ClientMissions) {
+  if (ClientMissions && ClientMissions.length > 0) {
+    for (const mission of ClientMissions) {
+      await CreateClientMission(mission).then((resClientMission) => {
+        log.Info("CreateClientMission", resClientMission);
+      }).catch(error => log.Info("ErrorCreateClientMission", error));
+    }
+  }
+}
+
+async function processClientMissionPrestations(ClientMissionPrestations) {
+  if (ClientMissionPrestations && ClientMissionPrestations.length > 0) {
+    for (const prestation of ClientMissionPrestations) {
+      await CreateClientMissionPrestation(prestation).then((resPrestation) => {
+        log.Info("CreateClientMissionPrestation", resPrestation);
+      }).catch(error => log.Info("ErrorCreateClientMissionPrestation", error));
+    }
+  }
+}
+
+
+
+async function processClientTaches(clientTaches, clientId) {
+  let insertedTasks = []; // ✅ Collect inserted tasks
+
+  for (const tache of clientTaches) {
+    let isR = tache.IsReminder ? 1 : 0;
+    const request = new sql.Request();
+
+    try {
+      const result = await request
+        .input("ClientId", sql.UniqueIdentifier, clientId)
+        .input("AgentResposable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
+        .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
+        .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
+        .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
+        .input("Intitule", sql.VarChar(200), tache.Intitule)
+        .input("Commentaire", sql.VarChar(200), tache.Commentaire)
+        .input("start_date", sql.DateTime, tache.Start_date)
+        .input("end_date", sql.DateTime, tache.End_date)
+        .input("color", sql.VarChar(7), tache.Color || '#7366fe')
+        .input("isDone", sql.Bit, 0)
+        .input("isReminder", sql.Bit, isR)
+        .execute("ps_create_client_tache")
+        .then(() => {
+          new sql.Request()
+            .input("ClientId", sql.UniqueIdentifier, clientId)
+            .query(`
+              SELECT * 
+              FROM Evenements
+              INNER JOIN ClientTache ON Evenements.TacheId = ClientTache.ClientTacheId
+              WHERE ClientTache.ClientId = @ClientId
+            `)
+            .then(result => {
+              insertedTasks = result.recordset;
+            })
+            .catch(error => {
+              console.log("Error 74");
+            });
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+          response.status(400).send(error);
+        });
+      
+      
+
+    } catch (error) {
+      console.log("Error inserting task: ", error);
+    }
+  }
+
+  return insertedTasks; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

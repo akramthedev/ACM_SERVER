@@ -134,8 +134,11 @@ GO
 
 
 
+
+
+
 CREATE TABLE ClientTache(
-    CLientTacheId uniqueidentifier PRIMARY KEY,
+    ClientTacheId uniqueidentifier PRIMARY KEY,
     ClientId uniqueidentifier,
     ClientMissionPrestationId uniqueidentifier NOT NULL, --Référence au ClientMissionPrestation
     ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
@@ -148,13 +151,14 @@ CREATE TABLE ClientTache(
     DateButoir Date,
     Date_Execution Date,
     Status NVARCHAR(255),
-    AgentResposable NVARCHAR(255), 
-     color VARCHAR(7) DEFAULT '#7366fe' NULL,  
+    AgentResposable uniqueidentifier NULL, 
+    color VARCHAR(7) DEFAULT '#7366fe' NULL,  
     isDone BIT DEFAULT 0 , 
     isReminder BIT DEFAULT 0, 
     start_date DATETIME NULL, 
     end_date DATETIME NULL, 
-    FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
+	FOREIGN KEY (AgentResposable) REFERENCES Agent(AgentId),
+	FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
     FOREIGN KEY (ClientMissionPrestationId) REFERENCES ClientMissionPrestation(ClientMissionPrestationId),
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
@@ -244,9 +248,14 @@ GO
 
 
 
-create proc ps_create_client_tache
-    @ClientTacheId uniqueidentifier,
+
+
+
+
+
+CREATE PROCEDURE ps_create_client_tache
     @ClientId uniqueidentifier,
+    @AgentResposable uniqueidentifier,
     @ClientMissionPrestationId uniqueidentifier,
     @ClientMissionId uniqueidentifier,
     @TacheId uniqueidentifier, 
@@ -258,10 +267,39 @@ create proc ps_create_client_tache
     @isDone BIT,                
     @isReminder BIT                
 AS
-    INSERT INTO ClientTache (ClientTacheId,  ClientId,   ClientMissionPrestationId, ClientMissionId,  TacheId, Intitule,  Commentaire,  start_date,  end_date,  color,  isDone,  isReminder)
-    VALUES (@ClientTacheId,@ClientId, @ClientMissionPrestationId, @ClientMissionId, @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder);
+BEGIN
+    -- Check if ClientId exists before inserting
+    IF NOT EXISTS (SELECT 1 FROM Client WHERE ClientId = @ClientId)
+    BEGIN
+        RAISERROR('Client does not exist', 16, 1);
+        RETURN;
+    END
+
+    -- Insert task for the existing ClientId
+    INSERT INTO ClientTache (
+        ClientTacheId, ClientId, AgentResposable, 
+        ClientMissionPrestationId, ClientMissionId, TacheId, 
+        Intitule, Commentaire, start_date, end_date, color, isDone, isReminder
+    ) VALUES (
+        NEWID(), @ClientId, @AgentResposable, 
+        @ClientMissionPrestationId, @ClientMissionId, @TacheId, 
+        @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder
+    );
+END
 GO
-----------------------------------------------------------17/07/2024-------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------17/07/2024-------------------------------------------------------------
 
 --region service
 insert into Service(ServiceId,CabinetId,Designation,Description,CreatedAt)values('a04cbdcc-7a95-4548-acbc-7e43b4f7ff9c','0e06e5a4-6246-415d-b119-c47077180755','Immobilier','Description Immobilier',CURRENT_TIMESTAMP)
