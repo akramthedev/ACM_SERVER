@@ -23,6 +23,14 @@ const sql = require("mssql");
 
 
 
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
+
 //#region Client
 router.get(
   "/GetClients",
@@ -68,10 +76,8 @@ router.get(
 
 router.get("/GetClient", async (request, response) => {
   try {
-    console.warn("ClientId received:", request.query.ClientId);
 
       let res = await GetClient(request.query.ClientId);
-      console.warn("Raw response from GetClient:", res);
       
       // Ensure res is an array and not undefined
       if (!res || res.length === 0) {
@@ -80,7 +86,6 @@ router.get("/GetClient", async (request, response) => {
       }
       
       let client = res;
-      console.warn(client);
       
 
     if (!client) {
@@ -188,8 +193,6 @@ router.get("/GetClient", async (request, response) => {
 router.post("/CreateClient", async (request, response) => {
   try {
     const res = await CreateClient(request.body);
-    console.log("Data In Controller");
-    console.warn(res);
 
     if (!res) {
       return response.status(400).send("Client creation failed.");
@@ -280,12 +283,6 @@ async function processClientMissionPrestations(ClientMissionPrestations) {
 
 
 
-
-
-
-
-
-
 async function processClientTaches(clientTaches, clientId) {
   let insertedTasks = []; 
 
@@ -295,6 +292,11 @@ async function processClientTaches(clientTaches, clientId) {
     try {
       // ✅ First request to insert a task
       const insertRequest = new sql.Request();
+
+      console.warn(tache);
+      console.warn(tache.Start_date)
+      console.warn(tache.End_date);
+
       await insertRequest
         .input("ClientId", sql.UniqueIdentifier, clientId)
         .input("AgentResposable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
@@ -310,7 +312,8 @@ async function processClientTaches(clientTaches, clientId) {
         .input("isReminder", sql.Bit, isR)
         .execute("ps_create_client_tache");
 
-      // ✅ Second request to fetch inserted tasks (new sql.Request())
+        await sleep(1500);
+
       const selectRequest = new sql.Request();
       const result = await selectRequest
         .input("ClientId", sql.UniqueIdentifier, clientId)

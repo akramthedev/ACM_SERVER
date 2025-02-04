@@ -4,6 +4,9 @@ const { GetClientTaches, CreateClientTache,CreateGoogleCalendarAccount,GetAccess
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
 const log = require("node-file-logger");
+const sql = require("mssql");
+
+
 
 function formatDateToDDMMYYYY(date) {
   const day = String(date.getDate()).padStart(2, "0"); // Obtenir le jour
@@ -139,6 +142,30 @@ router.post("/DeleteGoogleToken", async(request, response)=>{
     .catch((error) => {
       response.status(400).send(error);
     });
+})
+
+
+
+router.delete("/DeleteEventById/:eventId", async(request, response)=>{
+
+  const {eventId} = request.params;
+
+  if (!eventId) {
+    return response.status(400).send({ error: "Event ID is required" });
+  }
+  try {
+    new sql.Request()
+          .input("EventIdX", sql.Int , eventId)
+          .query("DELETE FROM Evenements WHERE EventId = @EventIdX")  
+          .then((result) => {
+            console.log(result);
+            response.status(200).send(result);
+
+          })
+          .catch((error) => reject(error?.originalError?.info?.message || error.message));
+  } catch (error) {
+    response.status(400).send(error);
+  }
 })
 
 
