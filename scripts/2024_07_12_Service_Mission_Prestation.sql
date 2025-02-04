@@ -252,7 +252,6 @@ GO
 
 
 
-
 CREATE PROCEDURE ps_create_client_tache
     @ClientId uniqueidentifier,
     @AgentResposable uniqueidentifier,
@@ -262,7 +261,7 @@ CREATE PROCEDURE ps_create_client_tache
     @Intitule VARCHAR(200), 
     @Commentaire VARCHAR(200), 
     @start_date DATETIME,       
-    @end_date DATETIME,         
+    @end_date DATETIME,          
     @color VARCHAR(7),         
     @isDone BIT,                
     @isReminder BIT                
@@ -275,7 +274,21 @@ BEGIN
         RETURN;
     END
 
-    -- Insert task for the existing ClientId
+    -- Check if ClientMissionPrestationId exists
+    IF NOT EXISTS (SELECT 1 FROM ClientMissionPrestation WHERE ClientMissionPrestationId = @ClientMissionPrestationId)
+    BEGIN
+        RAISERROR('ClientMissionPrestationId does not exist', 16, 1);
+        RETURN;
+    END
+
+    -- Check if ClientMissionId exists
+    IF NOT EXISTS (SELECT 1 FROM ClientMission WHERE ClientMissionId = @ClientMissionId)
+    BEGIN
+        RAISERROR('ClientMissionId does not exist', 16, 1);
+        RETURN;
+    END
+
+    -- Insert task for the existing ClientId, ClientMissionPrestationId, and ClientMissionId
     INSERT INTO ClientTache (
         ClientTacheId, ClientId, AgentResposable, 
         ClientMissionPrestationId, ClientMissionId, TacheId, 
@@ -623,12 +636,14 @@ BEGIN
         SET @DiffHours = DATEDIFF(HOUR, @StartDate, @EndDate);
 
         -- Déterminer combien d'événements créer
-        IF @DiffHours BETWEEN 0 AND 400
+        IF @DiffHours BETWEEN 0 AND 720
             SET @NumberEvent = 2;
-        ELSE IF @DiffHours BETWEEN 401 AND 2000
+        ELSE IF @DiffHours BETWEEN 721 AND 2000
             SET @NumberEvent = 3;
+        ELSE IF @DiffHours BETWEEN 2001 AND 6666
+            SET @NumberEvent = 4;
         ELSE
-            SET @NumberEvent = 3; -- Sécurité pour éviter les erreurs
+            SET @NumberEvent = 1; -- Sécurité pour éviter les erreurs
 
         -- Initialiser les événements
         SET @EventCounter = 1;

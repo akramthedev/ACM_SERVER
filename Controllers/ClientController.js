@@ -283,20 +283,30 @@ async function processClientMissionPrestations(ClientMissionPrestations) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 async function processClientTaches(clientTaches, clientId) {
   let insertedTasks = []; 
 
-  for (const tache of clientTaches) {
-    let isR = tache.IsReminder ? 1 : 0;
+  try {
+    for (const tache of clientTaches) {
+      let isR = tache.IsReminder ? 1 : 0;
 
-    try {
-      // ✅ First request to insert a task
+      console.warn(tache.ClientMissionId)
+      console.warn(tache.ClientMissionPrestationId);
+      console.warn("---------------------------------");
+      
       const insertRequest = new sql.Request();
-
-      console.warn(tache);
-      console.warn(tache.Start_date)
-      console.warn(tache.End_date);
-
       await insertRequest
         .input("ClientId", sql.UniqueIdentifier, clientId)
         .input("AgentResposable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
@@ -311,26 +321,25 @@ async function processClientTaches(clientTaches, clientId) {
         .input("isDone", sql.Bit, 0)
         .input("isReminder", sql.Bit, isR)
         .execute("ps_create_client_tache");
-
-        await sleep(1500);
-
-      const selectRequest = new sql.Request();
-      const result = await selectRequest
-        .input("ClientId", sql.UniqueIdentifier, clientId)
-        .query(`
-          SELECT * 
-          FROM Evenements
-          INNER JOIN ClientTache ON Evenements.TacheId = ClientTache.ClientTacheId
-          WHERE ClientTache.ClientId = @ClientId
-        `);
-
-      if (result.recordset.length > 0) {
-        insertedTasks = result.recordset; // ✅ Store results correctly
-      }
-
-    } catch (error) {
-      console.log("Error inserting task: ", error);
     }
+
+    // ✅ After all tasks are inserted, select them in one query
+    const selectRequest = new sql.Request();
+    const result = await selectRequest
+      .input("ClientId", sql.UniqueIdentifier, clientId)
+      .query(`
+        SELECT * 
+        FROM Evenements
+        INNER JOIN ClientTache ON Evenements.TacheId = ClientTache.ClientTacheId
+        WHERE ClientTache.ClientId = @ClientId
+      `);
+
+    if (result.recordset.length > 0) {
+      insertedTasks = result.recordset; // ✅ Store results correctly
+    }
+
+  } catch (error) {
+    console.log("Error inserting task: ", error);
   }
 
   return insertedTasks; // ✅ Now this will return the fetched tasks
