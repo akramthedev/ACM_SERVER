@@ -273,65 +273,15 @@ GO
 
 
 
-
-
-
-CREATE PROCEDURE ps_get_client_taches_simple
-    @ClientId UNIQUEIDENTIFIER
-AS
-BEGIN
-    SELECT 
-        ct.ClientTacheId,
-        ct.ClientMissionPrestationId,
-        ct.ClientMissionId,
-        ct.TacheId,
-        ct.Intitule,
-        ct.Numero_Ordre,
-        ct.Commentaire,
-        ct.Deadline,
-        ct.DateButoir,
-        ct.Date_Execution,
-        ct.Status,
-        ct.AgentResposable
-    FROM 
-        ClientTache ct
-    LEFT JOIN 
-        ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
-    WHERE 
-        cm.ClientId = @ClientId;
-END;
-GO
+ 
 
 ALTER TABLE Prestation
 ADD Numero_Ordre NVARCHAR(255)
 
-ALTER PROCEDURE ps_get_client_taches_simple
-    @ClientId UNIQUEIDENTIFIER
-AS
-BEGIN
-    SELECT 
-        ct.ClientTacheId,
-        ct.ClientMissionPrestationId,
-        ct.ClientMissionId,
-        ct.TacheId,
-        ct.Intitule,
-        ct.Numero_Ordre,
-        ct.Commentaire,
-        ct.Deadline,
-        ct.DateButoir,
-        ct.Date_Execution,
-        ct.Status,
-        ct.AgentResposable
-    FROM 
-        ClientTache ct
-    LEFT JOIN 
-        ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
-    WHERE 
-        cm.ClientId = @ClientId
-    ORDER BY 
-        CAST(SUBSTRING(ct.Numero_Ordre, 2, LEN(ct.Numero_Ordre) - 1) AS INT);
-END;
-GO
+
+
+
+
 
 CREATE TABLE Agent (
     AgentId uniqueidentifier PRIMARY KEY, 
@@ -432,7 +382,7 @@ GO
 
 
 
-ALTER PROCEDURE ps_get_client_taches_simple --add Prestation designation
+CREATE PROCEDURE ps_get_client_taches_simple  
     @ClientId UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -449,18 +399,19 @@ BEGIN
         ct.Date_Execution,
         ct.Status,
         ct.AgentResposable,
-        m.Designation, 
         p.Designation, 
-        t.Intitule, 
-        p.Designation AS PrestationDesignation  -- Include PrestationDesignation
+        t.Intitule AS IntituleTaskOriginal, 
+        p.Designation AS PrestationDesignation   
     FROM 
         ClientTache ct
+    LEFT JOIN 
+        Tache t ON t.TacheId = ct.TacheId
     LEFT JOIN 
         ClientMission cm ON ct.ClientMissionId = cm.ClientMissionId
     LEFT JOIN
         ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
     LEFT JOIN
-        Prestation p ON cmp.PrestationId = p.PrestationId  -- Join Prestation table
+        Prestation p ON cmp.PrestationId = p.PrestationId  
     WHERE 
         cm.ClientId = @ClientId
     ORDER BY 
