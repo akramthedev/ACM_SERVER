@@ -663,7 +663,7 @@ BEGIN
             SET @EventDate = CAST(DATEADD(HOUR, @EventOffset, @StartDate) AS DATE);
 
             -- Fixer toujours l'heure à **08:45**
-            SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:45:00'), CAST(@EventDate AS DATETIME2));
+            SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:00:00'), CAST(@EventDate AS DATETIME2));
             SET @EventEnd = DATEADD(HOUR, 9, @EventStart); -- L'événement dure 1 heure
 
             -- Insérer l'événement
