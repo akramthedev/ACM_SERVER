@@ -471,11 +471,11 @@ BEGIN
     BEGIN TRY  
         INSERT INTO ClientTache (
             ClientTacheId, ClientId, ClientMissionPrestationId, ClientMissionId,  
-            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable, Numero_Ordre
+            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable, Numero_Ordre, Status
         )  
         VALUES (
             NEWID(), @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
-            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, @NumOrdre
+            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, @NumOrdre, 'En cours'
         );  
     END TRY  
     BEGIN CATCH  
