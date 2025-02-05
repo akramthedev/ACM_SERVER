@@ -140,7 +140,7 @@ GO
 CREATE TABLE ClientTache(
     ClientTacheId uniqueidentifier PRIMARY KEY,
     ClientId uniqueidentifier,
-    ClientMissionPrestationId uniqueidentifier NOT NULL, --Référence au ClientMissionPrestation
+    ClientMissionPrestationId uniqueidentifier NULL, --Référence au ClientMissionPrestation
     ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
     TacheId uniqueidentifier NOT NULL, --Référence au Tache
     DateAffectation Date,
@@ -159,7 +159,6 @@ CREATE TABLE ClientTache(
     end_date DATETIME NULL, 
 	FOREIGN KEY (AgentResposable) REFERENCES Agent(AgentId),
 	FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
-    FOREIGN KEY (ClientMissionPrestationId) REFERENCES ClientMissionPrestation(ClientMissionPrestationId),
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
 );
