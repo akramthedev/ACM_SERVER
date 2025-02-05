@@ -236,6 +236,15 @@ function CreateClientTache(data) {
   return new Promise((resolve, reject) => {
     const request = new sql.Request();
 
+
+    console.warn(data);
+    console.warn("--------------------------")
+    console.warn("--------------------------")
+    console.warn("--------------------------")
+    console.warn("--------------------------")
+    console.warn("--------------------------")
+    console.warn("--------------------------")
+
     // Step 1: Insert the task into the database
     request
       .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)

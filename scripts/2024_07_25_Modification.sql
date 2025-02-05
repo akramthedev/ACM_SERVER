@@ -451,9 +451,8 @@ GO
 
 
 CREATE PROC ps_create_client_tache  
-    @ClientTacheId UNIQUEIDENTIFIER,  
     @ClientId UNIQUEIDENTIFIER,  
-    @AgentResponsable UNIQUEIDENTIFIER, 
+    @AgentResposable UNIQUEIDENTIFIER, 
     @ClientMissionPrestationId UNIQUEIDENTIFIER,  
     @ClientMissionId UNIQUEIDENTIFIER,  
     @TacheId UNIQUEIDENTIFIER,   
@@ -463,7 +462,8 @@ CREATE PROC ps_create_client_tache
     @end_date DATETIME,           
     @color VARCHAR(7) = '#000000',  -- Default color if not provided
     @isDone BIT = 0,               -- Default as 'not done'
-    @isReminder BIT = 0  
+    @isReminder BIT = 0, 
+    @NumOrdre NVARCHAR(255)
 AS  
 BEGIN  
     SET NOCOUNT ON;  
@@ -471,11 +471,11 @@ BEGIN
     BEGIN TRY  
         INSERT INTO ClientTache (
             ClientTacheId, ClientId, ClientMissionPrestationId, ClientMissionId,  
-            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResponsable
+            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable, Numero_Ordre
         )  
         VALUES (
-            @ClientTacheId, @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
-            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResponsable
+            NEWID(), @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
+            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, @NumOrdre
         );  
     END TRY  
     BEGIN CATCH  
@@ -484,6 +484,7 @@ BEGIN
         THROW;  -- Rethrow the error for debugging
     END CATCH  
 END;
+
 
 
 
