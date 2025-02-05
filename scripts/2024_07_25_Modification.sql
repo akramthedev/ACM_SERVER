@@ -150,6 +150,34 @@ GO
 
 
 
+CREATE PROCEDURE ps_update_clienttache_from_SinglePageCLient
+    @ClientTacheId UNIQUEIDENTIFIER,
+    @Intitule NVARCHAR(255),
+    @Numero_Ordre NVARCHAR(255),
+    @Status NVARCHAR(255),
+    @AgentResposable NVARCHAR(255)
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+
+        UPDATE ClientTache
+        SET 
+            Intitule = @Intitule,
+            Numero_Ordre = @Numero_Ordre,
+            Status = @Status,
+            AgentResposable = @AgentResposable
+        WHERE ClientTacheId = @ClientTacheId;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
 
 
 

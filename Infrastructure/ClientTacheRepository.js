@@ -247,12 +247,11 @@ function CreateClientTache(data) {
 
     // Step 1: Insert the task into the database
     request
-      .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
-      .input("ClientId", sql.UniqueIdentifier, data.ClientId)
-      .input("AgentId", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
-      .input("ClientMissionPrestationId", sql.UniqueIdentifier, data.ClientMissionPrestationId)
-      .input("ClientMissionId", sql.UniqueIdentifier, data.ClientMissionId)
-      .input("TacheId", sql.UniqueIdentifier, data.TacheId)
+      .input("ClientId", sql.NVarChar(255), data.ClientId)
+      .input("AgentId", sql.NVarChar(255), '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
+      .input("ClientMissionPrestationId", sql.NVarChar(255), data.ClientMissionPrestationId)
+      .input("ClientMissionId", sql.NVarChar(255), data.ClientMissionId)
+      .input("TacheId", sql.NVarChar(255), data.TacheId)
       .input("start_date", sql.DateTime, data.start_date) // New field: start_date
       .input("end_date", sql.DateTime, data.end_date)     // New field: end_date
       .input("color", sql.VarChar(7), data.color || '#7366fe') // New field: color (default if not provided)
@@ -293,17 +292,34 @@ function CreateClientTacheCustom(data) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+
+
 function UpdateClientTache(data) {
+  
+  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+  console.log();
+  console.warn(data);
+  console.log();
+  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    
+
   return new Promise((resolve, reject) => {
     new sql.Request()
-      .input("start_date", sql.DateTime, data.start_date)
-      .input("end_date", sql.DateTime, data.end_date)
-      .execute("ps_update_ClientTache")
+      .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
+      .input("Intitule", sql.NVarChar(255), data.Intitule)
+      .input("Numero_Ordre", sql.NVarChar(255), data.Numero_Ordre)
+      .input("Status", sql.NVarChar(255), data.Status) 
+      .input("AgentResposable", sql.NVarChar(255)  , data.AgentResposable) 
+      .execute("ps_update_clienttache_from_SinglePageCLient")
       .then((result) => resolve(result.rowsAffected[0] > 0))
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
 
+ 
 
 
 function convertUTCToLocal(utcDateString) {

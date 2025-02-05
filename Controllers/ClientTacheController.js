@@ -266,68 +266,15 @@ router.put("/UpdateClientTache", async (request, response) => {
   console.log("request body updateClientTache : ", request.body);
 
   try {
-    // Récupérer la tâche avant la mise à jour pour obtenir l'ancien statut
-    const originalTask = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
-    const originalStatus = originalTask[0]?.Status; // Récupérer l'ancien statut
-
-    // Vérifier si le statut a changé de "non terminé" à "Terminé"
-    if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
-      // Si le statut change en "Terminé", mettre à jour la date d'exécution à la date actuelle
-      request.body.Date_Execution = new Date();
-    } else if (originalStatus === "Terminé" || request.body.Date_Execution === null) {
-      // Si la tâche est déjà "Terminé", ne pas changer la Date_Execution
-      request.body.Date_Execution = originalTask[0].Date_Execution; // Garder la date d'exécution d'origine
-    }
-
-    // Mettre à jour la tâche (update même si l'email échoue)
+  
+     
     await UpdateClientTache(request.body);
-
-    // Récupérer les détails de la tâche après la mise à jour
-    const clientTacheDetails = await GetClientTacheDetailsForEmail(request.body.ClientTacheId);
-    log.Info("Tache updated successfully", JSON.stringify(clientTacheDetails), `Updated by: ${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
-
-    console.log("response GetClientTacheDetailsForEmail : ", clientTacheDetails);
-    console.log("originalstatus : ", originalStatus);
-
-    // Essayer d'envoyer l'email si le statut passe de "non terminé" à "Terminé"
-    if (originalStatus !== "Terminé" && request.body.Status === "Terminé") {
-      const agentEmail = clientTacheDetails[0]?.AgentEmail;
-      const clientNom=clientTacheDetails[0]?.ClientNom
-      const clientPrenom=clientTacheDetails[0]?.ClientPrenom
-
-
-      if (agentEmail) {
-        const emailSubject = `Tâche terminée pour ${clientPrenom} ${clientNom} : ${request.body.Intitule}`;
-        const emailBody = `
-          <p>La tâche suivante a été marquée comme terminée :</p>
-          <ul>
-            <li><strong>Client :</strong> ${clientPrenom} ${clientNom}</li>
-            <li><strong>Intitulé :</strong> ${request.body.Intitule}</li>
-            <li><strong>Date d'exécution :</strong> ${formatDateToDDMMYYYY(request.body.Date_Execution) || "Non spécifiée"}</li>
-          </ul>
-          <p>Merci.</p>
-        `;
-
-        // Essayer d'envoyer l'email, mais ne pas affecter la mise à jour en cas d'échec
-        try {
-          await sendEmail(agentEmail, emailSubject, emailBody);
-          console.log("Email envoyé à l'agent :", agentEmail);
-          log.Info("Email envoyé à l'agent :", agentEmail);
-        } catch (emailError) {
-          log.Info("Erreur lors de l'envoi de l'email :", emailError);
-          console.error("Erreur lors de l'envoi de l'email :", emailError);
-        }
-      } else {
-        log.Info("Aucun email d'agent trouvé pour la tâche.");
-        console.log("Aucun email d'agent trouvé pour la tâche.");
-      }
-    }
-
+ 
     // Envoyer la réponse avec les détails de la tâche, même si l'email échoue
-    return response.status(200).send(clientTacheDetails);
+    return response.status(200).send({
+      message : "Hello ! "
+    });
   } catch (error) {
-    log.Error("UpdateClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body.ClientTacheId);
-
     return response.status(400).send(error);
   }
 });
