@@ -202,9 +202,10 @@ async function  MarkAsDone(ClientTacheId) {
     request1.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
     request1.input("isDone", sql.Bit, 1);
     request1.input("color", sql.VarChar(7), "#28a745");
+    request1.input("statusS", sql.NVarChar(255), "Finalisée");
 
     const result1 = await request1.query(
-      "UPDATE ClientTache SET isDone = @isDone, color = @color WHERE ClientTacheId = @ClientTacheId"
+      "UPDATE ClientTache SET isDone = @isDone,  Status = @statusS   , color = @color WHERE ClientTacheId = @ClientTacheId"
     );
 
     if (result1.rowsAffected[0] === 0) {
