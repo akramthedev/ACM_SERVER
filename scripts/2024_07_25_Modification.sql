@@ -382,6 +382,10 @@ GO
 
 
 
+
+
+
+
 CREATE PROCEDURE ps_get_client_taches_simple  
     @ClientId UNIQUEIDENTIFIER
 AS
@@ -392,7 +396,6 @@ BEGIN
         ct.ClientMissionId,
         ct.TacheId,
         ct.Intitule,
-        ct.Numero_Ordre,
         ct.Commentaire,
         ct.Deadline,
         ct.DateButoir,
@@ -401,6 +404,7 @@ BEGIN
         ct.AgentResposable,
         p.Designation, 
         t.Intitule AS IntituleTaskOriginal, 
+        t.Numero_Ordre AS Numero_Ordre, 
         p.Designation AS PrestationDesignation   
     FROM 
         ClientTache ct
@@ -429,6 +433,10 @@ GO
 
 
 
+
+
+
+
 CREATE PROC ps_create_client_tache  
     @ClientId UNIQUEIDENTIFIER,  
     @AgentResposable UNIQUEIDENTIFIER, 
@@ -441,8 +449,7 @@ CREATE PROC ps_create_client_tache
     @end_date DATETIME,           
     @color VARCHAR(7) = '#000000',  -- Default color if not provided
     @isDone BIT = 0,               -- Default as 'not done'
-    @isReminder BIT = 0, 
-    @NumOrdre NVARCHAR(255)
+    @isReminder BIT = 0
 AS  
 BEGIN  
     SET NOCOUNT ON;  
@@ -450,11 +457,11 @@ BEGIN
     BEGIN TRY  
         INSERT INTO ClientTache (
             ClientTacheId, ClientId, ClientMissionPrestationId, ClientMissionId,  
-            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable, Numero_Ordre, Status
+            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable , Status
         )  
         VALUES (
             NEWID(), @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
-            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, @NumOrdre, 'En cours'
+            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, 'En cours'
         );  
     END TRY  
     BEGIN CATCH  

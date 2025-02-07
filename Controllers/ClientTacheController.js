@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { GetClientTaches, CreateClientTache,CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken, MarkAsDone,  UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
+const { UpdateSingleEvent,GetClientTaches, CreateClientTache,CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken, MarkAsDone,  UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetClientTachesAllOfThem } = require("../Infrastructure/ClientTacheRepository");
 const { GetClientTacheDetailsForEmail } = require("../Infrastructure/EmailRepository");
 var mailer = require("../Helper/mailer");
 const log = require("node-file-logger");
@@ -133,6 +133,35 @@ router.get("/GetUnassignedClientTache", async (request, response) => {
 
 
 
+
+
+
+formatDateForDB = (dateString) => {
+  const date = new Date(dateString);
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0'); // Include hours
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+};
+
+
+
+
+router.post("/UpdateSingleEvent", async(request, response)=>{
+  await UpdateSingleEvent(request.body)
+    .then((res) => {
+      response.status(200).send(res);
+    })
+    .catch((error) => {
+      response.status(400).send(error);
+    });
+})
 
 router.post("/DeleteGoogleToken", async(request, response)=>{
   await DeleteGoogleToken(request.body)

@@ -268,25 +268,8 @@ router.post("/CreateClient", async (request, response) => {
     let insertedTasks = [];
     if (Array.isArray(request.body.ClientTaches) && request.body.ClientTaches.length > 0) {
       console.log("🔄 Processing client tasks...");
-      //get Details OF Single Tache Before Creating ClientTache
 
-      const selectRequest = new sql.Request();
-      const result = await selectRequest
-        .input("tacheIdX", sql.UniqueIdentifier, request.body.ClientTaches[0].TacheId)
-        .query(`
-          SELECT * 
-          FROM Tache
-          WHERE TacheId = @tacheIdX
-        `);
-
-      let TacheInfos = result.recordset[0];
-
-      console.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXX");
-      console.warn(request.body.ClientTaches[0].TacheId);
-      console.warn(TacheInfos);
-      console.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXX");
-
-      insertedTasks = await processClientTaches(request.body.ClientTaches, res.ClientId, TacheInfos);
+      insertedTasks = await processClientTaches(request.body.ClientTaches, res.ClientId);
       console.log("✅ Tasks processed:", insertedTasks);
     }
 
@@ -301,14 +284,11 @@ router.post("/CreateClient", async (request, response) => {
   }
 });
 
-async function processClientTaches(clientTaches, clientId, TacheInfos) {
+async function processClientTaches(clientTaches, clientId) {
   let insertedTasks = [];
   try {
     for (const tache of clientTaches) {
 
-      console.warn("TacheInfos Data : ");
-      console.warn(TacheInfos);
-    
       try {
         console.log("🔄 Inserting task:", tache);
         const insertRequest = new sql.Request();
@@ -325,7 +305,6 @@ async function processClientTaches(clientTaches, clientId, TacheInfos) {
           .input("color", sql.VarChar(7), tache.Color || '#7366fe')
           .input("isDone", sql.Bit, 0)
           .input("isReminder", sql.Bit, tache.IsReminder ? 1 : 0)
-          .input("NumOrdre", sql.NVarChar(255), TacheInfos.Numero_Ordre)
           .execute("ps_create_client_tache");
 
         console.log("✅ Task inserted successfully:", tache);

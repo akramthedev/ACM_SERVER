@@ -614,9 +614,27 @@ BEGIN
     
     -- Table des couleurs aléatoires
     DECLARE @Colors TABLE (Color VARCHAR(7));
-    INSERT INTO @Colors (Color) VALUES 
-        ('#6366f1'), ('#eab308'), ('#3b82f6'), ('#ec4899'),
-        ('#ea2e08'), ('#b007b0'), ('#07128f');
+     INSERT INTO @Colors (Color) VALUES 
+        ('#6366f1'), 
+        ('#eab308'), 
+        ('#3b82f6'), 
+        ('#ec4899'), 
+        ('#ea2e08'), 
+        ('#b007b0'), 
+        ('#07128f'),
+        ('#f59e0b'), 
+        ('#f97316'), 
+        ('#ef4444'), 
+        ('#6b21a8'), 
+        ('#8b5cf6'), 
+        ('#d946ef'), 
+        ('#f43f5e'), 
+        ('#ea580c'), 
+        ('#9333ea'), 
+        ('#fb923c'), 
+        ('#6366f1'), 
+        ('#1d4ed8'), 
+        ('#d4d4d8');
 
     -- Curseur pour parcourir les tâches insérées
     DECLARE task_cursor CURSOR FOR 
@@ -637,9 +655,9 @@ BEGIN
         -- Déterminer combien d'événements créer
         IF @DiffHours BETWEEN 0 AND 720
             SET @NumberEvent = 2;
-        ELSE IF @DiffHours BETWEEN 721 AND 2000
+        ELSE IF @DiffHours BETWEEN 721 AND 4444
             SET @NumberEvent = 3;
-        ELSE IF @DiffHours BETWEEN 2001 AND 6666
+        ELSE IF @DiffHours BETWEEN 4445 AND 200000
             SET @NumberEvent = 4;
         ELSE
             SET @NumberEvent = 1; -- Sécurité pour éviter les erreurs
@@ -657,7 +675,7 @@ BEGIN
             ELSE IF @EventCounter = 3
                 SET @EventOffset = @DiffHours - (@DiffHours / 8);
             ELSE
-                SET @EventOffset = @DiffHours - (@DiffHours / 8);
+                SET @EventOffset = @DiffHours - (@DiffHours / 10);
 
             -- Calculer uniquement la **date** de l'événement
             SET @EventDate = CAST(DATEADD(HOUR, @EventOffset, @StartDate) AS DATE);

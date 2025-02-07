@@ -18,6 +18,70 @@ function GetClientTaches(ClientId) {
 
 
 
+formatDateForDB = (dateString) => {
+  const date = new Date(dateString);
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0'); // Include hours
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+};
+
+
+
+
+
+
+
+function UpdateSingleEvent(data) {
+  console.warn(data.NewDateNonFormated);
+  
+  // Parse the input date
+  let dateX = new Date(data.NewDateNonFormated);
+  console.warn(dateX);
+  
+  // Adjust the date by adding 7 hours
+  let Starting = new Date(dateX.getTime() + (15 * 60 * 60 * 1000));
+  console.warn(Starting);
+  
+  // Format the date for SQL
+  let StartingFormated = formatDateForDB(Starting);
+  console.warn(StartingFormated);
+
+  return new Promise((resolve, reject) => {
+    new sql.Request()
+      .input("NewDate", sql.DateTime, new Date(data.NewDate))  
+      .input("EventId", sql.Int, data.EventId)
+      .input("StartingFormated", sql.DateTime, StartingFormated)
+      .query(`
+        UPDATE Evenements
+        SET EventTimeEnd = @StartingFormated, EventTimeStart = @NewDate
+        WHERE EventId = @EventId
+      `)
+      .then((result) => {
+        resolve({  
+          EventTimeEnd: Starting,
+          EventTimeStart: new Date(data.NewDate) 
+        });
+      })
+      .catch((error) => {
+        reject(error?.originalError?.info?.message || error.message);
+      });
+  });
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -106,6 +170,7 @@ function GetClientTachesAllOfThem() {
 
 
 function GetClientTachesSimple(ClientId) {
+  console.warn("Get Single Client Taches Simple : "+ClientId);
   return new Promise((resolve, reject) => {
     new sql.Request()
       .input("ClientId", sql.UniqueIdentifier, ClientId)
@@ -114,6 +179,9 @@ function GetClientTachesSimple(ClientId) {
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+
+
 function GetAllClientTaches() {
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -238,14 +306,6 @@ function CreateClientTache(data) {
     const request = new sql.Request();
 
 
-    console.warn(data);
-    console.warn("--------------------------")
-    console.warn("--------------------------")
-    console.warn("--------------------------")
-    console.warn("--------------------------")
-    console.warn("--------------------------")
-    console.warn("--------------------------")
-
     // Step 1: Insert the task into the database
     request
       .input("ClientId", sql.NVarChar(255), data.ClientId)
@@ -298,14 +358,7 @@ function CreateClientTacheCustom(data) {
 
 function UpdateClientTache(data) {
   
-  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  console.log();
-  console.warn(data);
-  console.log();
-  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-  console.warn("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-    
+  
 
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -380,4 +433,4 @@ function DeleteGoogleToken(data) {
 }
 
 
-module.exports = { GetClientTaches,GetClientTachesAllOfThem,  CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken,   MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
+module.exports = { UpdateSingleEvent,GetClientTaches,GetClientTachesAllOfThem,  CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken,   MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
