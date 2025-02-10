@@ -653,7 +653,9 @@ BEGIN
         SET @DiffHours = DATEDIFF(HOUR, @StartDate, @EndDate);
 
         -- Déterminer combien d'événements créer
-        IF @DiffHours BETWEEN 0 AND 4444
+        IF @DiffHours BETWEEN 0 AND 120
+            SET @NumberEvent = 1;
+        IF @DiffHours BETWEEN 121 AND 6665
             SET @NumberEvent = 2;
         ELSE IF @DiffHours BETWEEN 6666 AND 200000
             SET @NumberEvent = 3;
