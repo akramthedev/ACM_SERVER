@@ -1,6 +1,5 @@
 console.clear();
 // https://medium.com/@erinlim555/simple-keycloak-rbac-with-node-js-express-js-bc9031c9f1ba
-// hello ? 
 const express = require("express");
 const sql = require("mssql");
 const log = require("node-file-logger");
@@ -395,7 +394,3 @@ app.get("/logs", (request, response) => {
 });
 
 module.exports = keycloak;
-
-
-
-//Hallo Welt 

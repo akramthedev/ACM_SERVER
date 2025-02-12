@@ -246,6 +246,7 @@ async function CreateGoogleCalendarAccount(data){
       .input("EmailKeyCloack", sql.VarChar(255), data.EmailKeyCloack)
       .input("AccessTokenGoogle", sql.VarChar(255), data.AccessTokenGoogle)
       .input("ClientIdOfGoogle", sql.VarChar(255), data.ClientIdOfGoogle)
+      .input("ExpiresIn", sql.VarChar(255), data.ExpiresIn)
       .execute("ps_create_google_calendar_account")
       .then((result) => {
         if (result.rowsAffected[0] > 0) {

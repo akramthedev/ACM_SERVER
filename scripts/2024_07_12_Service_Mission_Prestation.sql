@@ -192,6 +192,7 @@ CREATE TABLE GoogleCalendar (
     EmailKeyCloack VARCHAR(255) NULL,
 	AccessTokenGoogle VARCHAR(255) NULL, 
     ClientIdOfGoogle VARCHAR(255) NULL, 
+    ExpiresIn VARCHAR(255) NULL
 );
 
 

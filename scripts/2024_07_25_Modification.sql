@@ -95,7 +95,8 @@ CREATE PROCEDURE ps_create_google_calendar_account
     @ClientIdOfCloack UNIQUEIDENTIFIER,
     @EmailKeyCloack VARCHAR(255),
     @AccessTokenGoogle VARCHAR(255),
-    @ClientIdOfGoogle VARCHAR(255)
+    @ClientIdOfGoogle VARCHAR(255), 
+    @ExpiresIn VARCHAR(255)
 AS
 BEGIN
     -- Check if a record with the given ClientIdOfCloack exists
@@ -106,14 +107,15 @@ BEGIN
         SET
             EmailKeyCloack = @EmailKeyCloack,
             AccessTokenGoogle = @AccessTokenGoogle,
-            ClientIdOfGoogle = @ClientIdOfGoogle
+            ClientIdOfGoogle = @ClientIdOfGoogle, 
+            ExpiresIn = @ExpiresIn
         WHERE ClientIdOfCloack = @ClientIdOfCloack;
     END
     ELSE
     BEGIN
         -- If record does not exist, insert a new one
-        INSERT INTO GoogleCalendar (ClientIdOfCloack, EmailKeyCloack, AccessTokenGoogle, ClientIdOfGoogle)
-        VALUES (@ClientIdOfCloack, @EmailKeyCloack, @AccessTokenGoogle, @ClientIdOfGoogle);
+        INSERT INTO GoogleCalendar (ClientIdOfCloack, EmailKeyCloack, AccessTokenGoogle, ClientIdOfGoogle, ExpiresIn)
+        VALUES (@ClientIdOfCloack, @EmailKeyCloack, @AccessTokenGoogle, @ClientIdOfGoogle, @ExpiresIn);
     END
 END;
 GO
