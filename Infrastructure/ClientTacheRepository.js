@@ -248,15 +248,8 @@ async function CreateGoogleCalendarAccount(data){
       .input("ClientIdOfGoogle", sql.VarChar(255), data.ClientIdOfGoogle)
       .input("ExpiresIn", sql.VarChar(255), data.ExpiresIn)
       .execute("ps_create_google_calendar_account")
-      .then((result) => {
-        if (result.rowsAffected[0] > 0) {
-          console.warn("Done Done Done");
-        } else {
-        }
-      })
       .then(() => {
-        console.warn("B succeeded");
-        resolve(true)})
+         resolve(true)})
       .catch((error) => reject(error?.originalError?.info?.message || error.message));
   });
 
