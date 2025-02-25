@@ -90,64 +90,65 @@ function GetClientTachesAllOfThem() {
   return new Promise((resolve, reject) => {
     new sql.Request()
       .query(`
-        SELECT 
-          ct.ClientTacheId,
-          cmp.ClientMissionPrestationId,
-          cm.ClientMissionId,
-          cm.ClientId,
-          cl.Nom AS ClientNom,    
-          cl.Prenom AS ClientPrenom,
-          cl.DateNaissance AS ClientDateNaissance,
-          cl.Photo AS ClientPhoto,
-          cl.Profession AS ClientProfession,
-          cl.DateRetraite AS ClientDateRetraite,
-          cl.NumeroSS AS ClientNumeroSS,
-          cl.Adresse AS ClientAdresse,
-          cl.Email1 AS ClientEmail1,
-          cl.Email2 AS ClientEmail2,
-          cl.Telephone1 AS ClientTelephone1,
-          cl.Telephone2 AS ClientTelephone2,
-          cl.HasConjoint AS ClientHasConjoint,
-          cl.SituationFamiliale AS ClientSituationFamiliale,
-          m.Designation AS MissionDesignation,
-          t.TacheId,
-          t.Intitule AS TacheIntitule,
-          p.PrestationId,
-          p.Designation AS PrestationDesignation,
-          p.Description AS PrestationDescription,
-          t.Description AS TacheDescription,
-          ct.Intitule AS ClientTacheIntitule,
-          t.Numero_Ordre,
-          ct.Commentaire AS Commentaire,
-          ct.Deadline,
-          ct.DateButoir,
-          ct.Date_Execution,
-          ct.Intitule AS TacheClientIntitule, 
-          ct.start_date, 
-          ct.end_date, 
-          ct.isReminder, 
-          ct.isDone,
-          ct.color, 
-          ct.Status,
-          ag.Nom AS AgentNom, 
-          ev.EventTimeStart AS EventStart, 
-          ev.EventTimeEnd AS EventEnd, 
-          ev.EventName AS EventName, 
-          ev.color AS EventColor, 
-          ev.isDone AS EventIsDone, 
-          ev.isReminder AS EventIsReminder, 
-          ev.EventId, 
-          ev.EventDescription, 
-          ev.NumberEvent
-      FROM ClientTache ct
-      LEFT JOIN Evenements ev ON ct.ClientTacheId = ev.TacheId 
-      LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
-      LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
-      LEFT JOIN Mission m ON cm.MissionId = m.MissionId
-      LEFT JOIN Tache t ON ct.TacheId = t.TacheId
-      LEFT JOIN Prestation p ON t.PrestationId = p.PrestationId
-      LEFT JOIN Client cl ON cm.ClientId = cl.ClientId
-      LEFT JOIN Agent ag ON t.AgentId = ag.AgentId;
+          SELECT 
+            ct.ClientTacheId,
+            cmp.ClientMissionPrestationId,
+            cm.ClientMissionId,
+            cm.ClientId,
+            cl.Nom AS ClientNom,    
+            cl.Prenom AS ClientPrenom,
+            cl.DateNaissance AS ClientDateNaissance,
+            cl.Photo AS ClientPhoto,
+            cl.Profession AS ClientProfession,
+            cl.DateRetraite AS ClientDateRetraite,
+            cl.DateArriveMaroc AS ClientDateArriveMaroc,
+            cl.NumeroSS AS ClientNumeroSS,
+            cl.Adresse AS ClientAdresse,
+            cl.Email1 AS ClientEmail1,
+            cl.Email2 AS ClientEmail2,
+            cl.Telephone1 AS ClientTelephone1,
+            cl.Telephone2 AS ClientTelephone2,
+            cl.HasConjoint AS ClientHasConjoint,
+            cl.SituationFamiliale AS ClientSituationFamiliale,
+            m.Designation AS MissionDesignation,
+            t.TacheId,
+            t.Intitule AS TacheIntitule,
+            p.PrestationId,
+            p.Designation AS PrestationDesignation,
+            p.Description AS PrestationDescription,
+            t.Description AS TacheDescription,
+            ct.Intitule AS ClientTacheIntitule,
+            t.Numero_Ordre,
+            ct.Commentaire AS Commentaire,
+            ct.Deadline,
+            ct.DateButoir,
+            ct.Date_Execution,
+            ct.Intitule AS TacheClientIntitule, 
+            ct.start_date, 
+            ct.end_date, 
+            ct.isReminder, 
+            ct.isDone,
+            ct.color, 
+            ct.Status,
+            ag.Nom AS AgentNom, 
+            ev.EventTimeStart AS EventStart, 
+            ev.EventTimeEnd AS EventEnd, 
+            ev.EventName AS EventName, 
+            ev.color AS EventColor, 
+            ev.isDone AS EventIsDone, 
+            ev.isReminder AS EventIsReminder, 
+            ev.EventId, 
+            ev.EventDescription, 
+            ev.NumberEvent
+        FROM ClientTache ct
+        LEFT JOIN Evenements ev ON ct.ClientTacheId = ev.TacheId 
+        LEFT JOIN ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
+        LEFT JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId
+        LEFT JOIN Mission m ON cm.MissionId = m.MissionId
+        LEFT JOIN Tache t ON ct.TacheId = t.TacheId
+        LEFT JOIN Prestation p ON t.PrestationId = p.PrestationId
+        LEFT JOIN Client cl ON cm.ClientId = cl.ClientId
+        LEFT JOIN Agent ag ON t.AgentId = ag.AgentId;
 
       `)  
       .then((result) => {

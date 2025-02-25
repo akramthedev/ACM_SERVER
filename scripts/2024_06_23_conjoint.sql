@@ -7,6 +7,7 @@ CREATE TABLE Conjoint (
     DateNaissance DATE,
     Profession NVARCHAR(100),
     DateRetraite DATE,
+    DateArriveMaroc DATE,
     NumeroSS NVARCHAR(20),
     DateMariage DATE,
     Adresse NVARCHAR(255),
@@ -33,6 +34,7 @@ create proc ps_create_conjoint
     @DateNaissance DATE,
     @Profession NVARCHAR(100),
     @DateRetraite DATE,
+    @DateArriveMaroc DATE, 
     @NumeroSS NVARCHAR(20),
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
@@ -42,8 +44,8 @@ create proc ps_create_conjoint
     @QuestComp NVARCHAR(MAX)
 AS
 BEGIN
-    insert into Conjoint(ConjointId,ClientId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,DateMariage,Adresse,RegimeMatrimonial,DonationEpoux,ModifRegimeDate,QuestComp)
-    values(@ConjointId,@ClientId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@DateMariage,@Adresse,@RegimeMatrimonial,@DonationEpoux,@ModifRegimeDate,@QuestComp)
+    insert into Conjoint(ConjointId,ClientId,Nom,Prenom,DateNaissance,Profession,DateRetraite, DateArriveMaroc,NumeroSS,DateMariage,Adresse,RegimeMatrimonial,DonationEpoux,ModifRegimeDate,QuestComp)
+    values(@ConjointId,@ClientId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite, @DateArriveMaroc,@NumeroSS,@DateMariage,@Adresse,@RegimeMatrimonial,@DonationEpoux,@ModifRegimeDate,@QuestComp)
 END
 GO
 
@@ -54,6 +56,7 @@ create proc ps_update_conjoint
     @DateNaissance DATE,
     @Profession NVARCHAR(100),
     @DateRetraite DATE,
+    @DateArriveMaroc DATE,
     @NumeroSS NVARCHAR(20),
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
@@ -71,6 +74,7 @@ BEGIN
         DateNaissance=@DateNaissance,
         Profession=@Profession,
         DateRetraite=@DateRetraite,
+        DateArriveMaroc=@DateArriveMaroc,
         NumeroSS=@NumeroSS,
         DateMariage=@DateMariage,
         Adresse=@Adresse,

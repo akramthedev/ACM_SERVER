@@ -8,6 +8,7 @@ ALTER PROCEDURE ps_create_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateArriveMaroc Date
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
     ,@Email1 NVarChar(100)
@@ -34,8 +35,8 @@ ALTER PROCEDURE ps_create_client
     ,@CPAM NVarChar(100)
     ,@CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS,CreatedAt)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS,CURRENT_TIMESTAMP);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite, DateArriveMaroc,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS,CreatedAt)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite, @DateArriveMaroc,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS,CURRENT_TIMESTAMP);
 Go
 
 
@@ -47,6 +48,7 @@ ALTER PROCEDURE ps_update_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateArriveMaroc Date, 
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
     ,@Email1 NVarChar(100)
@@ -80,6 +82,7 @@ AS
         DateNaissance = @DateNaissance,
         Profession = @Profession,
         DateRetraite = @DateRetraite,
+        DateArriveMaroc = @DateArriveMaroc, 
         NumeroSS = @NumeroSS,
         Adresse = @Adresse,
         Email1 = @Email1,
@@ -181,6 +184,7 @@ ALTER PROCEDURE ps_create_conjoint
     @DateNaissance DATE,
     @Profession NVARCHAR(100),
     @DateRetraite DATE,
+    @DateArriveMaroc DATE,
     @NumeroSS NVARCHAR(20),
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
@@ -190,8 +194,8 @@ ALTER PROCEDURE ps_create_conjoint
     @QuestComp NVARCHAR(MAX)
 AS
 BEGIN
-    insert into Conjoint(ConjointId,ClientId,Nom,Prenom,DateNaissance,Profession,DateRetraite,NumeroSS,DateMariage,Adresse,RegimeMatrimonial,DonationEpoux,ModifRegimeDate,QuestComp,CreatedAt)
-    values(@ConjointId,@ClientId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@NumeroSS,@DateMariage,@Adresse,@RegimeMatrimonial,@DonationEpoux,@ModifRegimeDate,@QuestComp,CURRENT_TIMESTAMP)
+    insert into Conjoint(ConjointId,ClientId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateArriveMaroc,NumeroSS,DateMariage,Adresse,RegimeMatrimonial,DonationEpoux,ModifRegimeDate,QuestComp,CreatedAt)
+    values(@ConjointId,@ClientId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateArriveMaroc,@NumeroSS,@DateMariage,@Adresse,@RegimeMatrimonial,@DonationEpoux,@ModifRegimeDate,@QuestComp,CURRENT_TIMESTAMP)
 END
 GO
 
@@ -202,6 +206,7 @@ ALTER PROCEDURE ps_update_conjoint
     @DateNaissance DATE,
     @Profession NVARCHAR(100),
     @DateRetraite DATE,
+    @DateArriveMaroc DATE,
     @NumeroSS NVARCHAR(20),
     @DateMariage DATE,
     @Adresse NVARCHAR(255),
@@ -219,6 +224,7 @@ BEGIN
         DateNaissance=@DateNaissance,
         Profession=@Profession,
         DateRetraite=@DateRetraite,
+        DateArriveMaroc=@DateArriveMaroc,
         NumeroSS=@NumeroSS,
         DateMariage=@DateMariage,
         Adresse=@Adresse,

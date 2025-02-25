@@ -17,6 +17,7 @@ CREATE TABLE Client (
     
     ,Profession NVARCHAR(255)
     ,DateRetraite DATE
+    ,DateArriveMaroc DATE
     ,NumeroSS NVARCHAR(20)  --Numero Sécurité Sociale
     ,Adresse NVARCHAR(255)
     ,Email1 NVARCHAR(100)
@@ -46,6 +47,12 @@ AS
     where ClientId=@ClientId
 GO
 
+
+
+
+
+
+
 create proc ps_create_client
     @ClientId uniqueidentifier
     ,@CabinetId uniqueidentifier
@@ -54,6 +61,7 @@ create proc ps_create_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateArriveMaroc Date
     ,@DateResidence Date
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
@@ -64,26 +72,31 @@ create proc ps_create_client
     ,@HasConjoint Bit
     ,@SituationFamiliale NVarChar(255)
     ,@ParticulariteFiscale NVarChar(255)
-    ,CFE NVarChar(100)
-    ,Cotisation NVarChar(100)
-    ,Reversion NVarChar(100)
-    ,CNSS NVarChar(100)
-    ,CNAREFE NVarChar(100)
-    ,CAPITONE NVarChar(100)
-    ,AssuranceRapatriement NVarChar(100)
-    ,MutuelleFrancaise NVarChar(100)
-    ,PASSEPORT NVarChar(100)
-    ,CarteSejour NVarChar(100)
-    ,PermisConduire NVarChar(100)
-    ,AssuranceAuto NVarChar(100)
-    ,AssuranceHabitation NVarChar(100)
-    ,InscriptionConsulat NVarChar(100)
-    ,CPAM NVarChar(100)
-    ,CSG_CRDS NVarChar(100)
+    ,@CFE NVarChar(100)
+    ,@Cotisation NVarChar(100)
+    ,@Reversion NVarChar(100)
+    ,@CNSS NVarChar(100)
+    ,@CNAREFE NVarChar(100)
+    ,@CAPITONE NVarChar(100)
+    ,@AssuranceRapatriement NVarChar(100)
+    ,@MutuelleFrancaise NVarChar(100)
+    ,@PASSEPORT NVarChar(100)
+    ,@CarteSejour NVarChar(100)
+    ,@PermisConduire NVarChar(100)
+    ,@AssuranceAuto NVarChar(100)
+    ,@AssuranceHabitation NVarChar(100)
+    ,@InscriptionConsulat NVarChar(100)
+    ,@CPAM NVarChar(100)
+    ,@CSG_CRDS NVarChar(100)
 AS
-    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateResidence,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
-    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateResidence,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
+    insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateArriveMaroc, DateResidence,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
+    values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateArriveMaroc, @DateResidence,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
+
+
+
+
+
 
 
 
@@ -96,6 +109,7 @@ CREATE PROCEDURE ps_update_client
     ,@DateNaissance Date
     ,@Profession NVarChar(255)
     ,@DateRetraite Date
+    ,@DateArriveMaroc Date
     ,@DateResidence Date
     ,@NumeroSS NVarChar(20)
     ,@Adresse NVarChar(255)
@@ -130,6 +144,7 @@ AS
         DateNaissance = @DateNaissance,
         Profession = @Profession,
         DateRetraite = @DateRetraite,
+        DateArriveMaroc = @DateArriveMaroc,
         DateResidence = @DateResidence,
         NumeroSS = @NumeroSS,
         Adresse = @Adresse,

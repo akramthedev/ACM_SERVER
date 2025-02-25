@@ -12,6 +12,7 @@ CREATE TABLE Client (
     SituationFamiliale NVARCHAR(50),
     Profession NVARCHAR(100),
     DateRetraite DATE,
+    DateArriveMaroc DATE,
     NumeroSS NVARCHAR(20),  --Numero Sécurité Sociale
     Adresse NVARCHAR(255),
     Email1 NVARCHAR(100),
@@ -31,6 +32,7 @@ CREATE TABLE Conjoint (
     DateNaissance DATE,
     Profession NVARCHAR(100),
     DateRetraite DATE,
+    DateArriveMaroc DATE,
     NumeroSS NVARCHAR(20),
     DateMariage DATE,
     Adresse NVARCHAR(255),
@@ -139,3 +141,83 @@ CREATE TABLE SituationAdministrative (
 
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId)
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE ClientTache(
+    ClientTacheId uniqueidentifier PRIMARY KEY,
+    ClientId uniqueidentifier,
+    ClientMissionPrestationId uniqueidentifier NULL, --Référence au ClientMissionPrestation
+    ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
+    TacheId uniqueidentifier NOT NULL, --Référence au Tache
+    DateAffectation DATE,
+    Intitule NVARCHAR(255),
+    Numero_Ordre NVARCHAR(255),
+    Commentaire NVARCHAR(255),
+    Deadline Float,
+    DateButoir DATE,
+    Date_Execution DATE,
+    Status NVARCHAR(255),
+    AgentResposable uniqueidentifier NULL, 
+    color VARCHAR(7) DEFAULT '#7366fe' NULL,  
+    isDone BIT DEFAULT 0 , 
+    isReminder BIT DEFAULT 0, 
+    start_date DATETIME NULL, 
+    end_date DATETIME NULL, 
+    NombreRappel INT NULL, 
+	FOREIGN KEY (AgentResposable) REFERENCES Agent(AgentId),
+	FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
+    FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
+    FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
+);
+
+
+
+
+
+
+
+CREATE TABLE Evenements (
+    EventId INT IDENTITY(1,1) PRIMARY KEY,
+    TacheId UNIQUEIDENTIFIER NOT NULL,
+    EventName VARCHAR(50) NULL, 
+    EventTimeStart DATETIME NULL, 
+	EventTimeEnd DATETIME NULL, 
+    EventDescription VARCHAR(250) NULL, 
+    color VARCHAR(10) DEFAULT '#7366fe',  
+    isDone BIT DEFAULT 0, 
+    isReminder BIT DEFAULT 0,
+    NumberEvent INT NULL, 
+    CONSTRAINT FK_Evenements_ClientTache FOREIGN KEY (TacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE
+);
+
+
+
+
+
+CREATE TABLE GoogleCalendar (
+    ClientIdOfCloack UNIQUEIDENTIFIER PRIMARY KEY,
+    EmailKeyCloack VARCHAR(255) NULL,
+	AccessTokenGoogle VARCHAR(255) NULL, 
+    ClientIdOfGoogle VARCHAR(255) NULL, 
+    ExpiresIn VARCHAR(255) NULL
+);
+
+

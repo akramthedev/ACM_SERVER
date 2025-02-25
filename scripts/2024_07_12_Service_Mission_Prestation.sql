@@ -157,6 +157,7 @@ CREATE TABLE ClientTache(
     isReminder BIT DEFAULT 0, 
     start_date DATETIME NULL, 
     end_date DATETIME NULL, 
+    NombreRappel INT NULL, 
 	FOREIGN KEY (AgentResposable) REFERENCES Agent(AgentId),
 	FOREIGN KEY (ClientId) REFERENCES Client(ClientId),
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
@@ -252,6 +253,7 @@ GO
 
 
 
+
 CREATE PROCEDURE ps_create_client_tache
     @ClientId uniqueidentifier,
     @AgentResposable uniqueidentifier,
@@ -264,7 +266,8 @@ CREATE PROCEDURE ps_create_client_tache
     @end_date DATETIME,          
     @color VARCHAR(7),         
     @isDone BIT,                
-    @isReminder BIT                
+    @isReminder BIT, 
+    @NombreRappel INT,               
 AS
 BEGIN
     -- Check if ClientId exists before inserting
@@ -292,14 +295,19 @@ BEGIN
     INSERT INTO ClientTache (
         ClientTacheId, ClientId, AgentResposable, 
         ClientMissionPrestationId, ClientMissionId, TacheId, 
-        Intitule, Commentaire, start_date, end_date, color, isDone, isReminder
+        Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, NombreRappel
     ) VALUES (
         NEWID(), @ClientId, @AgentResposable, 
         @ClientMissionPrestationId, @ClientMissionId, @TacheId, 
-        @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder
+        @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @NombreRappel
     );
 END
 GO
+
+
+
+
+
 
 
 
@@ -602,6 +610,12 @@ GO
 
 
 
+
+
+
+
+
+
 CREATE TRIGGER trg_CreateEventsForTask
 ON ClientTache
 AFTER INSERT
@@ -609,93 +623,68 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @TacheId UNIQUEIDENTIFIER, @StartDate DATETIME2, @EndDate DATETIME2, @IntituleTask NVARCHAR(MAX), @DiffHours INT;
+    DECLARE @TacheId UNIQUEIDENTIFIER, @StartDate DATETIME2, @EndDate DATETIME2, @IntituleTask NVARCHAR(MAX), @NombreRappel INT;
     DECLARE @RandomColor VARCHAR(7), @EventStart DATETIME2, @EventEnd DATETIME2, @EventDate DATE;
-    DECLARE @NumberEvent INT, @EventCounter INT, @EventOffset INT;
-    
-    -- Table des couleurs aléatoires
-    DECLARE @Colors TABLE (Color VARCHAR(7));
-     INSERT INTO @Colors (Color) VALUES 
-        ('#6366f1'), 
-        ('#eab308'), 
-        ('#3b82f6'), 
-        ('#ec4899'), 
-        ('#ea2e08'), 
-        ('#b007b0'), 
-        ('#07128f'),
-        ('#f59e0b'), 
-        ('#f97316'), 
-        ('#ef4444'), 
-        ('#6b21a8'), 
-        ('#8b5cf6'), 
-        ('#d946ef'), 
-        ('#f43f5e'), 
-        ('#ea580c'), 
-        ('#9333ea'), 
-        ('#fb923c'), 
-        ('#6366f1'), 
-        ('#1d4ed8'), 
-        ('#d4d4d8');
+    DECLARE @NumberEvent INT, @EventCounter INT, @DaysBetween INT;
+    DECLARE @IntervalDays FLOAT;
 
-    -- Curseur pour parcourir les tâches insérées
+    DECLARE @Colors TABLE (Color VARCHAR(7));
+    INSERT INTO @Colors (Color) VALUES 
+        ('#6366f1'), ('#eab308'), ('#3b82f6'), ('#ec4899'), ('#ea2e08'), ('#b007b0'), ('#07128f'), ('#f59e0b'), 
+        ('#f97316'), ('#ef4444'), ('#6b21a8'), ('#8b5cf6'), ('#d946ef'), ('#f43f5e'), ('#ea580c'), ('#9333ea'), 
+        ('#fb923c'), ('#6366f1'), ('#1d4ed8'), ('#d4d4d8');
+
+    -- Cursor to iterate through inserted tasks
     DECLARE task_cursor CURSOR FOR 
-    SELECT ClientTacheId, CAST(start_date AS DATETIME2), CAST(end_date AS DATETIME2), Intitule 
+    SELECT ClientTacheId, CAST(start_date AS DATETIME2), CAST(end_date AS DATETIME2), Intitule, NombreRappel 
     FROM Inserted;
 
-    OPEN task_cursor;
-    FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask;
+    OPEN task_cursor; 
+    FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask, @NombreRappel;
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        -- Générer une couleur aléatoire
+        -- Generate a random color
         SELECT TOP 1 @RandomColor = Color FROM @Colors ORDER BY NEWID();
 
-        -- Calculer la durée en heures
-        SET @DiffHours = DATEDIFF(HOUR, @StartDate, @EndDate);
+        -- Determine the number of days between start and end date
+        SET @DaysBetween = DATEDIFF(DAY, @StartDate, @EndDate);
+        SET @NumberEvent = @NombreRappel;
 
-        -- Déterminer combien d'événements créer
-        IF @DiffHours BETWEEN 0 AND 200
-            SET @NumberEvent = 1;
-        IF @DiffHours BETWEEN 131 AND 1080
-            SET @NumberEvent = 2;
-        ELSE IF @DiffHours BETWEEN 1081 AND 666666
-            SET @NumberEvent = 3;
-        ELSE
-            SET @NumberEvent = 1; -- Sécurité pour éviter les erreurs
+        -- Avoid division by zero
+        IF @DaysBetween = 0
+            SET @DaysBetween = 1;
 
-        -- Initialiser les événements
+        -- Determine interval for events in days
+        SET @IntervalDays = CAST(@DaysBetween AS FLOAT) / NULLIF(@NumberEvent, 1);  
+
+        -- Initialize event counter
         SET @EventCounter = 1;
 
         WHILE @EventCounter <= @NumberEvent
         BEGIN
-            -- Déterminer le bon placement de l'événement selon la règle demandée
-            IF @EventCounter = 1
-                SET @EventOffset = @DiffHours / 2;
-            ELSE IF @EventCounter = 2
-                SET @EventOffset = @DiffHours - (CAST(@DiffHours AS FLOAT) / 3.2);
-            ELSE IF @EventCounter = 3
-                SET @EventOffset = @DiffHours - (@DiffHours / 8);
-            ELSE
-                SET @EventOffset = @DiffHours - (@DiffHours / 10);
+            -- Spread events across available days
+            SET @EventDate = DATEADD(DAY, CEILING(@EventCounter * @IntervalDays), @StartDate);
 
-            -- Calculer uniquement la **date** de l'événement
-            SET @EventDate = CAST(DATEADD(HOUR, @EventOffset, @StartDate) AS DATE);
+            -- Ensure event is within task period
+            IF @EventDate > @EndDate
+                SET @EventDate = @EndDate;
 
-            -- Fixer toujours l'heure à **08:45**
+            -- Fix the event time at 08:00
             SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:00:00'), CAST(@EventDate AS DATETIME2));
-            SET @EventEnd = DATEADD(HOUR, 9, @EventStart); -- L'événement dure 1 heure
+            SET @EventEnd = DATEADD(HOUR, 1, @EventStart); 
 
-            -- Insérer l'événement
+            -- Insert event into Evenements table
             INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
             VALUES 
             (@TacheId, @IntituleTask, @EventStart, @EventEnd, CONCAT('Event ', @EventCounter), @RandomColor, @NumberEvent);
 
-            -- Passer à l'événement suivant
+            -- Increment counter
             SET @EventCounter = @EventCounter + 1;
         END;
 
-        -- Passer à la tâche suivante
-        FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask;
+        -- Move to next task
+        FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask, @NombreRappel;
     END;
 
     CLOSE task_cursor;

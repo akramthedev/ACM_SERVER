@@ -190,7 +190,6 @@ router.get("/GetClient", async (request, response) => {
 
 router.post("/CreateClient", async (request, response) => {
   try {
-    console.log("🔄 Starting client creation...");
     const res = await CreateClient(request.body);
 
     if (!res) {
@@ -198,16 +197,13 @@ router.post("/CreateClient", async (request, response) => {
       return response.status(400).send("Client creation failed.");
     }
 
-    console.log("✅ Client created successfully:", res);
     log.Info("CreateClient", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.body);
 
     // Process Proches
     if (Array.isArray(request.body.Proches) && request.body.Proches.length > 0) {
       for (const proche of request.body.Proches) {
         try {
-          console.log("🔄 Processing proche:", proche);
           const resProche = await CreateProche(proche);
-          console.log("✅ Proche created:", resProche);
         } catch (error) {
           console.error("❌ Error creating proche:", error);
         }
@@ -218,33 +214,26 @@ router.post("/CreateClient", async (request, response) => {
     if (Array.isArray(request.body.Conjoint) && request.body.Conjoint.length > 0) {
       for (const conjoint of request.body.Conjoint) {
         try {
-          console.log("🔄 Processing conjoint:", conjoint);
           const resConjoint = await CreateConjoint(conjoint);
-          console.log("✅ Conjoint created:", resConjoint);
         } catch (error) {
           console.error("❌ Error creating conjoint:", error);
         }
       }
     }
 
-    // Process Services
-    if (request.body.Service) {
-      try {
-        console.log("🔄 Processing service:", request.body.Service);
-        const resService = await CreateService(request.body.Service);
-        console.log("✅ Service created:", resService);
-      } catch (error) {
-        console.error("❌ Error creating service:", error);
-      }
-    }
+    // if (request.body.Service) {
+    //   try {
+    //     const resService = await CreateService(request.body.Service);
+    //   } catch (error) {
+    //     console.error("❌ Error creating service:", error);
+    //   }
+    // }
 
     // Process Client Missions
     if (Array.isArray(request.body.ClientMission) && request.body.ClientMission.length > 0) {
       for (const mission of request.body.ClientMission) {
         try {
-          console.log("🔄 Processing mission:", mission);
           const resMission = await CreateClientMission(mission);
-          console.log("✅ Mission created:", resMission);
         } catch (error) {
           console.error("❌ Error creating mission:", error);
         }
@@ -255,9 +244,7 @@ router.post("/CreateClient", async (request, response) => {
     if (Array.isArray(request.body.ClientMissionPrestation) && request.body.ClientMissionPrestation.length > 0) {
       for (const prestation of request.body.ClientMissionPrestation) {
         try {
-          console.log("🔄 Processing prestation:", prestation);
           const resPrestation = await CreateClientMissionPrestation(prestation);
-          console.log("✅ Prestation created:", resPrestation);
         } catch (error) {
           console.error("❌ Error creating prestation:", error);
         }
@@ -267,10 +254,8 @@ router.post("/CreateClient", async (request, response) => {
     // Process Client Taches
     let insertedTasks = [];
     if (Array.isArray(request.body.ClientTaches) && request.body.ClientTaches.length > 0) {
-      console.log("🔄 Processing client tasks...");
 
-      insertedTasks = await processClientTaches(request.body.ClientTaches, res.ClientId);
-      console.log("✅ Tasks processed:", insertedTasks);
+      insertedTasks = await processClientTaches(request.body.ClientTaches, res.ClientId, res);
     }
 
     return response.status(200).json({
@@ -284,36 +269,98 @@ router.post("/CreateClient", async (request, response) => {
   }
 });
 
-async function processClientTaches(clientTaches, clientId) {
+
+
+
+function addDaysToDateStart(dateString, days) {
+  const date = new Date(dateString);  
+  date.setUTCDate(date.getUTCDate() + days);  
+
+  date.setUTCHours(9, 0, 0, 0);
+
+  return date.toISOString(); 
+}
+
+
+function addDaysToDateEnd(dateString, days) {
+  const date = new Date(dateString);  
+  date.setUTCDate(date.getUTCDate() + days);  
+
+  date.setUTCHours(18, 0, 0, 0);
+
+  return date.toISOString(); 
+}
+
+
+
+
+async function processClientTaches(clientTaches, clientId, client) {
+
+
+
+  let startDateX = "";
+  let endDateX   = "";
   let insertedTasks = [];
+  let FurtherInfosTasks = [];
+
+
   try {
-    for (const tache of clientTaches) {
 
-      try {
-        console.log("🔄 Inserting task:", tache);
-        const insertRequest = new sql.Request();
-        await insertRequest
-          .input("ClientId", sql.UniqueIdentifier, clientId)
-          .input("AgentResposable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
-          .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
-          .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
-          .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
-          .input("Intitule", sql.VarChar(200), tache.Intitule)
-          .input("Commentaire", sql.VarChar(200), tache.Commentaire)
-          .input("start_date", sql.DateTime, tache.Start_date)
-          .input("end_date", sql.DateTime, tache.End_date)
-          .input("color", sql.VarChar(7), tache.Color || '#7366fe')
-          .input("isDone", sql.Bit, 0)
-          .input("isReminder", sql.Bit, tache.IsReminder ? 1 : 0)
-          .execute("ps_create_client_tache");
+    
 
-        console.log("✅ Task inserted successfully:", tache);
-      } catch (error) {
-        console.error("❌ Error inserting task:", error);
-      }
-    }
+              const selectRequest2 = new sql.Request();
+              const result2 = await selectRequest2.query(`
+                SELECT TacheId, Deadline, NombreRapelle, Honoraire
+                FROM Tache
+              `);
+ 
 
-    console.log("🔄 Fetching inserted tasks...");
+              const tacheMap = new Map();
+              for (const tache of result2.recordset) {
+                tacheMap.set(tache.TacheId, tache);
+              }
+
+              for (const tache of clientTaches) {
+
+                const matchingTache = tacheMap.get(tache.TacheId);
+
+                let TacheId_X = tache.TacheId;
+                let Deadline_X = matchingTache.Deadline === null ? 7 : matchingTache.Deadline;
+                let NbRap_X = matchingTache.NombreRapelle === null ? 1 : matchingTache.NombreRapelle;
+                let DateArriveMaroc = client.DateArriveMaroc;
+
+                let EndDate_X = null;
+                
+
+                if(DateArriveMaroc){
+                  console.log("------ "+TacheId_X+" ------");
+                  EndDate_X = addDaysToDateStart(DateArriveMaroc, Deadline_X);
+                  console.log("--------------------------------");
+                }
+
+
+                try {
+                  const insertRequest = new sql.Request();
+                  await insertRequest
+                    .input("ClientId", sql.UniqueIdentifier, clientId)
+                    .input("AgentResposable", sql.UniqueIdentifier, '3D9D1AC0-AC20-469E-BE24-97CB3C8C5187')
+                    .input("ClientMissionId", sql.UniqueIdentifier, tache.ClientMissionId)
+                    .input("ClientMissionPrestationId", sql.UniqueIdentifier, tache.ClientMissionPrestationId)
+                    .input("TacheId", sql.UniqueIdentifier, tache.TacheId)
+                    .input("Intitule", sql.VarChar(200), tache.Intitule)
+                    .input("Commentaire", sql.VarChar(200), tache.Commentaire)
+                    .input("start_date", sql.DateTime, DateArriveMaroc)
+                    .input("end_date", sql.DateTime, EndDate_X)
+                    .input("color", sql.VarChar(7), tache.Color || '#7366fe')
+                    .input("isDone", sql.Bit, 0)
+                    .input("isReminder", sql.Bit, tache.IsReminder ? 1 : 0)
+                    .input("NombreRappel", sql.Int, NbRap_X)
+                    .execute("ps_create_client_tache");
+                } catch (error) {
+                  console.error("❌ Error inserting task:", error);
+                }
+              }
+
     const selectRequest = new sql.Request();
     const result = await selectRequest
       .input("ClientId", sql.UniqueIdentifier, clientId)
@@ -325,7 +372,6 @@ async function processClientTaches(clientTaches, clientId) {
       `);
 
     insertedTasks = result.recordset;
-    console.log("✅ Inserted tasks fetched:", insertedTasks);
   } catch (error) {
     console.error("❌ Error processing client tasks:", error);
   }

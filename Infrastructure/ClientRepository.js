@@ -58,6 +58,7 @@ function CreateClient(data) {
     request.input("DateNaissance", sql.Date, data.DateNaissance);
     request.input("Profession", sql.NVarChar(255), data.Profession);
     request.input("DateRetraite", sql.Date, data.DateRetraite);
+    request.input("DateArriveMaroc", sql.Date, data.DateArriveMaroc);
     request.input("DateResidence", sql.Date, data.DateResidence);
     request.input("NumeroSS", sql.NVarChar(20), data.NumeroSS);
     request.input("Adresse", sql.NVarChar(255), data.Adresse);
@@ -87,9 +88,9 @@ function CreateClient(data) {
 
     // ✅ Use OUTPUT clause to return inserted row
     const sqlQuery = `
-      INSERT INTO Client (ClientId, CabinetId, Nom, Prenom, DateNaissance, Profession, DateRetraite, DateResidence, NumeroSS, Adresse, Email1, Email2, Telephone1, Telephone2, HasConjoint, SituationFamiliale, ParticulariteFiscale, CFE, Cotisation, Reversion, CNSS, CNAREFE, CAPITONE, AssuranceRapatriement, MutuelleFrancaise, PASSEPORT, CarteSejour, PermisConduire, AssuranceAuto, AssuranceHabitation, InscriptionConsulat, CPAM, CSG_CRDS)
+      INSERT INTO Client (ClientId, CabinetId, Nom, Prenom, DateNaissance, Profession, DateRetraite,DateArriveMaroc,  DateResidence, NumeroSS, Adresse, Email1, Email2, Telephone1, Telephone2, HasConjoint, SituationFamiliale, ParticulariteFiscale, CFE, Cotisation, Reversion, CNSS, CNAREFE, CAPITONE, AssuranceRapatriement, MutuelleFrancaise, PASSEPORT, CarteSejour, PermisConduire, AssuranceAuto, AssuranceHabitation, InscriptionConsulat, CPAM, CSG_CRDS)
       OUTPUT INSERTED.*
-      VALUES (@ClientId, @CabinetId, @Nom, @Prenom, @DateNaissance, @Profession, @DateRetraite, @DateResidence, @NumeroSS, @Adresse, @Email1, @Email2, @Telephone1, @Telephone2, @HasConjoint, @SituationFamiliale, @ParticulariteFiscale, @CFE, @Cotisation, @Reversion, @CNSS, @CNAREFE, @CAPITONE, @AssuranceRapatriement, @MutuelleFrancaise, @PASSEPORT, @CarteSejour, @PermisConduire, @AssuranceAuto, @AssuranceHabitation, @InscriptionConsulat, @CPAM, @CSG_CRDS);
+      VALUES (@ClientId, @CabinetId, @Nom, @Prenom, @DateNaissance, @Profession, @DateRetraite,@DateArriveMaroc, @DateResidence, @NumeroSS, @Adresse, @Email1, @Email2, @Telephone1, @Telephone2, @HasConjoint, @SituationFamiliale, @ParticulariteFiscale, @CFE, @Cotisation, @Reversion, @CNSS, @CNAREFE, @CAPITONE, @AssuranceRapatriement, @MutuelleFrancaise, @PASSEPORT, @CarteSejour, @PermisConduire, @AssuranceAuto, @AssuranceHabitation, @InscriptionConsulat, @CPAM, @CSG_CRDS);
     `;
 
     request.query(sqlQuery)
@@ -122,6 +123,7 @@ function UpdateClient(data) {
       .input("DateNaissance", sql.Date, data.DateNaissance)
       .input("Profession", sql.NVarChar(255), data.Profession)
       .input("DateRetraite", sql.Date, data.DateRetraite)
+      .input("DateArriveMaroc", sql.Date, data.DateArriveMaroc)
       .input("DateResidence", sql.Date, data.DateResidence)
       .input("NumeroSS", sql.NVarChar(20), data.NumeroSS)
       .input("Adresse", sql.NVarChar(255), data.Adresse)
