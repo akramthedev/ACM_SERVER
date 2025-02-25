@@ -271,6 +271,24 @@ router.post("/CreateClient", async (request, response) => {
 
 
 
+function convertToISOFormat(dateInput) {
+  // Convert input to a Date object
+  const date = new Date(dateInput);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.error("❌ Invalid date input:", dateInput);
+    return null;
+  }
+
+  // Set time to exactly 09:00:00.000 UTC
+  date.setUTCHours(9, 0, 0, 0);
+
+  // Return in ISO format
+  return date.toISOString();
+}
+
+
 
 function addDaysToDateStart(dateString, days) {
   const date = new Date(dateString);  
@@ -282,15 +300,6 @@ function addDaysToDateStart(dateString, days) {
 }
 
 
-function addDaysToDateEnd(dateString, days) {
-  const date = new Date(dateString);  
-  date.setUTCDate(date.getUTCDate() + days);  
-
-  date.setUTCHours(18, 0, 0, 0);
-
-  return date.toISOString(); 
-}
-
 
 
 
@@ -298,10 +307,7 @@ async function processClientTaches(clientTaches, clientId, client) {
 
 
 
-  let startDateX = "";
-  let endDateX   = "";
   let insertedTasks = [];
-  let FurtherInfosTasks = [];
 
 
   try {
@@ -324,17 +330,16 @@ async function processClientTaches(clientTaches, clientId, client) {
 
                 const matchingTache = tacheMap.get(tache.TacheId);
 
-                let TacheId_X = tache.TacheId;
-                let Deadline_X = matchingTache.Deadline === null ? 7 : matchingTache.Deadline;
+                let Deadline_X = matchingTache.Deadline === null ? 14 : matchingTache.Deadline;
                 let NbRap_X = matchingTache.NombreRapelle === null ? 1 : matchingTache.NombreRapelle;
-                let DateArriveMaroc = client.DateArriveMaroc;
-
+                let DateArriveMaroc = convertToISOFormat(client.DateArriveMaroc);
                 let EndDate_X = null;
                 
 
                 if(DateArriveMaroc){
-                  console.log("------ "+TacheId_X+" ------");
-                  EndDate_X = addDaysToDateStart(DateArriveMaroc, Deadline_X);
+                  console.warn("Start ==> "+DateArriveMaroc);
+                  EndDate_X = addDaysToDateStart(client.DateArriveMaroc, Deadline_X);
+                  console.warn("End   ==> "+EndDate_X);
                   console.log("--------------------------------");
                 }
 

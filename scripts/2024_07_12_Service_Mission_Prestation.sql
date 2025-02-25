@@ -655,32 +655,51 @@ BEGIN
         IF @DaysBetween = 0
             SET @DaysBetween = 1;
 
-        -- Determine interval for events in days
-        SET @IntervalDays = CAST(@DaysBetween AS FLOAT) / NULLIF(@NumberEvent, 1);  
-
-        -- Initialize event counter
-        SET @EventCounter = 1;
-
-        WHILE @EventCounter <= @NumberEvent
+        IF @NumberEvent = 1
         BEGIN
-            -- Spread events across available days
-            SET @EventDate = DATEADD(DAY, CEILING(@EventCounter * @IntervalDays), @StartDate);
+            -- Place event in the middle of task duration
+            SET @EventDate = DATEADD(DAY, @DaysBetween / 2, @StartDate);
+        END
+        ELSE
+        BEGIN
+            -- Determine interval for events in days
+            SET @IntervalDays = CAST(@DaysBetween AS FLOAT) / NULLIF(@NumberEvent - 1, 0);  
 
-            -- Ensure event is within task period
-            IF @EventDate > @EndDate
-                SET @EventDate = @EndDate;
+            -- Initialize event counter
+            SET @EventCounter = 1;
 
-            -- Fix the event time at 08:00
-            SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:00:00'), CAST(@EventDate AS DATETIME2));
-            SET @EventEnd = DATEADD(HOUR, 1, @EventStart); 
+            WHILE @EventCounter <= @NumberEvent
+            BEGIN
+                -- Spread events across available days
+                SET @EventDate = DATEADD(DAY, CEILING((@EventCounter - 1) * @IntervalDays), @StartDate);
 
-            -- Insert event into Evenements table
+                -- Ensure event is within task period
+                IF @EventDate > @EndDate
+                    SET @EventDate = @EndDate;
+
+                -- Fix the event time at 08:00
+                SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:00:00'), CAST(@EventDate AS DATETIME2));
+                SET @EventEnd = DATEADD(HOUR, 1, @EventStart); 
+
+                -- Insert event into Evenements table
+                INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
+                VALUES 
+                (@TacheId, @IntituleTask, @EventStart, @EventEnd, CONCAT('Event ', @EventCounter), @RandomColor, @NumberEvent);
+
+                -- Increment counter
+                SET @EventCounter = @EventCounter + 1;
+            END;
+        END;
+
+        -- If NombreRappel = 1, insert the single event
+        IF @NumberEvent = 1
+        BEGIN
+            SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '09:00:00'), CAST(@EventDate AS DATETIME2));
+            SET @EventEnd = DATEADD(HOUR, 7, @EventStart);
+
             INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
             VALUES 
-            (@TacheId, @IntituleTask, @EventStart, @EventEnd, CONCAT('Event ', @EventCounter), @RandomColor, @NumberEvent);
-
-            -- Increment counter
-            SET @EventCounter = @EventCounter + 1;
+            (@TacheId, @IntituleTask, @EventStart, @EventEnd, 'Event 1', @RandomColor, @NumberEvent);
         END;
 
         -- Move to next task
