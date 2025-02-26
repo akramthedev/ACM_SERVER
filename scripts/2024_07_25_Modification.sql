@@ -437,42 +437,66 @@ GO
 
 
 
+CREATE PROCEDURE ps_create_client_tache
+    @ClientId UNIQUEIDENTIFIER,
+    @AgentResposable UNIQUEIDENTIFIER,
+    @ClientMissionPrestationId UNIQUEIDENTIFIER,
+    @ClientMissionId UNIQUEIDENTIFIER,
+    @TacheId UNIQUEIDENTIFIER, 
+    @Intitule VARCHAR(200), 
+    @Commentaire VARCHAR(200), 
+    @start_date DATETIME,       
+    @end_date DATETIME,          
+    @color VARCHAR(7),         
+    @isDone BIT,                
+    @isReminder BIT, 
+    @NombreRappel INT                
+AS
+BEGIN
+    -- Check if ClientId exists
+    IF NOT EXISTS (SELECT 1 FROM Client WHERE ClientId = @ClientId)
+    BEGIN
+        RAISERROR('Client does not exist', 16, 1);
+        RETURN;
+    END
 
+    -- Check if ClientMissionPrestationId exists
+    IF NOT EXISTS (SELECT 1 FROM ClientMissionPrestation WHERE ClientMissionPrestationId = @ClientMissionPrestationId)
+    BEGIN
+        RAISERROR('ClientMissionPrestationId does not exist', 16, 1);
+        RETURN;
+    END
 
-CREATE PROC ps_create_client_tache  
-    @ClientId UNIQUEIDENTIFIER,  
-    @AgentResposable UNIQUEIDENTIFIER, 
-    @ClientMissionPrestationId UNIQUEIDENTIFIER,  
-    @ClientMissionId UNIQUEIDENTIFIER,  
-    @TacheId UNIQUEIDENTIFIER,   
-    @Intitule VARCHAR(200),   
-    @Commentaire VARCHAR(200) = NULL,  -- Allow NULL for optional fields
-    @start_date DATETIME,         
-    @end_date DATETIME,           
-    @color VARCHAR(7) = '#000000',  -- Default color if not provided
-    @isDone BIT = 0,               -- Default as 'not done'
-    @isReminder BIT = 0
-AS  
-BEGIN  
-    SET NOCOUNT ON;  
+    -- Check if ClientMissionId exists
+    IF NOT EXISTS (SELECT 1 FROM ClientMission WHERE ClientMissionId = @ClientMissionId)
+    BEGIN
+        RAISERROR('ClientMissionId does not exist', 16, 1);
+        RETURN;
+    END
 
-    BEGIN TRY  
-        INSERT INTO ClientTache (
-            ClientTacheId, ClientId, ClientMissionPrestationId, ClientMissionId,  
-            TacheId, Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, AgentResposable , Status
-        )  
-        VALUES (
-            NEWID(), @ClientId, @ClientMissionPrestationId, @ClientMissionId,  
-            @TacheId, @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @AgentResposable, 'En cours'
-        );  
-    END TRY  
-    BEGIN CATCH  
-        -- Error handling
-        PRINT 'Error occurred: ' + ERROR_MESSAGE();  
-        THROW;  -- Rethrow the error for debugging
-    END CATCH  
-END;
+    -- Check if AgentResponsable exists (Optional, if applicable)
+    IF NOT EXISTS (SELECT 1 FROM Agent WHERE AgentId = @AgentResposable)
+    BEGIN
+        RAISERROR('AgentResponsable does not exist', 16, 1);
+        RETURN;
+    END
 
+    -- Insert task
+    INSERT INTO ClientTache (
+        ClientTacheId, ClientId, AgentResposable, 
+        ClientMissionPrestationId, ClientMissionId, TacheId, 
+        Intitule, Commentaire, start_date, end_date, color, isDone, isReminder, NombreRappel, Status
+    ) 
+    VALUES (
+        NEWID(), @ClientId, @AgentResposable, 
+        @ClientMissionPrestationId, @ClientMissionId, @TacheId, 
+        @Intitule, @Commentaire, @start_date, @end_date, @color, @isDone, @isReminder, @NombreRappel, 'En cours'
+    );
+
+    -- Return success
+    RETURN 0;
+END
+GO
 
 
 
