@@ -18,6 +18,62 @@ function GetClientTaches(ClientId) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+function GetDashboardData() {
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM ClientTache) AS total_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'En cours') AS incomplete_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'Finalisée') AS completed_tasks,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache) AS total_dossiers,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache WHERE status = 'En cours') AS dossier_en_cours,
+        (SELECT COUNT(*) FROM (
+            SELECT ClientId FROM ClientTache 
+            GROUP BY ClientId 
+            HAVING SUM(CASE WHEN status = 'En cours' THEN 1 ELSE 0 END) = 0
+        ) AS completed_clients) AS dossier_clotures;
+    `;
+
+    request.query(query)
+      .then((result) => {
+        if (result.recordset && result.recordset.length > 0) {
+          resolve(result.recordset[0]); 
+        } else {
+          resolve(null);
+        }
+      })
+      .catch((error) => {
+        reject(error?.message || "An error occurred while fetching the dashboard data.");
+      });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 formatDateForDB = (dateString) => {
   const date = new Date(dateString);
   
@@ -428,4 +484,4 @@ function DeleteGoogleToken(data) {
 }
 
 
-module.exports = { UpdateSingleEvent,GetClientTaches,GetClientTachesAllOfThem,  CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken,   MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache };
+module.exports = { UpdateSingleEvent,GetClientTaches,GetClientTachesAllOfThem,  CreateGoogleCalendarAccount,GetAccessTokenGoogleCalendar,DeleteGoogleToken,   MarkAsDone, CreateClientTache, UpdateClientTache,UpdateClientTacheDates, CreateClientTacheCustom, GetClientTachesSimple, GetAllClientTaches, DeleteClientTache, GetUnassignedClientTache, GetDashboardData };

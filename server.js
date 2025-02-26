@@ -4,6 +4,7 @@ const express = require("express");
 const sql = require("mssql");
 const log = require("node-file-logger");
 // const log = require("./Helper/log");
+
 const fs = require("fs");
 const fileUpload = require("express-fileupload");
 // const upload = require('./Helper/upload');
@@ -94,7 +95,110 @@ app.use("/", ClientTacheController);
 app.use("/", MissionPieceController);
 app.use("/", EmailController);
 
-//hello 
+app.get("/GetDashData", async (request, response) => {
+  let resFallBack = {
+    data: {
+      total_tasks: 0,
+      incomplete_tasks: 0,
+      completed_tasks: 0,
+      total_dossiers: 0,
+      dossier_en_cours: 0,
+      dossier_clotures: 0,
+    },
+    upcoming_tasks: [],
+  };
+
+  try {
+    const data = await GetDashboardData();
+    const upcomingTasks = await GetUpcomingTasks();
+    
+    // Combine the dashboard stats and upcoming tasks into one response
+    response.json({
+      data: data || resFallBack.data,
+      upcoming_tasks: upcomingTasks,
+    });
+  } catch (error) {
+    response.status(500).json({ error: error?.message || "Server error" });
+  }
+});
+
+function GetDashboardData() {
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM ClientTache) AS total_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'En cours') AS incomplete_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'Finalisée') AS completed_tasks,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache) AS total_dossiers,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache WHERE status = 'En cours') AS dossier_en_cours,
+        (SELECT COUNT(*) FROM (
+            SELECT ClientId FROM ClientTache 
+            GROUP BY ClientId 
+            HAVING SUM(CASE WHEN status = 'En cours' THEN 1 ELSE 0 END) = 0
+        ) AS completed_clients) AS dossier_clotures;
+    `;
+
+    request.query(query)
+      .then((result) => {
+        if (result.recordset?.length > 0) {
+          resolve(result.recordset[0]);
+        } else {
+          resolve(null);
+        }
+      })
+      .catch((error) => {
+        reject(new Error("Error fetching dashboard data: " + error.message));
+      });
+  });
+}
+
+function GetUpcomingTasks() {
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+    const query = `
+      SELECT 
+      t.Intitule AS NameTask,    
+      ct.Intitule AS FullName,
+      c.Email1 AS Email, 
+      c.DateArriveMaroc AS DateArriveMaroc,
+      ct.start_date AS StartDate, 
+      ct.end_date AS EndDate, 
+      t.Numero_Ordre AS NumOrder, 
+      c.ClientId AS ClientId
+        FROM ClientTache ct, Tache t, Client c
+        WHERE ct.ClientId = c.ClientId
+          AND ct.TacheId = t.TacheId
+          AND (ct.start_date >= GETDATE() OR ct.end_date >= GETDATE()) 
+          AND (ct.start_date < DATEADD(DAY, 30, GETDATE()) OR ct.end_date < DATEADD(DAY, 30, GETDATE()))
+          AND ct.status = 'En cours'
+    `;
+
+    request.query(query)
+      .then((result) => {
+        resolve(result.recordset || []);
+      })
+      .catch((error) => {
+        reject(new Error("Error fetching upcoming tasks: " + error.message));
+      });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.use(function (req, res, next) {
   /*req.testing = 'testing';*/ return next();
