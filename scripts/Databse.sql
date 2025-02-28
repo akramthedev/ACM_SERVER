@@ -167,13 +167,13 @@ CREATE TABLE ClientTache(
     ClientMissionPrestationId uniqueidentifier NULL, --Référence au ClientMissionPrestation
     ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
     TacheId uniqueidentifier NOT NULL, --Référence au Tache
-    DateAffectation DATE,
+    DateAffectation Date,
     Intitule NVARCHAR(255),
     Numero_Ordre NVARCHAR(255),
     Commentaire NVARCHAR(255),
     Deadline Float,
-    DateButoir DATE,
-    Date_Execution DATE,
+    DateButoir Date,
+    Date_Execution Date,
     Status NVARCHAR(255),
     AgentResposable uniqueidentifier NULL, 
     color VARCHAR(7) DEFAULT '#7366fe' NULL,  
@@ -187,6 +187,9 @@ CREATE TABLE ClientTache(
     FOREIGN KEY (ClientMissionId) REFERENCES ClientMission(ClientMissionId),
     FOREIGN KEY (TacheId) REFERENCES Tache(TacheId)
 );
+
+
+
 
 
 
@@ -212,6 +215,7 @@ CREATE TABLE Evenements (
 
 
 
+
 CREATE TABLE GoogleCalendar (
     ClientIdOfCloack UNIQUEIDENTIFIER PRIMARY KEY,
     EmailKeyCloack VARCHAR(255) NULL,
@@ -221,3 +225,25 @@ CREATE TABLE GoogleCalendar (
 );
 
 
+CREATE TABLE Facturation (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    ClientId UNIQUEIDENTIFIER NOT NULL,
+    total_price DECIMAL(10,2) DEFAULT 0.00,
+    date_facturation DATETIME DEFAULT GETDATE(),
+    status VARCHAR(10) DEFAULT 'Pending',
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId) ON DELETE CASCADE
+);
+
+
+
+
+CREATE TABLE FacturationItems (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    facturation_id INT NOT NULL,
+    ClientTacheId UNIQUEIDENTIFIER NOT NULL,
+    NomTache VARCHAR(222) NULL,
+    PrestationId UNIQUEIDENTIFIER NULL,
+    price DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (facturation_id) REFERENCES Facturation(id) ON DELETE CASCADE,
+    FOREIGN KEY (ClientTacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE,
+);

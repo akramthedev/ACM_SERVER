@@ -95,19 +95,15 @@ formatDateForDB = (dateString) => {
 
 
 function UpdateSingleEvent(data) {
-  console.warn(data.NewDateNonFormated);
   
   // Parse the input date
   let dateX = new Date(data.NewDateNonFormated);
-  console.warn(dateX);
   
   // Adjust the date by adding 7 hours
   let Starting = new Date(dateX.getTime() + (15 * 60 * 60 * 1000));
-  console.warn(Starting);
   
   // Format the date for SQL
   let StartingFormated = formatDateForDB(Starting);
-  console.warn(StartingFormated);
 
   return new Promise((resolve, reject) => {
     new sql.Request()
@@ -227,7 +223,6 @@ function GetClientTachesAllOfThem() {
 
 
 function GetClientTachesSimple(ClientId) {
-  console.warn("Get Single Client Taches Simple : "+ClientId);
   return new Promise((resolve, reject) => {
     new sql.Request()
       .input("ClientId", sql.UniqueIdentifier, ClientId)
@@ -276,7 +271,6 @@ async function GetAccessTokenGoogleCalendar(ClientIdOfCloack) {
 
       `)  // Added ordering to get the "latest" record based on a column, assuming you want the most recent entry.
       .then((result) => {
-        console.warn("Access Token retrieved:", result.recordset);
         resolve(result.recordset);
       })
       .catch((error) => {
@@ -291,7 +285,6 @@ async function GetAccessTokenGoogleCalendar(ClientIdOfCloack) {
 
 async function CreateGoogleCalendarAccount(data){
   
-  console.warn("B executed...");
 
 
   return new Promise((resolve, reject) => {
@@ -372,7 +365,6 @@ function CreateClientTache(data) {
       .execute("ps_create_client_tache")
       .then((result) => {
         if (result.rowsAffected[0] > 0) {
-          console.warn("Done Done Done");
         } else {
           // throw new Error("Task creation failed.");
         }
@@ -407,22 +399,197 @@ function CreateClientTacheCustom(data) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function UpdateClientTache(data) {
-  
-  
+  let TacheId;
+  let ClientIdX;
+  let facturationId;
+  let PriceOfTask = 0;
+  let NomTache ;
+  let PrestationIdX;
 
   return new Promise((resolve, reject) => {
-    new sql.Request()
+    const request = new sql.Request();
+    request
       .input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId)
       .input("Intitule", sql.NVarChar(255), data.Intitule)
       .input("Numero_Ordre", sql.NVarChar(255), data.Numero_Ordre)
-      .input("Status", sql.NVarChar(255), data.Status) 
-      .input("AgentResposable", sql.NVarChar(255)  , data.AgentResposable) 
+      .input("Status", sql.NVarChar(255), data.Status)
+      .input("AgentResposable", sql.NVarChar(255), data.AgentResposable)
       .execute("ps_update_clienttache_from_SinglePageCLient")
-      .then((result) => resolve(result.rowsAffected[0] > 0))
+      .then(async (result) => {
+        if (result.rowsAffected[0] > 0) {
+          if (data.Status === "Finalisée" || data.Status === "En cours") {
+            try {
+              // Fetching ClientId and TacheId from ClientTache
+              const Req_GetClientId = new sql.Request();
+              Req_GetClientId.input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId);
+              const ResultOfReqGetCtaches = await Req_GetClientId.query(`
+                SELECT ClientTache.ClientId AS ClientId, Tache.PrestationId AS PrestationId, Tache.Intitule AS NomTache, Tache.TacheId AS TacheId FROM ClientTache, Tache WHERE Tache.TacheId = ClientTache.TacheId AND ClientTacheId = @ClientTacheId
+              `);
+
+              if (ResultOfReqGetCtaches.recordset.length === 0) {
+                TacheId = null;
+                ClientIdX = null;
+              } else {
+                
+                TacheId = ResultOfReqGetCtaches.recordset[0].TacheId;
+                ClientIdX = ResultOfReqGetCtaches.recordset[0].ClientId;
+                PrestationIdX = ResultOfReqGetCtaches.recordset[0].PrestationId;
+                if(ResultOfReqGetCtaches.recordset[0].NomTache === null || ResultOfReqGetCtaches.recordset[0].NomTache === undefined){
+                  NomTache = "Intitule non trouvée"
+                }
+                else{
+                  NomTache = ResultOfReqGetCtaches.recordset[0].NomTache
+                }
+              }
+
+              // Fetch or create Facturation
+              const SQL_REQ = new sql.Request();
+              SQL_REQ.input("ClientId", sql.UniqueIdentifier, ClientIdX);
+              const invoiceResult = await SQL_REQ.query(`
+                SELECT id FROM Facturation WHERE ClientId = @ClientId AND status = 'Pending'
+              `);
+
+              if (invoiceResult.recordset.length === 0) {
+                const createInvoice = await SQL_REQ.query(`
+                  INSERT INTO Facturation (ClientId, total_price, date_facturation, status)
+                  OUTPUT INSERTED.id
+                  VALUES (@ClientId, 0, GETDATE(), 'Pending')
+                `);
+                facturationId = createInvoice.recordset[0].id;
+              } else {
+                facturationId = invoiceResult.recordset[0].id;
+              }
+
+              console.warn("TacheId : "+TacheId);
+              // Fetching the Honoraire based on TacheId
+              if (TacheId) {
+                const taskRequest = new sql.Request();
+                taskRequest.input("TacheId", sql.UniqueIdentifier, TacheId);
+                const taskResult = await taskRequest.query(`
+                  SELECT Honoraire FROM Tache WHERE TacheId = @TacheId
+                `);
+                console.warn(taskResult);
+                if (taskResult.recordset.length === 0 || taskResult.recordset[0].Honoraire === null) {
+                  PriceOfTask = 0;
+                } else {
+                  PriceOfTask = taskResult.recordset[0].Honoraire;
+                }
+                  console.warn("A : Price : "+taskResult.recordset[0].Honoraire);
+              }
+
+
+              // Handle FacturationItems based on status
+              if (data.Status === "Finalisée") {
+                // Check if the item already exists in FacturationItems
+                const checkExistRequest = new sql.Request();
+                checkExistRequest.input("facturation_id", sql.Int, facturationId);
+                checkExistRequest.input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId);
+
+                const existingItemResult = await checkExistRequest.query(`
+                  SELECT * FROM FacturationItems 
+                  WHERE facturation_id = @facturation_id AND ClientTacheId = @ClientTacheId
+                `);
+
+                if (existingItemResult.recordset.length > 0) {
+                  const updateRequest = new sql.Request();
+                  updateRequest.input("facturation_id", sql.Int, facturationId);
+                  updateRequest.input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId);
+                  updateRequest.input("price", sql.Decimal(10, 2), PriceOfTask);
+                  console.warn("Price : "+PriceOfTask);
+                  await updateRequest.query(`
+                    UPDATE FacturationItems
+                    SET price = @price
+                    WHERE facturation_id = @facturation_id AND ClientTacheId = @ClientTacheId
+                  `);
+                } else {
+
+                  const insertRequest = new sql.Request();
+                  insertRequest.input("facturation_id", sql.Int, facturationId);
+                  insertRequest.input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId);
+                  insertRequest.input("price", sql.Decimal(10, 2), PriceOfTask);
+                  insertRequest.input("NomTache", sql.VarChar(222), NomTache);
+                  insertRequest.input("PrestationId", sql.UniqueIdentifier, PrestationIdX);
+                  await insertRequest.query(`
+                    INSERT INTO FacturationItems (facturation_id, ClientTacheId, NomTache, PrestationId, price)
+                    VALUES (@facturation_id, @ClientTacheId, @NomTache,@PrestationId, @price)
+                  `);
+                }
+              } else if (data.Status === "En cours") {
+                // Remove the item from FacturationItems if it exists
+                const deleteRequest = new sql.Request();
+                deleteRequest.input("facturation_id", sql.Int, facturationId);
+                deleteRequest.input("ClientTacheId", sql.UniqueIdentifier, data.ClientTacheId);
+                await deleteRequest.query(`
+                  DELETE FROM FacturationItems 
+                  WHERE facturation_id = @facturation_id AND ClientTacheId = @ClientTacheId
+                `);
+              }
+
+              // Update total_price in Facturation
+              const updateTotalRequest = new sql.Request();
+              updateTotalRequest.input("facturation_id", sql.Int, facturationId);
+              await updateTotalRequest.query(`
+                UPDATE Facturation
+                SET total_price = (
+                  SELECT ISNULL(SUM(price), 0) FROM FacturationItems 
+                  WHERE facturation_id = @facturation_id
+                )
+                WHERE id = @facturation_id
+              `);
+
+              resolve(true);
+            } catch (err) {
+              console.error("❌ Error during billing update:", err);
+              reject(err);
+            }
+          } else {
+            resolve(false);
+          }
+        } else {
+          resolve(false);
+        }
+      })
       .catch((error) => reject(error?.originalError?.info?.message));
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 
@@ -473,7 +640,6 @@ function DeleteGoogleToken(data) {
         DELETE FROM GoogleCalendar WHERE ClientIdOfCloack = @ClientIdOfCloack
       `)  
       .then((result) => {
-        console.warn("Access Token deleted:", result.recordset);
         resolve(result.recordset);
       })
       .catch((error) => {

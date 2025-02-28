@@ -201,6 +201,38 @@ CREATE TABLE GoogleCalendar (
 
 
 
+
+
+CREATE TABLE Facturation (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    ClientId UNIQUEIDENTIFIER NOT NULL,
+    total_price DECIMAL(10,2) DEFAULT 0.00,
+    date_facturation DATETIME DEFAULT GETDATE(),
+    status VARCHAR(10) DEFAULT 'Pending',
+    FOREIGN KEY (ClientId) REFERENCES Client(ClientId) ON DELETE CASCADE
+);
+
+
+
+
+CREATE TABLE FacturationItems (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    facturation_id INT NOT NULL,
+    ClientTacheId UNIQUEIDENTIFIER NOT NULL,
+    NomTache VARCHAR(222) NULL,
+    PrestationId UNIQUEIDENTIFIER NULL,
+    price DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (facturation_id) REFERENCES Facturation(id) ON DELETE CASCADE,
+    FOREIGN KEY (ClientTacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE,
+);
+
+
+
+
+
+
+
+
 CREATE PROCEDURE ps_get_client_taches
     @ClientId uniqueidentifier
 AS
@@ -634,14 +666,12 @@ BEGIN
     DECLARE @NumberEvent INT, @EventCounter INT, @IntervalDays INT, @PreviousEventDate DATETIME2;
     DECLARE @TotalDays INT, @MidDate DATETIME2, @AdjustedStartDate DATETIME2;
 
-    -- Color Table
     DECLARE @Colors TABLE (Color VARCHAR(7));
     INSERT INTO @Colors (Color) VALUES 
         ('#6366f1'), ('#eab308'), ('#3b82f6'), ('#ec4899'), ('#ea2e08'), ('#b007b0'), ('#07128f'), ('#f59e0b'), 
         ('#f97316'), ('#ef4444'), ('#6b21a8'), ('#8b5cf6'), ('#d946ef'), ('#f43f5e'), ('#ea580c'), ('#9333ea'), 
         ('#fb923c'), ('#6366f1'), ('#1d4ed8'), ('#d4d4d8');
 
-    -- Cursor to process inserted tasks
     DECLARE task_cursor CURSOR FOR 
     SELECT ClientTacheId, CAST(start_date AS DATETIME2), CAST(end_date AS DATETIME2), Intitule, NombreRappel 
     FROM Inserted;
@@ -651,75 +681,58 @@ BEGIN
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        -- Generate a random color
         SELECT TOP 1 @RandomColor = Color FROM @Colors ORDER BY NEWID();
 
-        -- Define event count (at least 1)
         SET @NumberEvent = ISNULL(@NombreRappel, 1);
 
-        -- Calculate total days between start and end
         SET @TotalDays = DATEDIFF(DAY, @StartDate, @EndDate);
-        IF @TotalDays = 0 SET @TotalDays = 1; -- Avoid division by 0
+        IF @TotalDays = 0 SET @TotalDays = 1; 
 
-        -- Middle date calculation
         SET @MidDate = DATEADD(DAY, @TotalDays / 2, @StartDate);
 
-        -- Adjusted start (not exactly first day)
         SET @AdjustedStartDate = DATEADD(DAY, CEILING(@TotalDays * 0.1), @StartDate);
 
-        -- Initialize
         SET @PreviousEventDate = @AdjustedStartDate;
         SET @EventCounter = 1;
 
         WHILE @EventCounter <= @NumberEvent
         BEGIN
-            -- Event positioning logic
             IF @NumberEvent = 1
             BEGIN
-                -- Single event: place in the middle
                 SET @EventDate = @MidDate;
             END
             ELSE IF @NumberEvent = 2
             BEGIN
-                -- Two events: one in the middle, one before deadline
                 IF @EventCounter = 1 SET @EventDate = @MidDate;
                 ELSE SET @EventDate = DATEADD(DAY, -1, @EndDate);
             END
             ELSE IF @NumberEvent = 3
             BEGIN
-                -- Three events: spread well
                 IF @EventCounter = 1 SET @EventDate = DATEADD(DAY, @TotalDays / 6, @AdjustedStartDate);
                 ELSE IF @EventCounter = 2 SET @EventDate = @MidDate;
                 ELSE SET @EventDate = DATEADD(DAY, -1, @EndDate);
             END
             ELSE
             BEGIN
-                -- More than 3 events: even but meaningful spacing
                 SET @IntervalDays = @TotalDays / (@NumberEvent - 1);
                 SET @EventDate = DATEADD(DAY, (@EventCounter - 1) * @IntervalDays, @AdjustedStartDate);
 
-                -- Ensure last event is right before deadline
                 IF @EventCounter = @NumberEvent SET @EventDate = DATEADD(DAY, -1, @EndDate);
             END
 
-            -- Prevent duplicate event dates
             IF @EventDate = @PreviousEventDate
                 SET @EventDate = DATEADD(DAY, 1, @PreviousEventDate);
 
-            -- Ensure event does not exceed deadline
             IF @EventDate > @EndDate
                 SET @EventDate = @EndDate;
 
-            -- Fix time at 08:00
             SET @EventStart = DATEADD(SECOND, DATEDIFF(SECOND, '00:00:00', '08:00:00'), CAST(@EventDate AS DATETIME2));
             SET @EventEnd = DATEADD(HOUR, 1, @EventStart); 
 
-            -- Insert event
             INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, Color, NumberEvent)
             VALUES 
             (@TacheId, @IntituleTask, @EventStart, @EventEnd, CONCAT('Event ', @EventCounter), @RandomColor, @NumberEvent);
 
-            -- Update previous event date
             SET @PreviousEventDate = @EventDate;
             SET @EventCounter = @EventCounter + 1;
         END;
