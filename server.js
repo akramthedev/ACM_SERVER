@@ -94,7 +94,6 @@ app.use("/", ClientMissionPrestationController);
 app.use("/", ClientTacheController);
 app.use("/", MissionPieceController);
 app.use("/", EmailController);
-
 app.get("/GetDashData", async (request, response) => {
   let resFallBack = {
     data: {
@@ -121,6 +120,59 @@ app.get("/GetDashData", async (request, response) => {
     response.status(500).json({ error: error?.message || "Server error" });
   }
 });
+app.get("/GetFacturation", async (request, response) => {
+  try {
+    const data = await GetAllFacturations();
+    console.log(data);
+    response.json({
+      data : data, 
+      message : "Salam l3alam..."
+    });  
+  } catch (error) {
+    response.status(500).json({ error: error?.message || "Server error" });
+  }
+})
+function GetAllFacturations() {
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+
+    const query = `
+      SELECT  
+        Facturation.id as FacturationId,
+        FacturationItems.id as FacturationItemId,
+        FacturationItems.ClientTacheId as ClientTacheId, 
+        FacturationItems.NomTache AS NomTache,
+        FacturationItems.price AS PrixTache,
+        Prestation.Designation AS NomPrestation,
+        Facturation.total_price AS TotalFacturation,
+        Facturation.status AS StatusFacturation,
+        Client.ClientId AS ClientId,
+        Client.Nom as NomClient, 
+        Client.Prenom as PrenomClient,
+        Client.DateArriveMaroc AS DateArriveMaroc, 
+        Client.Email1 AS Email, 
+        Client.Telephone1 AS Mobile
+      FROM Facturation
+      JOIN FacturationItems ON FacturationItems.facturation_id = Facturation.id
+      JOIN Prestation ON FacturationItems.PrestationId = Prestation.PrestationId
+      JOIN Client ON Facturation.clientId = Client.ClientId;
+    `;
+
+    request.query(query)
+      .then((result) => {
+        if (result.recordset?.length > 0) {
+          resolve(result.recordset);
+        } else {
+          resolve(null);
+        }
+      })
+      .catch((error) => {
+        reject(error);  
+      });
+  });
+}
+
+
 
 function GetDashboardData() {
   return new Promise((resolve, reject) => {
