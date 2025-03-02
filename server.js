@@ -1,4 +1,5 @@
 console.clear();
+const { v4: uuidv4 } = require("uuid"); 
 // https://medium.com/@erinlim555/simple-keycloak-rbac-with-node-js-express-js-bc9031c9f1ba
 const express = require("express");
 const sql = require("mssql");
@@ -94,6 +95,214 @@ app.use("/", ClientMissionPrestationController);
 app.use("/", ClientTacheController);
 app.use("/", MissionPieceController);
 app.use("/", EmailController);
+app.post("/CreatePrestation", async (req, res) => {
+  try {
+    const { Designation, NumeroOrdre } = req.body;
+
+    if (!Designation || !NumeroOrdre) {
+      return res.status(400).json({ error: "Tous les champs sont requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("PrestationId", sql.UniqueIdentifier, uuidv4());  
+    request.input("MissionId", sql.UniqueIdentifier, "A83DCAD0-3A14-4523-A5C5-30E1BAA232D0");
+    request.input("Designation", sql.NVarChar, Designation);
+    request.input("Numero_ordre", sql.NVarChar, NumeroOrdre);
+
+    const result = await request.query(`
+      INSERT INTO Prestation (PrestationId, MissionId, Designation, Numero_ordre)
+      OUTPUT INSERTED.PrestationId
+      VALUES (@PrestationId, @MissionId, @Designation, @Numero_ordre)
+    `);
+
+    res.status(201).json({ message: "Prestation créée avec succès", id: result.recordset[0].PrestationId });
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+
+app.post("/CreateTache/:PrestationId", async (req, res) => {
+  try {
+    const { Intitule, NumeroOrdre, Deadline, NbrRapp, Hono } = req.body;
+    const {PrestationId} = req.params
+
+    if (!Intitule || !NumeroOrdre) {
+      return res.status(400).json({ error: "Tous les champs sont requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("TacheId", sql.UniqueIdentifier, uuidv4());  
+    request.input("PrestationId", sql.UniqueIdentifier, PrestationId);
+    request.input("Intitule", sql.NVarChar, Intitule);
+    request.input("Numero_ordre", sql.NVarChar, NumeroOrdre);
+    request.input("Deadline", sql.Float, Deadline);
+    request.input("NombreRapelle", sql.Float, NbrRapp);
+    request.input("Honoraire", sql.Float, Hono);
+
+    const result = await request.query(`
+      INSERT INTO Tache (TacheId, PrestationId, Intitule, Numero_ordre,Deadline, NombreRapelle, Honoraire )
+      VALUES (@TacheId, @PrestationId, @Intitule, @Numero_ordre,@Deadline, @NombreRapelle, @Honoraire)
+    `);
+
+    res.status(201).json({ message: "Tache créée avec succès"});
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+
+
+app.put("/UpdateTache/:TacheId", async (req, res) => {
+  try {
+    const { Intitule, Numero_Ordre, Deadline, NombreRapelle, Honoraire } = req.body;
+    const { TacheId } = req.params; 
+
+    console.warn({ Intitule, Numero_Ordre, Deadline, NombreRapelle, Honoraire })
+    console.log("TacheId : "+TacheId);
+
+    if (!Intitule ) {
+      return res.status(400).json({ error: "Tous les champs sont requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("TacheId", sql.UniqueIdentifier, TacheId);  
+    request.input("Intitule", sql.NVarChar, Intitule);
+    request.input("Numero_ordre", sql.NVarChar, Numero_Ordre);
+
+    request.input("Deadline", sql.Float, Deadline);
+    request.input("NombreRapelle", sql.Float, NombreRapelle);
+    request.input("Honoraire", sql.Float, Honoraire);
+
+    await request.query(`
+      UPDATE Tache 
+      SET Intitule = @Intitule, 
+          Numero_ordre = @Numero_ordre, 
+          Deadline = @Deadline, 
+          NombreRapelle = @NombreRapelle, 
+          Honoraire = @Honoraire
+      WHERE TacheId = @TacheId
+    `);
+
+    res.status(200).json({ message: "Tache modifiée avec succès"});
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+
+app.put("/UpdatePrestation/:PrestationId", async (req, res) => {
+  try {
+    const { Designation, NumeroOrdre } = req.body;
+    const { PrestationId } = req.params;
+
+
+    if (!Designation) {
+      return res.status(400).json({ error: "Tous les champs sont requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("PrestationId", sql.UniqueIdentifier, PrestationId);  
+    request.input("Designation", sql.NVarChar, Designation);
+    request.input("Numero_ordre", sql.NVarChar, NumeroOrdre);
+
+    const result = await request.query(`
+      UPDATE Prestation 
+      SET Designation = @Designation, 
+          Numero_ordre = @Numero_ordre
+      WHERE PrestationId = @PrestationId
+    `);
+
+    res.status(200).json({ message: "Prestation modifiée avec succès"});
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+app.delete("/DeletePrestation/:PrestationId", async (req, res) => {
+  try {
+    const { PrestationId } = req.params;
+    
+    if (!PrestationId) {
+      return res.status(400).json({ error: "PrestationId est requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("PrestationId", sql.UniqueIdentifier, PrestationId);
+
+
+    const result = await request.query(`
+      DELETE FROM Prestation WHERE PrestationId = @PrestationId
+    `);
+
+    
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ error: "Prestation non trouvée." });
+    }
+
+    res.status(200).json({ message: "Prestation supprimée avec succès." });
+
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+app.delete("/DeleteTache/:TacheId", async (req, res) => {
+  try {
+    const { TacheId } = req.params;
+    
+    if (!TacheId) {
+      return res.status(400).json({ error: "TacheId est requis." });
+    }
+
+    const request = new sql.Request();
+
+    request.input("TacheId", sql.UniqueIdentifier, TacheId);
+
+
+    const result = await request.query(`
+      DELETE FROM Tache WHERE TacheId = @TacheId
+    `);
+
+    
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ error: "Tache non trouvée." });
+    }
+
+    res.status(200).json({ message: "Tache supprimée avec succès." });
+
+
+  } catch (error) {
+    res.status(500).json({ error: error?.message || "Erreur serveur" });
+  }
+});
+
+
+
+
+
 app.get("/GetDashData", async (request, response) => {
   let resFallBack = {
     data: {
@@ -120,6 +329,18 @@ app.get("/GetDashData", async (request, response) => {
     response.status(500).json({ error: error?.message || "Server error" });
   }
 });
+app.get("/GetAllPrestationWithTache",async (request, response) => {
+  try {
+    const data = await GetAllPrestationsWithTasks();
+    console.log(data);
+    response.json({
+      data : data, 
+      message : "Salam l3alam..."
+    });  
+  } catch (error) {
+    response.status(500).json({ error: error?.message || "Server error" });
+  }
+} )
 app.get("/GetFacturation", async (request, response) => {
   try {
     const data = await GetAllFacturations();
@@ -132,6 +353,46 @@ app.get("/GetFacturation", async (request, response) => {
     response.status(500).json({ error: error?.message || "Server error" });
   }
 })
+
+
+
+function GetAllPrestationsWithTasks(){
+  return new Promise((resolve, reject) => {
+    const request = new sql.Request();
+
+    const query = `
+      SELECT 
+        Prestation.PrestationId AS PrestationId,
+        Prestation.Designation AS PrestationName, 
+        Prestation.Numero_Ordre AS PrestationNumOrdre,
+        Tache.TacheId AS TacheId, 
+        Tache.Intitule AS TacheIntitule, 
+        Tache.Numero_Ordre AS TacheNumOrdre, 
+        Tache.deadline AS TacheDeadline, 
+        Tache.NombreRapelle AS TacheNbrRapp, 
+        Tache.Honoraire AS TacheHonoraire        
+      FROM Prestation
+      LEFT JOIN Tache 
+      ON Prestation.PrestationId = Tache.PrestationId;
+    `;
+
+
+    
+
+    request.query(query)
+      .then((result) => {
+        if (result.recordset?.length > 0) {
+          resolve(result.recordset);
+        } else {
+          resolve(null);
+        }
+      })
+      .catch((error) => {
+        reject(error);  
+      });
+  });
+}
+
 function GetAllFacturations() {
   return new Promise((resolve, reject) => {
     const request = new sql.Request();
