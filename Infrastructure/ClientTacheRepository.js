@@ -621,15 +621,129 @@ function UpdateClientTacheDates(data) {
 }
 
 
-function DeleteClientTache(ClientTacheId) {
-  return new Promise((resolve, reject) => {
-    new sql.Request()
-      .input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId)
-      .execute("ps_delete_ClientTache")
-      .then((result) => resolve(result.rowsAffected[0] > 0))
-      .catch((error) => reject(error?.originalError?.info?.message));
-  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function DeleteClientTache(ClientTacheId) {
+  try {
+    const pool = await sql.connect(); // Ensure a single connection pool
+
+    const requestSQL1 = pool.request();
+    requestSQL1.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
+
+    const querySQL1 = `
+      SELECT ClientTache.*, Tache.Honoraire AS HonoraireTacheX
+      FROM ClientTache
+      INNER JOIN Tache ON ClientTache.TacheId = Tache.TacheId
+      WHERE ClientTacheId = @ClientTacheId
+    `;
+
+    const result = await requestSQL1.query(querySQL1);
+
+    if (result.recordset.length === 0) {
+      console.warn("No matching ClientTache found.");
+      return false;
+    }
+
+    const task = result.recordset[0]; // Get first row
+    const { Status, HonoraireTacheX, ClientId } = task;
+
+    console.log("Fetched Task:", task);
+
+    if (Status === "Finalisée" && HonoraireTacheX > 0) {
+      console.warn(`Price to deduct: ${HonoraireTacheX} MAD`);
+
+      const requestSQL2 = pool.request();
+      requestSQL2.input("ClientId", sql.UniqueIdentifier, ClientId);
+
+      const queryGetTotal = `
+        SELECT total_price FROM Facturation WHERE ClientId = @ClientId
+      `;
+
+      const resultTotal = await requestSQL2.query(queryGetTotal);
+
+      if (resultTotal.recordset.length === 0) {
+        console.warn("Client not found in Facturation. No update performed.");
+      } else {
+        const currentTotal = parseFloat(resultTotal.recordset[0].total_price) || 0;
+        const amountToSubtract = parseFloat(HonoraireTacheX);
+
+        if (currentTotal >= amountToSubtract) {
+          const requestSQL3 = pool.request();
+          requestSQL3.input("ClientId", sql.UniqueIdentifier, ClientId);
+          requestSQL3.input("HonoraireTacheX", sql.Decimal(10, 2), amountToSubtract);
+
+          const querySQL2 = `
+            UPDATE Facturation
+            SET total_price = total_price - @HonoraireTacheX
+            WHERE ClientId = @ClientId
+          `;
+
+          await requestSQL3.query(querySQL2);
+          console.warn("Total price updated successfully.");
+        } else {
+          console.warn("Not enough total_price to subtract. No update performed.");
+        }
+      }
+    }
+
+    // Proceed with deletion
+    const requestSQL4 = pool.request();
+    requestSQL4.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
+
+    const deleteResult = await requestSQL4.execute("ps_delete_ClientTache");
+    
+    return deleteResult.rowsAffected[0] > 0;
+  } catch (error) {
+    console.error("Error in DeleteClientTache:", error.message);
+    throw error;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function DeleteGoogleToken(data) {

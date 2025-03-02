@@ -307,20 +307,37 @@ router.put("/UpdateClientTache", async (request, response) => {
     return response.status(400).send(error);
   }
 });
-router.delete("/DeleteClientTache/:ClientTacheId", async (request, response) => {
-  await DeleteClientTache(request.params.ClientTacheId)
-    .then((res) => {
-      log.Info("DeleteClientTache", res, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientTacheId);
-      // log.Info(res);
-      response.status(200).send(res);
-    })
-    .catch((error) => {
-      log.Error("DeleteClientTache Error", error, `${request.kauth.grant.access_token.content.preferred_username}, userId : ${request.kauth.grant.access_token.content.sid}`, request.params.ClientTacheId);
 
-      // log.Info(error);
-      response.status(400).send(error);
-    });
+
+router.delete("/DeleteClientTache/:ClientTacheId", async (request, response) => {
+  try {
+    const result = await DeleteClientTache(request.params.ClientTacheId);
+    
+    const user = request.kauth?.grant?.access_token?.content || {}; // Avoid possible errors
+    log.Info(
+      "DeleteClientTache", 
+      result, 
+      `${user.preferred_username || "Unknown"}, userId: ${user.sid || "Unknown"}`, 
+      request.params.ClientTacheId
+    );
+
+    response.status(200).send(result);
+  } catch (error) {
+    const user = request.kauth?.grant?.access_token?.content || {};
+    log.Error(
+      "DeleteClientTache Error", 
+      error, 
+      `${user.preferred_username || "Unknown"}, userId: ${user.sid || "Unknown"}`, 
+      request.params.ClientTacheId
+    );
+
+    console.error(error);
+    response.status(400).send(error);
+  }
 });
+
+
+
 //#endregion CLientTache
 
 module.exports = router;
