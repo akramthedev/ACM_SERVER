@@ -357,6 +357,51 @@ GO
 
 
 
+
+CREATE PROCEDURE ps_create_client_tache_But_From_SinglePageClient
+    @ClientId UNIQUEIDENTIFIER,
+    @AgentResposable UNIQUEIDENTIFIER,
+    @TacheId UNIQUEIDENTIFIER, 
+    @Intitule VARCHAR(200), 
+    @color VARCHAR(7),         
+    @NombreRappel INT, 
+    @ClientMissionId UNIQUEIDENTIFIER , 
+    @ClientMissionPrestationId UNIQUEIDENTIFIER              
+AS
+BEGIN
+ 
+
+      
+    INSERT INTO ClientTache (
+        ClientTacheId, ClientId, AgentResposable, TacheId, 
+        Intitule, color, NombreRappel, Status , ClientMissionId, ClientMissionPrestationId
+    ) 
+    VALUES (
+        NEWID(), @ClientId, @AgentResposable, @TacheId, 
+        @Intitule,  @color, @NombreRappel, 'En cours', @ClientMissionId , @ClientMissionPrestationId
+    );
+
+    
+    RETURN 0;
+END
+GO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -------------------------------------------------17/07/2024-------------------------------------------------------------
 
 --region service

@@ -385,15 +385,14 @@ async function GetDashboardData() {
 app.get("/GetAllPrestationWithTache",async (request, response) => {
   try {
     const data = await GetAllPrestationsWithTasks();
-    console.log(data);
     response.json({
-      data : data, 
+      data, 
       message : "Salam l3alam..."
     });  
   } catch (error) {
     response.status(500).json({ error: error?.message || "Server error" });
   }
-} )
+})
 
 
 app.get("/GetFacturation", async (request, response) => {
@@ -412,8 +411,6 @@ app.get("/GetFacturation", async (request, response) => {
 
 
 
-
-
 app.post("/CreateSingleEvent", async (request, response) => {
   try {
     const {
@@ -426,11 +423,8 @@ app.post("/CreateSingleEvent", async (request, response) => {
       NumberEvent
     } = request.body;   
 
-    // Establish connection to the database
-    const pool = await sql.connect(process.env.DB_CONNECTION_STRING); // Ensure you have a valid DB connection string in your environment variables
 
-    // Create SQL request
-    const sqlRequest = new sql.Request(pool);
+    const sqlRequest = new sql.Request();
 
     // Bind the parameters with the correct data types
     sqlRequest.input("TacheId", sql.UniqueIdentifier, ClientTacheId);  
@@ -450,7 +444,7 @@ app.post("/CreateSingleEvent", async (request, response) => {
     // Execute the query
     await sqlRequest.query(query);
 
-    const sqlRequest2 = new sql.Request(pool);
+    const sqlRequest2 = new sql.Request();
     sqlRequest2.input("NombreRappel", sql.Int, 1);
     sqlRequest2.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
     const query2 = `
@@ -483,6 +477,59 @@ app.post("/CreateSingleEvent", async (request, response) => {
 
 
 
+app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
+  try {
+    const { TacheId, ClientId, Intitule,PrestationId  } = request.body;
+
+    if (!TacheId || !ClientId || !Intitule) {
+      return response.status(400).json({ error: "Missing required fields" });
+    }
+
+    console.log("PrestationId : "+PrestationId);
+    console.log("-------------------------------");
+    console.log("ClientId : "+ClientId);
+
+    let ClientMissionIdX = "";
+    let ClientMissionPrestationIdX = "";
+
+    const sqlRequest = new sql.Request();
+    sqlRequest.input("ClientId", sql.UniqueIdentifier, ClientId);
+    const query = `
+      SELECT  ClientMission.ClientMissionId AS ClientMissionId, ClientMissionPrestation.ClientMissionPrestationId AS ClientMissionPrestationId From ClientMission, ClientMissionPrestation WHERE ClientMission.ClientMissionId = ClientMissionPrestation.ClientMissionId AND ClientMission.ClientId = @ClientId;
+    `;
+
+    const result = await sqlRequest.query(query);
+
+    if (result.recordset?.length > 0) {
+      ClientMissionIdX = result.recordset[0].ClientMissionId;
+      ClientMissionPrestationIdX = result.recordset[0].ClientMissionPrestationId;
+      
+      const insertRequest = new sql.Request();
+      insertRequest.input("ClientId", sql.UniqueIdentifier, ClientId);
+      insertRequest.input("AgentResposable", sql.UniqueIdentifier, "3D9D1AC0-AC20-469E-BE24-97CB3C8C5187");
+      insertRequest.input("TacheId", sql.UniqueIdentifier, TacheId);
+      insertRequest.input("color", sql.VarChar(7), "#7366fe");
+      insertRequest.input("Intitule", sql.NVarChar(250), Intitule);
+      insertRequest.input("NombreRappel", sql.Int, 1);
+      insertRequest.input("ClientMissionId", sql.UniqueIdentifier, ClientMissionIdX);
+      insertRequest.input("ClientMissionPrestationId", sql.UniqueIdentifier, ClientMissionPrestationIdX);
+
+      await insertRequest.execute("ps_create_client_tache_But_From_SinglePageClient");
+
+      return response.status(201).json({
+        message: "Task created successfully",
+        data: { X: "Hallo X" },
+      });
+    } else {
+      return response.status(404).json({ error: "Client mission not found" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return response.status(500).json({ error: error.message || "Server error" });
+  }
+});
+
+
 
 
 
@@ -506,10 +553,6 @@ function GetAllPrestationsWithTasks(){
       LEFT JOIN Tache 
       ON Prestation.PrestationId = Tache.PrestationId;
     `;
-
-
-    
-
     request.query(query)
       .then((result) => {
         if (result.recordset?.length > 0) {
