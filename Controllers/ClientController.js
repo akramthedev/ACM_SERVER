@@ -331,7 +331,7 @@ async function processClientTaches(clientTaches, clientId, client) {
                 const matchingTache = tacheMap.get(tache.TacheId);
 
                 let Deadline_X = matchingTache.Deadline === null ? 13 : matchingTache.Deadline;
-                let NbRap_X = matchingTache.NombreRapelle === null ? 1 : matchingTache.NombreRapelle;
+                let NbRap_X = matchingTache.NombreRapelle === null ? 0 : matchingTache.NombreRapelle;
                 let DateArriveMaroc = convertToISOFormat(client.DateArriveMaroc);
                 let EndDate_X = null;
                 

@@ -681,6 +681,16 @@ BEGIN
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
+
+
+        IF @NombreRappel = 0
+        BEGIN
+            -- Skip event creation and move to the next iteration
+            FETCH NEXT FROM task_cursor INTO @TacheId, @StartDate, @EndDate, @IntituleTask, @NombreRappel;
+            CONTINUE;
+        END;
+
+
         SELECT TOP 1 @RandomColor = Color FROM @Colors ORDER BY NEWID();
 
         SET @NumberEvent = ISNULL(@NombreRappel, 1);
