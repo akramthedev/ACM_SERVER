@@ -450,7 +450,16 @@ app.post("/CreateSingleEvent", async (request, response) => {
     // Execute the query
     await sqlRequest.query(query);
 
-    // Respond with success message
+    const sqlRequest2 = new sql.Request(pool);
+    sqlRequest2.input("NombreRappel", sql.Int, 1);
+    sqlRequest2.input("ClientTacheId", sql.UniqueIdentifier, ClientTacheId);
+    const query2 = `
+      UPDATE ClientTache 
+      SET NombreRappel = @NombreRappel
+      WHERE ClientTacheId = @ClientTacheId
+    `;
+    await sqlRequest2.query(query2);
+    
     response.status(201).json({ 
       message: 'Event created successfully', 
       data: {
