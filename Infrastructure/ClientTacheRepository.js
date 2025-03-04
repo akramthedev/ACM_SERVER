@@ -1,4 +1,5 @@
 const sql = require("mssql");
+const { randomBytes } = require("crypto");
 
 
 function GetClientTaches(ClientId) {
@@ -408,7 +409,14 @@ function CreateClientTacheCustom(data) {
 
 
 
+function generateInvoiceID() {
+  const now = new Date();
+  const yearMonth = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+  
+  const uniquePart = randomBytes(6).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 9).toUpperCase();
 
+  return `${yearMonth}-${uniquePart}`;
+}
 
 
 
@@ -460,17 +468,25 @@ function UpdateClientTache(data) {
               }
 
               // Fetch or create Facturation
+
+              let NumeroFactureGenerated = generateInvoiceID();
+
               const SQL_REQ = new sql.Request();
               SQL_REQ.input("ClientId", sql.UniqueIdentifier, ClientIdX);
+              SQL_REQ.input("NumeroFacture", sql.VarChar(25), NumeroFactureGenerated);
               const invoiceResult = await SQL_REQ.query(`
                 SELECT id FROM Facturation WHERE ClientId = @ClientId AND status = 'Pending'
               `);
 
+              
+
               if (invoiceResult.recordset.length === 0) {
+
+
                 const createInvoice = await SQL_REQ.query(`
-                  INSERT INTO Facturation (ClientId, total_price, date_facturation, status)
+                  INSERT INTO Facturation (ClientId, NumeroFacture, total_price, date_facturation, status)
                   OUTPUT INSERTED.id
-                  VALUES (@ClientId, 0, GETDATE(), 'Pending')
+                  VALUES (@ClientId, @NumeroFacture , 0, GETDATE(), 'Pending')
                 `);
                 facturationId = createInvoice.recordset[0].id;
               } else {

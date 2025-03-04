@@ -228,6 +228,7 @@ CREATE TABLE GoogleCalendar (
 CREATE TABLE Facturation (
     id INT IDENTITY(1,1) PRIMARY KEY,
     ClientId UNIQUEIDENTIFIER NOT NULL,
+    NumeroFacture VARCHAR(25) NULL,
     total_price DECIMAL(10,2) DEFAULT 0.00,
     date_facturation DATETIME DEFAULT GETDATE(),
     status VARCHAR(10) DEFAULT 'Pending',

@@ -305,7 +305,7 @@ app.delete("/DeleteTache/:TacheId", async (req, res) => {
 
 
 
-app.get("/GetDashData", async (request, response) => {
+app.get("/GetDashData", async (req, res) => {
   let resFallBack = {
     data: {
       total_tasks: 0,
@@ -314,23 +314,74 @@ app.get("/GetDashData", async (request, response) => {
       total_dossiers: 0,
       dossier_en_cours: 0,
       dossier_clotures: 0,
+      dossierIncomplets: 0,
+      total_extensions: 0,
     },
     upcoming_tasks: [],
   };
 
   try {
     const data = await GetDashboardData();
-    const upcomingTasks = await GetUpcomingTasks();
-    
-    // Combine the dashboard stats and upcoming tasks into one response
-    response.json({
+    res.json({
       data: data || resFallBack.data,
-      upcoming_tasks: upcomingTasks,
+      upcoming_tasks: [],
     });
   } catch (error) {
-    response.status(500).json({ error: error?.message || "Server error" });
+    res.status(500).json({ error: error?.message || "Server error" });
   }
 });
+
+
+
+
+async function GetDashboardData() {
+  try {
+    const request = new sql.Request();
+    
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM ClientTache) AS total_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'En cours') AS incomplete_tasks,
+        (SELECT COUNT(*) FROM ClientTache WHERE status = 'Finalisée') AS completed_tasks,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache) AS total_dossiers,
+        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache WHERE status = 'En cours') AS dossier_en_cours,
+        (SELECT COUNT(*) FROM (
+            SELECT ClientId FROM ClientTache 
+            GROUP BY ClientId 
+            HAVING SUM(CASE WHEN status = 'En cours' THEN 1 ELSE 0 END) = 0
+        ) AS completed_clients) AS dossier_clotures;
+    `;
+    
+    const result = await request.query(query);
+    let dashboardData = result.recordset[0] || {};
+
+    const query2 = `SELECT ClientId, Extension FROM ClientPiece`;
+    const result2 = await request.query(query2);
+
+    let clientsWithMissingFiles = new Set(); // To store unique ClientId with at least one NULL Extension
+    let nonNullExtensions = 0;
+
+    result2.recordset.forEach(row => {
+      if (row.Extension === null) {
+        clientsWithMissingFiles.add(row.ClientId);
+      } else {
+        nonNullExtensions++;
+      }
+    });
+
+    dashboardData.dossierIncomplets = clientsWithMissingFiles.size;  
+    dashboardData.total_extensions = nonNullExtensions;
+
+    return dashboardData;
+  } catch (error) {
+    throw new Error("Error fetching dashboard data: " + error.message);
+  }
+}
+
+
+
+
+
 app.get("/GetAllPrestationWithTache",async (request, response) => {
   try {
     const data = await GetAllPrestationsWithTasks();
@@ -401,6 +452,7 @@ function GetAllFacturations() {
 
     const query = `
       SELECT  
+        Facturation.NumeroFacture AS NumeroFacture, 
         Facturation.id as FacturationId,
         FacturationItems.id as FacturationItemId,
         FacturationItems.ClientTacheId as ClientTacheId, 
@@ -437,37 +489,17 @@ function GetAllFacturations() {
 
 
 
-function GetDashboardData() {
-  return new Promise((resolve, reject) => {
-    const request = new sql.Request();
 
-    const query = `
-      SELECT 
-        (SELECT COUNT(*) FROM ClientTache) AS total_tasks,
-        (SELECT COUNT(*) FROM ClientTache WHERE status = 'En cours') AS incomplete_tasks,
-        (SELECT COUNT(*) FROM ClientTache WHERE status = 'Finalisée') AS completed_tasks,
-        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache) AS total_dossiers,
-        (SELECT COUNT(DISTINCT ClientId) FROM ClientTache WHERE status = 'En cours') AS dossier_en_cours,
-        (SELECT COUNT(*) FROM (
-            SELECT ClientId FROM ClientTache 
-            GROUP BY ClientId 
-            HAVING SUM(CASE WHEN status = 'En cours' THEN 1 ELSE 0 END) = 0
-        ) AS completed_clients) AS dossier_clotures;
-    `;
 
-    request.query(query)
-      .then((result) => {
-        if (result.recordset?.length > 0) {
-          resolve(result.recordset[0]);
-        } else {
-          resolve(null);
-        }
-      })
-      .catch((error) => {
-        reject(new Error("Error fetching dashboard data: " + error.message));
-      });
-  });
-}
+
+
+
+
+
+
+
+
+
 
 function GetUpcomingTasks() {
   return new Promise((resolve, reject) => {
@@ -486,7 +518,7 @@ function GetUpcomingTasks() {
         WHERE ct.ClientId = c.ClientId
           AND ct.TacheId = t.TacheId
           AND (ct.start_date >= GETDATE() OR ct.end_date >= GETDATE()) 
-          AND (ct.start_date < DATEADD(DAY, 30, GETDATE()) OR ct.end_date < DATEADD(DAY, 30, GETDATE()))
+          AND (ct.start_date < DATEADD(DAY, 17, GETDATE()) OR ct.end_date < DATEADD(DAY, 17, GETDATE()))
           AND ct.status = 'En cours'
     `;
 
