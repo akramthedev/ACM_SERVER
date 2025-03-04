@@ -322,8 +322,9 @@ CREATE PROCEDURE ps_get_all_client_taches
 AS
 BEGIN
 
+
 SELECT 
-        ct.ClientTacheId,
+        ct.ClientTacheId AS ClientTacheId,
         cmp.ClientMissionPrestationId,
         cm.ClientMissionId,
         cm.ClientId,
@@ -341,7 +342,7 @@ SELECT
         cl.Telephone2 AS ClientTelephone2,
         cl.HasConjoint AS ClientHasConjoint,
         cl.SituationFamiliale AS ClientSituationFamiliale,
-        m.Designation AS MissionDesignation,  -- Mission designation
+        m.Designation AS MissionDesignation,   
         t.TacheId,
         t.Intitule AS TacheIntitule,
         p.PrestationId,
@@ -357,9 +358,12 @@ SELECT
         ct.DateButoir,
         ct.Date_Execution,
         ct.Status,
-        ag.Nom AS AgentNom
+        ag.Nom AS AgentNom,
+        COUNT(CASE WHEN ev.EventTimeStart > CURRENT_TIMESTAMP THEN ev.EventId END) AS NombreEvenementsFutursParTache
     FROM 
         ClientTache ct
+    LEFT JOIN
+        Evenements ev ON ct.ClientTacheId = ev.TacheId 
     LEFT JOIN 
         ClientMissionPrestation cmp ON ct.ClientMissionPrestationId = cmp.ClientMissionPrestationId
     LEFT JOIN 
@@ -371,9 +375,48 @@ SELECT
     LEFT JOIN 
         Prestation p ON t.PrestationId = p.PrestationId
     LEFT JOIN 
-        Client cl ON cm.ClientId = cl.ClientId   -- Join with Client to get client details
+        Client cl ON cm.ClientId = cl.ClientId    
     LEFT JOIN 
-        Agent ag ON ct.AgentResposable = ag.AgentId    
+        Agent ag ON ct.AgentResposable = ag.AgentId
+GROUP BY
+        ct.ClientTacheId,
+        cmp.ClientMissionPrestationId,
+        cm.ClientMissionId,
+        cm.ClientId,
+        cl.Nom,
+        cl.Prenom,
+        cl.DateNaissance,
+        cl.Photo,
+        cl.Profession,
+        cl.DateRetraite,
+        cl.NumeroSS,
+        cl.Adresse,
+        cl.Email1,
+        cl.Email2,
+        cl.Telephone1,
+        cl.Telephone2,
+        cl.HasConjoint,
+        cl.SituationFamiliale,
+        m.Designation,
+        t.TacheId,
+        t.Intitule,
+        p.PrestationId,
+        p.Designation,
+        p.Description,
+        t.Description,
+        ct.Intitule,
+        ct.isDone,
+        ct.AgentResposable,
+        t.Numero_Ordre,
+        ct.Commentaire,
+        ct.Deadline,
+        ct.DateButoir,
+        ct.Date_Execution,
+        ct.Status,
+        ag.Nom;
+
+
+
 
 END
 GO

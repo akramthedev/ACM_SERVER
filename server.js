@@ -394,6 +394,8 @@ app.get("/GetAllPrestationWithTache",async (request, response) => {
     response.status(500).json({ error: error?.message || "Server error" });
   }
 } )
+
+
 app.get("/GetFacturation", async (request, response) => {
   try {
     const data = await GetAllFacturations();
@@ -406,6 +408,73 @@ app.get("/GetFacturation", async (request, response) => {
     response.status(500).json({ error: error?.message || "Server error" });
   }
 })
+
+
+
+
+
+
+app.post("/CreateSingleEvent", async (request, response) => {
+  try {
+    const {
+      ClientTacheId,
+      ClientTacheIntitule,
+      EventTimeStart,
+      EventTimeEnd,
+      EventDescription,
+      color,
+      NumberEvent
+    } = request.body;   
+
+    // Establish connection to the database
+    const pool = await sql.connect(process.env.DB_CONNECTION_STRING); // Ensure you have a valid DB connection string in your environment variables
+
+    // Create SQL request
+    const sqlRequest = new sql.Request(pool);
+
+    // Bind the parameters with the correct data types
+    sqlRequest.input("TacheId", sql.UniqueIdentifier, ClientTacheId);  
+    sqlRequest.input("EventName", sql.NVarChar, ClientTacheIntitule);  
+    sqlRequest.input("EventTimeStart", sql.DateTime, EventTimeStart);  
+    sqlRequest.input("EventTimeEnd", sql.DateTime, EventTimeEnd);  
+    sqlRequest.input("EventDescription", sql.NVarChar, EventDescription);  
+    sqlRequest.input("color", sql.NVarChar, color);  
+    sqlRequest.input("NumberEvent", sql.Int, NumberEvent);    
+
+    // SQL query to insert event data
+    const query = `
+      INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, color, NumberEvent) 
+      VALUES (@TacheId, @EventName, @EventTimeStart, @EventTimeEnd, @EventDescription, @color, @NumberEvent)
+    `;
+
+    // Execute the query
+    await sqlRequest.query(query);
+
+    // Respond with success message
+    response.status(201).json({ 
+      message: 'Event created successfully', 
+      data: {
+        ClientTacheId,
+        ClientTacheIntitule,
+        EventTimeStart,
+        EventTimeEnd,
+        EventDescription,
+        color,
+        NumberEvent
+      }
+    });
+
+  } catch (error) {
+    // Handle error if anything goes wrong
+    console.error(error); // Log the error for debugging
+    response.status(500).json({ error: error?.message || "Server error" });
+  }
+});
+
+
+
+
+
 
 
 
