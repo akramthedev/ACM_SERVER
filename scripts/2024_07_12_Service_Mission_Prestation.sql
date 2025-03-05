@@ -364,23 +364,22 @@ CREATE PROCEDURE ps_create_client_tache_But_From_SinglePageClient
     @TacheId UNIQUEIDENTIFIER, 
     @Intitule VARCHAR(200), 
     @color VARCHAR(7),         
-    @NombreRappel INT, 
     @ClientMissionId UNIQUEIDENTIFIER , 
-    @ClientMissionPrestationId UNIQUEIDENTIFIER              
+    @ClientMissionPrestationId UNIQUEIDENTIFIER, 
+    @start_date DATETIME,       
+    @end_date DATETIME , 
+    @NombreRappel INT
 AS
 BEGIN
- 
-
       
     INSERT INTO ClientTache (
         ClientTacheId, ClientId, AgentResposable, TacheId, 
-        Intitule, color, NombreRappel, Status , ClientMissionId, ClientMissionPrestationId
+        Intitule, color, NombreRappel, Status , ClientMissionId, ClientMissionPrestationId, start_date, end_date
     ) 
     VALUES (
         NEWID(), @ClientId, @AgentResposable, @TacheId, 
-        @Intitule,  @color, @NombreRappel, 'En cours', @ClientMissionId , @ClientMissionPrestationId
+        @Intitule,  @color, @NombreRappel, 'En cours', @ClientMissionId , @ClientMissionPrestationId, @start_date, @end_date
     );
-
     
     RETURN 0;
 END

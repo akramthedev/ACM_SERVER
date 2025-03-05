@@ -477,20 +477,96 @@ app.post("/CreateSingleEvent", async (request, response) => {
 
 
 
+
+
+function convertToISOFormat(dateInput) {
+  if (!dateInput) {
+    console.error("❌ Date input is missing or undefined.");
+    return null;
+  }
+
+  const date = new Date(dateInput);
+
+  if (isNaN(date.getTime())) {
+    console.error("❌ Invalid date input:", dateInput);
+    return null;
+  }
+
+  date.setUTCHours(9, 0, 0, 0);
+  return date.toISOString();
+}
+
+
+
+function addDaysToDateStart(dateString, days) {
+  if (!dateString) {
+    console.error("❌ Invalid input to addDaysToDateStart: dateString is null or undefined");
+    return null;
+  }
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    console.error("❌ Cannot process invalid date in addDaysToDateStart:", dateString);
+    return null;
+  }
+
+  date.setUTCDate(date.getUTCDate() + days);
+  date.setUTCHours(9, 0, 0, 0);
+
+  return date.toISOString();
+}
+
+
+
+
 app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
   try {
-    const { TacheId, ClientId, Intitule,PrestationId  } = request.body;
+    const { TacheId, ClientId, Intitule,PrestationId, DateArriveMaroc  } = request.body;
+    let ClientMissionIdX = "";
+    let ClientMissionPrestationIdX = "";
+    let start_date;
+    let end_date;
+    let NombreRapelle;
 
     if (!TacheId || !ClientId || !Intitule) {
       return response.status(400).json({ error: "Missing required fields" });
     }
+    
+    const sqR0 = new sql.Request();
+    sqR0.input("TacheId", sql.UniqueIdentifier, TacheId);
+    const rXR0 = await sqR0.query(`
+      SELECT Deadline, NombreRapelle, Honoraire
+      FROM Tache
+      WHERE TacheId = @TacheId
+    `);
+
+    console.warn(rXR0.recordset[0]);
+
+    if (rXR0.recordset[0] !== null) {
+      console.warn(DateArriveMaroc);
+      start_date = convertToISOFormat(DateArriveMaroc);
+    
+      if (!start_date) {
+        throw new Error("🚨 Invalid start_date: DateArriveMaroc is not a valid date.");
+      }
+    
+      let deadline = parseInt(rXR0.recordset[0].Deadline);
+      if (isNaN(deadline)) {
+        deadline = 13;  
+      }
+      NombreRapelle = rXR0.recordset[0].NombreRapelle;
+      end_date = addDaysToDateStart(start_date, deadline);
+    }
+    
 
     console.log("PrestationId : "+PrestationId);
     console.log("-------------------------------");
-    console.log("ClientId : "+ClientId);
-
-    let ClientMissionIdX = "";
-    let ClientMissionPrestationIdX = "";
+    console.log("ClientId     : "+ClientId);
+    console.log("-------------------------------");
+    console.log("Start_Date   : "+start_date)
+    console.log("-------------------------------");
+    console.log("End_Date     : "+end_date);    
+    
 
     const sqlRequest = new sql.Request();
     sqlRequest.input("ClientId", sql.UniqueIdentifier, ClientId);
@@ -510,9 +586,11 @@ app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
       insertRequest.input("TacheId", sql.UniqueIdentifier, TacheId);
       insertRequest.input("color", sql.VarChar(7), "#7366fe");
       insertRequest.input("Intitule", sql.NVarChar(250), Intitule);
-      insertRequest.input("NombreRappel", sql.Int, 1);
       insertRequest.input("ClientMissionId", sql.UniqueIdentifier, ClientMissionIdX);
       insertRequest.input("ClientMissionPrestationId", sql.UniqueIdentifier, ClientMissionPrestationIdX);
+      insertRequest.input("start_date", sql.DateTime, start_date)  
+      insertRequest.input("end_date", sql.DateTime, end_date)
+      insertRequest.input("NombreRappel", sql.Int, NombreRapelle)
 
       await insertRequest.execute("ps_create_client_tache_But_From_SinglePageClient");
 
