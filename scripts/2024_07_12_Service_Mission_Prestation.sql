@@ -44,11 +44,11 @@ CREATE TABLE TypePersonneANotifier(
 
 CREATE TABLE Tache(
     TacheId uniqueidentifier PRIMARY KEY,
-    PrestationId uniqueidentifier NOT NULL, --Référence au prestation
-    TacheDateReferenceId uniqueidentifier , --Référence au TacheDateReference
-    TypePersonneANotifierId uniqueidentifier , --Référence au TypePersonneANotifier
-    Depend_de uniqueidentifier --Référence Tache
-    AgentId uniqueidentifier, --Référence au Agent
+    PrestationId uniqueidentifier NOT NULL, 
+    TacheDateReferenceId uniqueidentifier , 
+    TypePersonneANotifierId uniqueidentifier ,  
+    Depend_de uniqueidentifier  
+    AgentId uniqueidentifier,  
     Intitule NVARCHAR(255),
     Description NVARCHAR(255),
     Numero_Ordre NVARCHAR(255),
@@ -60,8 +60,6 @@ CREATE TABLE Tache(
     FOREIGN KEY (TacheDateReferenceId) REFERENCES TacheDateReference(TacheDateReferenceId),
     FOREIGN KEY (TypePersonneANotifierId) REFERENCES TypePersonneANotifier(TypePersonneANotifierId),
     FOREIGN KEY (Depend_de) REFERENCES Tache(TacheId)
-
-
 );
 
 
@@ -170,34 +168,7 @@ CREATE TABLE ClientTache(
 
 
 
-CREATE TABLE Evenements (
-    EventId INT IDENTITY(1,1) PRIMARY KEY,
-    TacheId UNIQUEIDENTIFIER NOT NULL,
-    EventName VARCHAR(50) NULL, 
-    EventTimeStart DATETIME NULL, 
-	EventTimeEnd DATETIME NULL, 
-    EventDescription VARCHAR(250) NULL, 
-    color VARCHAR(10) DEFAULT '#7366fe',  
-    isDone BIT DEFAULT 0, 
-    isReminder BIT DEFAULT 0,
-    NumberEvent INT NULL, 
-    CONSTRAINT FK_Evenements_ClientTache FOREIGN KEY (TacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE
-);
-
-
-
-
-
-CREATE TABLE GoogleCalendar (
-    ClientIdOfCloack UNIQUEIDENTIFIER PRIMARY KEY,
-    EmailKeyCloack VARCHAR(255) NULL,
-	AccessTokenGoogle VARCHAR(255) NULL, 
-    ClientIdOfGoogle VARCHAR(255) NULL, 
-    ExpiresIn VARCHAR(255) NULL
-);
-
-
-
+  
 
 
 
@@ -206,11 +177,13 @@ CREATE TABLE GoogleCalendar (
 CREATE TABLE Facturation (
     id INT IDENTITY(1,1) PRIMARY KEY,
     ClientId UNIQUEIDENTIFIER NOT NULL,
+    NumeroFacture VARCHAR(25) NULL,
     total_price DECIMAL(10,2) DEFAULT 0.00,
     date_facturation DATETIME DEFAULT GETDATE(),
     status VARCHAR(10) DEFAULT 'Pending',
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId) ON DELETE CASCADE
 );
+
 
 
 
@@ -225,7 +198,6 @@ CREATE TABLE FacturationItems (
     FOREIGN KEY (facturation_id) REFERENCES Facturation(id) ON DELETE CASCADE,
     FOREIGN KEY (ClientTacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE,
 );
-
 
 
 
@@ -363,7 +335,7 @@ CREATE PROCEDURE ps_create_client_tache_But_From_SinglePageClient
     @AgentResposable UNIQUEIDENTIFIER,
     @TacheId UNIQUEIDENTIFIER, 
     @Intitule VARCHAR(200), 
-    @color VARCHAR(7),         
+    @color VARCHAR(7),             
     @ClientMissionId UNIQUEIDENTIFIER , 
     @ClientMissionPrestationId UNIQUEIDENTIFIER, 
     @start_date DATETIME,       
@@ -638,6 +610,10 @@ LEFT JOIN
 END
 GO
 
+
+
+
+
 ALTER proc ps_get_taches
 AS
 BEGIN
@@ -669,27 +645,6 @@ ORDER BY
  
 END
 GO
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

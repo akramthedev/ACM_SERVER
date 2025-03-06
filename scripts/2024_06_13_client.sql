@@ -18,7 +18,7 @@ CREATE TABLE Client (
     ,Profession NVARCHAR(255)
     ,DateRetraite DATE
     ,DateArriveMaroc DATE
-    ,NumeroSS NVARCHAR(20)  --Numero Sécurité Sociale
+    ,NumeroSS NVARCHAR(20)   
     ,Adresse NVARCHAR(255)
     ,Email1 NVARCHAR(100)
     ,Email2 NVARCHAR(100)
@@ -37,21 +37,12 @@ AS
     select * from Client
     where CabinetId=@CabinetId
 GO
-
-
-
 create proc ps_get_client
     @ClientId uniqueidentifier
 AS
     select top 1 * from Client
     where ClientId=@ClientId
 GO
-
-
-
-
-
-
 
 create proc ps_create_client
     @ClientId uniqueidentifier
@@ -92,15 +83,6 @@ AS
     insert into Client(ClientId,CabinetId,Nom,Prenom,DateNaissance,Profession,DateRetraite,DateArriveMaroc, DateResidence,NumeroSS,Adresse,Email1,Email2,Telephone1,Telephone2,HasConjoint,SituationFamiliale,ParticulariteFiscale,CFE,Cotisation,Reversion,CNSS,CNAREFE,CAPITONE,AssuranceRapatriement,MutuelleFrancaise,PASSEPORT,CarteSejour,PermisConduire,AssuranceAuto,AssuranceHabitation,InscriptionConsulat,CPAM,CSG_CRDS)
     values(@ClientId,@CabinetId,@Nom,@Prenom,@DateNaissance,@Profession,@DateRetraite,@DateArriveMaroc, @DateResidence,@NumeroSS,@Adresse,@Email1,@Email2,@Telephone1,@Telephone2,@HasConjoint,@SituationFamiliale,@ParticulariteFiscale,@CFE,@Cotisation,@Reversion,@CNSS,@CNAREFE,@CAPITONE,@AssuranceRapatriement,@MutuelleFrancaise,@PASSEPORT,@CarteSejour,@PermisConduire,@AssuranceAuto,@AssuranceHabitation,@InscriptionConsulat,@CPAM,@CSG_CRDS);
 Go
-
-
-
-
-
-
-
-
-
 
 CREATE PROCEDURE ps_update_client
     @ClientId uniqueidentifier
@@ -174,13 +156,11 @@ AS
     WHERE ClientId = @ClientId;
 GO
 
-
 create proc ps_delete_client
     @ClientId uniqueidentifier
 AS
     delete from Client where ClientId=@ClientId;
 GO
-
 
 alter proc ps_delete_client
     @ClientId uniqueidentifier

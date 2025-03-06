@@ -66,6 +66,7 @@ create proc ps_update_proche
     @Commentaire NVARCHAR(255)
 AS
 BEGIN
+    
     update Proche
     set
         Nom=@Nom,

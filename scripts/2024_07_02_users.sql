@@ -58,4 +58,3 @@ BEGIN
     values(@UserId,@CabinetId,@Username,@Email,@PasswordHash,@PhoneNumber)
 END
 GO
-

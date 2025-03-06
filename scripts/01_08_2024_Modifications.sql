@@ -10,6 +10,7 @@ CREATE TABLE MissionPiece(
 
 );
 
+
 ALTER PROC ps_create_client_mission
     @ClientMissionId UNIQUEIDENTIFIER,
     @ClientId UNIQUEIDENTIFIER,

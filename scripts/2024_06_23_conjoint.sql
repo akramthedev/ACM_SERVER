@@ -77,7 +77,7 @@ BEGIN
         DateArriveMaroc=@DateArriveMaroc,
         NumeroSS=@NumeroSS,
         DateMariage=@DateMariage,
-        Adresse=@Adresse,
+        Adresse=@Adresse,  
         RegimeMatrimonial=@RegimeMatrimonial,
         DonationEpoux=@DonationEpoux,
         ModifRegimeDate=@ModifRegimeDate,

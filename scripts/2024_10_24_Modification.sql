@@ -9,3 +9,4 @@ update Tache set PrestationId='55017a79-a7a2-493b-853b-97c33df4d139' where Tache
 update Tache set PrestationId='55017a79-a7a2-493b-853b-97c33df4d139' where TacheId='990b00bd-fc7f-4ce6-b202-d7ca0b02792f'
 
 INSERT INTO Tache (TacheId,PrestationId,AgentId,Intitule,Numero_Ordre,Deadline,NombreRapelle,Honoraire,Priorite) VALUES (NEWID(),'55017a79-a7a2-493b-853b-97c33df4d139','3d9d1ac0-ac20-469e-be24-97cb3c8c5187','Ouverture du dossier N°7 Santé avec formulaire interne/ couverture','T20',0,0,0,'')
+  

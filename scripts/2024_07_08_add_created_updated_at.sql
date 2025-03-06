@@ -423,7 +423,7 @@ GO
 
 ALTER PROCEDURE ps_update_Budget
     @BudgetsId uniqueidentifier,
-    @ClientId uniqueidentifier, -- Référence au client 
+    @ClientId uniqueidentifier, 
     @Designation NVARCHAR(255),
     @Montant FLOAT,
     @Sexe NVARCHAR(100),
@@ -442,5 +442,3 @@ BEGIN
     where BudgetsId=@BudgetsId
 END
 GO
-
-

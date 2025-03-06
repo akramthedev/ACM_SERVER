@@ -164,9 +164,9 @@ CREATE TABLE SituationAdministrative (
 CREATE TABLE ClientTache(
     ClientTacheId uniqueidentifier PRIMARY KEY,
     ClientId uniqueidentifier,
-    ClientMissionPrestationId uniqueidentifier NULL, --Référence au ClientMissionPrestation
-    ClientMissionId uniqueidentifier NOT NULL, --Référence au ClientMission
-    TacheId uniqueidentifier NOT NULL, --Référence au Tache
+    ClientMissionPrestationId uniqueidentifier NULL,  
+    ClientMissionId uniqueidentifier NOT NULL, 
+    TacheId uniqueidentifier NOT NULL, 
     DateAffectation Date,
     Intitule NVARCHAR(255),
     Numero_Ordre NVARCHAR(255),
@@ -211,7 +211,7 @@ CREATE TABLE Evenements (
     CONSTRAINT FK_Evenements_ClientTache FOREIGN KEY (TacheId) REFERENCES ClientTache(ClientTacheId) ON DELETE CASCADE
 );
 
-
+ 
 
 
 
@@ -234,6 +234,7 @@ CREATE TABLE Facturation (
     status VARCHAR(10) DEFAULT 'Pending',
     FOREIGN KEY (ClientId) REFERENCES Client(ClientId) ON DELETE CASCADE
 );
+
 
 
 

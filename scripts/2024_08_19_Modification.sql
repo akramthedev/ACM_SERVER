@@ -126,4 +126,4 @@ AS
     delete cmp from ClientMissionPrestation cmp JOIN ClientMission cm ON cmp.ClientMissionId = cm.ClientMissionId WHERE cm.ClientId=@ClientId
     delete from ClientMission where ClientId=@ClientId;
     delete from Client where ClientId=@ClientId;
-GO
+GO     

@@ -496,7 +496,7 @@ BEGIN
     END CATCH
 END;
 GO
-
+     
 CREATE PROCEDURE ps_get_client_pieces_affecter
     @ClientId uniqueidentifier
 AS

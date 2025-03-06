@@ -64,7 +64,7 @@ create proc ps_delete_client_piece
 AS
     delete from ClientPiece where ClientPieceId=@ClientPieceId
 GO
-
+    
 create proc ps_get_pieces
 AS
     select * from Piece

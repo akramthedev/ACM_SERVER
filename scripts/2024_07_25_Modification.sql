@@ -37,6 +37,9 @@ END
 GO
 
 
+
+ 
+
 ----------------------------------------------------------------------------------------------
 CREATE PROCEDURE ps_get_client_lettre_mission
     @ClientMissionId uniqueidentifier
@@ -84,46 +87,7 @@ SELECT
 END
 GO
 
-
-
-
-
-
-
-
-CREATE PROCEDURE ps_create_google_calendar_account
-    @ClientIdOfCloack UNIQUEIDENTIFIER,
-    @EmailKeyCloack VARCHAR(255),
-    @AccessTokenGoogle VARCHAR(255),
-    @ClientIdOfGoogle VARCHAR(255), 
-    @ExpiresIn VARCHAR(255)
-AS
-BEGIN
-    -- Check if a record with the given ClientIdOfCloack exists
-    IF EXISTS (SELECT 1 FROM GoogleCalendar WHERE ClientIdOfCloack = @ClientIdOfCloack)
-    BEGIN
-        -- If record exists, update it
-        UPDATE GoogleCalendar
-        SET
-            EmailKeyCloack = @EmailKeyCloack,
-            AccessTokenGoogle = @AccessTokenGoogle,
-            ClientIdOfGoogle = @ClientIdOfGoogle, 
-            ExpiresIn = @ExpiresIn
-        WHERE ClientIdOfCloack = @ClientIdOfCloack;
-    END
-    ELSE
-    BEGIN
-        -- If record does not exist, insert a new one
-        INSERT INTO GoogleCalendar (ClientIdOfCloack, EmailKeyCloack, AccessTokenGoogle, ClientIdOfGoogle, ExpiresIn)
-        VALUES (@ClientIdOfCloack, @EmailKeyCloack, @AccessTokenGoogle, @ClientIdOfGoogle, @ExpiresIn);
-    END
-END;
-GO
-
-
-
-
-
+ 
 
 
 create proc ps_create_client_tache_custom
@@ -143,33 +107,52 @@ GO
 
 
 
-
-
-
-
-
-
-
-
-
-CREATE PROCEDURE ps_update_clienttache_from_SinglePageCLient
+ALTER PROCEDURE ps_create_client_tache
     @ClientTacheId UNIQUEIDENTIFIER,
-    @Intitule NVARCHAR(255),
-    @Numero_Ordre NVARCHAR(255),
-    @Status NVARCHAR(255),
-    @AgentResposable NVARCHAR(255)
+    @ClientMissionPrestationId UNIQUEIDENTIFIER,
+    @ClientMissionId UNIQUEIDENTIFIER,
+    @TacheId UNIQUEIDENTIFIER
 AS
 BEGIN
     BEGIN TRANSACTION;
     BEGIN TRY
+         DECLARE @Intitule NVARCHAR(255);
+        DECLARE @Numero_Ordre NVARCHAR(255);
+        DECLARE @Commentaire NVARCHAR(255);
+        DECLARE @AgentResposable UNIQUEIDENTIFIER;
 
-        UPDATE ClientTache
-        SET 
-            Intitule = @Intitule,
-            Numero_Ordre = @Numero_Ordre,
-            Status = @Status,
-            AgentResposable = @AgentResposable
-        WHERE ClientTacheId = @ClientTacheId;
+        SELECT 
+            @Intitule = t.Intitule,
+            @Numero_Ordre = t.Numero_Ordre,
+            @Commentaire = p.Designation,
+            @AgentResposable = t.AgentId
+        FROM 
+            Tache t
+        LEFT JOIN 
+            Prestation p ON t.PrestationId = p.PrestationId
+        WHERE 
+            t.TacheId = @TacheId;
+
+         INSERT INTO ClientTache(
+            ClientTacheId, 
+            ClientMissionPrestationId, 
+            ClientMissionId, 
+            TacheId, 
+            Intitule, 
+            Numero_Ordre, 
+            Commentaire,
+            Status,
+            AgentResposable)
+        VALUES(
+            @ClientTacheId, 
+            @ClientMissionPrestationId, 
+            @ClientMissionId, 
+            @TacheId, 
+            @Intitule, 
+            @Numero_Ordre, 
+            @Commentaire,
+            'En attente',
+            @AgentResposable);
 
         COMMIT TRANSACTION;
     END TRY
@@ -182,9 +165,7 @@ GO
 
 
 
-
-
-
+ 
 
 
 CREATE PROCEDURE ps_update_ClientTache
@@ -312,7 +293,7 @@ ADD AgentAnotifierId uniqueidentifier;
 
 
 UPDATE Tache
-SET AgentId = '3d9d1ac0-ac20-469e-be24-97cb3c8c5187' //Redouane
+SET AgentId = '3d9d1ac0-ac20-469e-be24-97cb3c8c5187' 
 
 
 
@@ -430,8 +411,14 @@ GO
 
 
 
+ 
 
-CREATE PROCEDURE ps_get_client_taches_simple  
+
+
+
+
+
+ALTER PROCEDURE PROCEDURE ps_get_client_taches_simple  
     @ClientId UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -476,11 +463,7 @@ GO
 
 
 
-
-
-
-
-CREATE PROCEDURE ps_create_client_tache
+ALTER PROCEDURE ps_create_client_tache
     @ClientId UNIQUEIDENTIFIER,
     @AgentResposable UNIQUEIDENTIFIER,
     @ClientMissionPrestationId UNIQUEIDENTIFIER,
