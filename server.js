@@ -411,38 +411,104 @@ app.get("/GetFacturation", async (request, response) => {
 
 
 
+
+
+
+  
+  const formatDateTo9AM = (dateString)=> {
+    const date = new Date(dateString);
+    
+    // Check if the date object is valid
+    if (isNaN(date.getTime())) {
+        console.error("Invalid date format");
+        return null;  // Or handle the error as needed
+    }
+
+    // Set the time to 9:00 AM (local time)
+    date.setHours(9, 0, 0, 0);
+
+    // Format the date as "YYYY-MM-DD 9:00:00.000"
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    // Return formatted date string
+    return `${year}-${month}-${day} 9:00:00.000`;
+  }
+
+
+
+
+
+  const formatDateTo3AM = (dateString)=> {
+    // First, create a new Date object from the provided string
+    const date = new Date(dateString);
+
+    // Check if the date object is valid
+    if (isNaN(date.getTime())) {
+        console.error("Invalid date format");
+        return null;  // Or handle the error as needed
+    }
+
+    // Set the time to 9:00 AM (local time)
+    date.setHours(9, 0, 0, 0);
+
+    // Format the date as "YYYY-MM-DD 9:00:00.000"
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Return formatted date string
+    return `${year}-${month}-${day} 18:00:00.000`;
+  }
+
+
+
+
+
+
 app.post("/CreateSingleEvent", async (request, response) => {
   try {
     const {
       ClientTacheId,
       ClientTacheIntitule,
-      EventTimeStart,
-      EventTimeEnd,
+      DateX,
+      TacheId,
       EventDescription,
       color,
-      NumberEvent
+      NumberEvent, 
     } = request.body;   
 
+    let StartTime = formatDateTo9AM(DateX);
+    let EndTime = formatDateTo3AM(DateX);
+
+    console.log("--------------");
+    console.log(DateX);
+    console.warn(StartTime);
+    console.warn(EndTime);
+    console.warn(TacheId);
+    console.log("--------------");
 
     const sqlRequest = new sql.Request();
 
-    // Bind the parameters with the correct data types
     sqlRequest.input("TacheId", sql.UniqueIdentifier, ClientTacheId);  
     sqlRequest.input("EventName", sql.NVarChar, ClientTacheIntitule);  
-    sqlRequest.input("EventTimeStart", sql.DateTime, EventTimeStart);  
-    sqlRequest.input("EventTimeEnd", sql.DateTime, EventTimeEnd);  
+    sqlRequest.input("EventTimeStart", sql.DateTime, StartTime);  
+    sqlRequest.input("EventTimeEnd", sql.DateTime, EndTime);  
     sqlRequest.input("EventDescription", sql.NVarChar, EventDescription);  
     sqlRequest.input("color", sql.NVarChar, color);  
-    sqlRequest.input("NumberEvent", sql.Int, NumberEvent);    
+    sqlRequest.input("NumberEvent", sql.Int, NumberEvent);  
 
-    // SQL query to insert event data
+    sqlRequest.output("InsertedEventId", sql.UniqueIdentifier);
+
     const query = `
       INSERT INTO Evenements (TacheId, EventName, EventTimeStart, EventTimeEnd, EventDescription, color, NumberEvent) 
+      OUTPUT INSERTED.EventId
       VALUES (@TacheId, @EventName, @EventTimeStart, @EventTimeEnd, @EventDescription, @color, @NumberEvent)
     `;
 
-    // Execute the query
-    await sqlRequest.query(query);
+    const result = await sqlRequest.query(query);
+    const insertedEventId = result.recordset?.[0]?.EventId || null; 
 
     const sqlRequest2 = new sql.Request();
     sqlRequest2.input("NombreRappel", sql.Int, 1);
@@ -453,14 +519,14 @@ app.post("/CreateSingleEvent", async (request, response) => {
       WHERE ClientTacheId = @ClientTacheId
     `;
     await sqlRequest2.query(query2);
-    
+
     response.status(201).json({ 
-      message: 'Event created successfully', 
+      message: "Event created successfully", 
+      eventId: insertedEventId, 
+      sqlResponse: result.recordset, 
       data: {
         ClientTacheId,
         ClientTacheIntitule,
-        EventTimeStart,
-        EventTimeEnd,
         EventDescription,
         color,
         NumberEvent
@@ -468,8 +534,7 @@ app.post("/CreateSingleEvent", async (request, response) => {
     });
 
   } catch (error) {
-    // Handle error if anything goes wrong
-    console.error(error); // Log the error for debugging
+    console.error(error);
     response.status(500).json({ error: error?.message || "Server error" });
   }
 });
