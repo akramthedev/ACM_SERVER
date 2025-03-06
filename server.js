@@ -527,6 +527,7 @@ app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
     let start_date;
     let end_date;
     let NombreRapelle;
+    let deadline;
 
     if (!TacheId || !ClientId || !Intitule) {
       return response.status(400).json({ error: "Missing required fields" });
@@ -550,23 +551,35 @@ app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
         throw new Error("🚨 Invalid start_date: DateArriveMaroc is not a valid date.");
       }
     
-      let deadline = parseInt(rXR0.recordset[0].Deadline);
+      deadline = parseInt(rXR0.recordset[0].Deadline);
       if (isNaN(deadline)) {
         deadline = 13;  
       }
       NombreRapelle = rXR0.recordset[0].NombreRapelle;
+      if(NombreRapelle === null){
+        NombreRapelle = 0;
+      }
+      else{
+        NombreRapelle = parseInt(rXR0.recordset[0].NombreRapelle);
+      }
       end_date = addDaysToDateStart(start_date, deadline);
     }
     
 
-    console.log("PrestationId : "+PrestationId);
+    console.log("PrestationId   : "+PrestationId);
     console.log("-------------------------------");
-    console.log("ClientId     : "+ClientId);
+    console.log("TacheId        : "+TacheId);
     console.log("-------------------------------");
-    console.log("Start_Date   : "+start_date)
+    console.log("ClientId       : "+ClientId);
     console.log("-------------------------------");
-    console.log("End_Date     : "+end_date);    
-    
+    console.log("Start_Date     : "+start_date)
+    console.log("-------------------------------");
+    console.log("End_Date       : "+end_date);  
+    console.log("-------------------------------");
+    console.log("Deadline       : "+deadline);    
+    console.log("-------------------------------");
+    console.log("NombreRapelle  : "+NombreRapelle);
+
 
     const sqlRequest = new sql.Request();
     sqlRequest.input("ClientId", sql.UniqueIdentifier, ClientId);
@@ -587,7 +600,7 @@ app.post("/CreateSingleTaskFromSingleClientPage", async (request, response) => {
       insertRequest.input("color", sql.VarChar(7), "#7366fe");
       insertRequest.input("Intitule", sql.NVarChar(250), Intitule);
       insertRequest.input("ClientMissionId", sql.UniqueIdentifier, ClientMissionIdX);
-      insertRequest.input("ClientMissionPrestationId", sql.UniqueIdentifier, ClientMissionPrestationIdX);
+      insertRequest.input("ClientMissionPrestationId", sql.UniqueIdentifier, PrestationId);
       insertRequest.input("start_date", sql.DateTime, start_date)  
       insertRequest.input("end_date", sql.DateTime, end_date)
       insertRequest.input("NombreRappel", sql.Int, NombreRapelle)
